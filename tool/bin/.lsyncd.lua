@@ -29,7 +29,7 @@ for k,v in pairs(hsts) do
 end
 
 tgts = {
- 	['ubuntu'] = {
+ 	['ws'] = {
 		'git'
 	},
 }

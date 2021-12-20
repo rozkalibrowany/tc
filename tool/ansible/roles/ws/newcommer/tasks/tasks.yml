@@ -1,0 +1,39 @@
+- name: inventory.yml
+  replace:
+    path: "{{inventory_file}}"
+    regexp: "nc: \\{.*\\}"
+    replace: |
+      nc: {}
+          {{svc.name}}r: {
+            node: {
+              name: {{svc.name}}, id: '255-1-55', ip: {{svc.ip | default(ansible_default_ipv4.address)}}, vhost: {{svc.name}}.redlabs.pl,
+              svc: {
+                usr: {users: [ws, {{svc.name}}]},
+              }
+            }
+          }
+
+- name: inventory.yml
+  replace:
+    path: "{{inventory_file}}"
+    regexp: "newcommer-user: \\{\\},\n*"
+    replace: |
+            {{svc.name}}: {usr: {{svc.name}}, name: {{svc.name}}, group: atds, fullname: {{svc.fullname}}},
+                        newcommer-user: {},
+
+- name: inventory.yml
+  replace:
+    path: "{{inventory_file}}"
+    regexp: "\\'newcommer-cdn-fuse-src\\' : \\{name: \\'newcommer-dummy-tag\\', enabled: false\\},\n*"
+    replace: |
+            '{{svc.name}}': {name: '{{svc.name}}', ip: '172.30.1.160', port: 6668, src: '/ATM-Lab/zos/usr/{{svc.name}}'},
+                        'newcommer-cdn-fuse-src' : {name: 'newcommer-dummy-tag', enabled: false},
+
+- name: nc.yml
+  template:
+    src: "{{role_path + '/tmpl/nc.yml'}}"
+    dest: "{{inventory_dir + '/' + svc.name + '.yml'}}"
+    force: yes
+    mode: u=rwx,g=rx,o=rx
+    owner: '{{svc.name}}'
+    group: '{{svc.name}}'

@@ -1,0 +1,214 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+  ],
+  "settings": {}
+}{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"functional": "cpp",
+			"istream": "cpp",
+			"vector": "cpp",
+			"*.ipp": "cpp",
+			"array": "cpp",
+			"bitset": "cpp",
+			"initializer_list": "cpp",
+			"utility": "cpp",
+			"string_view": "cpp",
+			"unordered_map": "cpp",
+			"unordered_set": "cpp",
+			"complex": "cpp",
+			"__bit_reference": "cpp",
+			"__config": "cpp",
+			"__debug": "cpp",
+			"__functional_base": "cpp",
+			"__hash_table": "cpp",
+			"__nullptr": "cpp",
+			"__split_buffer": "cpp",
+			"__tuple": "cpp",
+			"*.in": "cpp",
+			"cctype": "cpp",
+			"clocale": "cpp",
+			"cmath": "cpp",
+			"csignal": "cpp",
+			"cstdarg": "cpp",
+			"cstddef": "cpp",
+			"cstdio": "cpp",
+			"cstdlib": "cpp",
+			"cstring": "cpp",
+			"ctime": "cpp",
+			"cwchar": "cpp",
+			"cwctype": "cpp",
+			"atomic": "cpp",
+			"hash_map": "cpp",
+			"hash_set": "cpp",
+			"strstream": "cpp",
+			"*.tcc": "cpp",
+			"chrono": "cpp",
+			"cinttypes": "cpp",
+			"codecvt": "cpp",
+			"condition_variable": "cpp",
+			"cstdint": "cpp",
+			"deque": "cpp",
+			"forward_list": "cpp",
+			"list": "cpp",
+			"exception": "cpp",
+			"fstream": "cpp",
+			"future": "cpp",
+			"iomanip": "cpp",
+			"iosfwd": "cpp",
+			"iostream": "cpp",
+			"limits": "cpp",
+			"memory": "cpp",
+			"mutex": "cpp",
+			"new": "cpp",
+			"ostream": "cpp",
+			"numeric": "cpp",
+			"ratio": "cpp",
+			"shared_mutex": "cpp",
+			"sstream": "cpp",
+			"stdexcept": "cpp",
+			"streambuf": "cpp",
+			"system_error": "cpp",
+			"thread": "cpp",
+			"tuple": "cpp",
+			"type_traits": "cpp",
+			"typeindex": "cpp",
+			"typeinfo": "cpp",
+			"memory_resource": "cpp",
+			"locale": "cpp",
+			"string": "cpp",
+			"algorithm": "cpp",
+			"regex": "cpp",
+			"iterator": "cpp",
+			"map": "cpp",
+			"random": "cpp",
+			"set": "cpp",
+			"optional": "cpp",
+			"cfenv": "cpp",
+			"filesystem": "cpp",
+			"*.cuh": "cpp",
+			"ios": "cpp",
+			"__node_handle": "cpp",
+			"__functional_03": "cpp",
+			"__tree": "cpp",
+			"valarray": "cpp",
+			"queue": "cpp",
+			"stack": "cpp",
+			"variant": "cpp",
+			"__locale": "cpp",
+			"__threading_support": "cpp",
+			"__string": "cpp",
+			"ranges": "cpp",
+			"__atomic": "cpp",
+			"stop_token": "cpp",
+			"__mutex_base": "cpp",
+			"__functional_base_03": "cpp",
+			"coroutine": "cpp",
+			"__memory": "cpp",
+			"any": "cpp",
+			"*.def": "cpp",
+			"*.gen": "cpp",
+			"*.inc": "cpp",
+			"format": "cpp",
+			"bit": "cpp",
+			"compare": "cpp",
+			"concepts": "cpp",
+			"**/*.yml": "yaml",
+			"tables.h": "c",
+			"inttypes.h": "c"
+		},
+		"[cpp]": {
+			"editor.defaultFormatter": "xaver.clang-format",
+			"editor.formatOnSave": true,
+			"editor.formatOnType": true,
+		},
+		"[json]": {
+			"editor.formatOnSave": false,
+			"editor.tabSize": 2,
+			"editor.insertSpaces": true,
+		},
+		"[javascript]": {
+			"editor.formatOnSave": false,
+		},
+		"[python]": {
+			"editor.formatOnSave": true,
+			"editor.tabSize": 2,
+			"editor.insertSpaces": false
+		},
+		"[restructuredtext]": {
+			"editor.formatOnSave": false,
+			"editor.tabSize": 4,
+			"editor.insertSpaces": true
+		},
+		"[markdown]": {
+			"editor.formatOnSave": true,
+			"editor.tabSize": 2,
+			"editor.insertSpaces": true
+		},
+		"restructuredtext.confPath": "",
+		"trailing-spaces.trimOnSave": true,
+		"trailing-spaces.highlightCurrentLine": false,
+		"clang-format.fallbackStyle": "none",
+		"terminal.integrated.shellArgs.linux": [
+			"-l"
+		],
+
+		"editor.tabSize": 2,
+		"editor.insertSpaces": false,
+		"editor.detectIndentation": false,
+		"editor.renderWhitespace": "boundary",
+		"editor.renderControlCharacters": true,
+		"python.languageServer": "Pylance",
+		"python.linting.enabled": false,
+		"python.linting.lintOnSave": false,
+		"python.formatting.yapfArgs": ["--style", "{based_on_style: google, indent_width: 1, use_tabs: true, column_limit: 160}"],
+		"python.formatting.autopep8Args": [
+			"-ignore=W191,E101,E111"
+		],
+		"python.formatting.provider": "yapf",
+		"python.formatting.blackArgs": ["--line-length", "120"],
+		"cmake.configureOnOpen": false,
+		"C_Cpp.default.includePath": [
+			"/usr/include/".
+			"/usr/include/apr-1.0",
+			"/usr/include/apache2",
+			"${workspaceFolder}/src"
+		],
+		"C_Cpp.default.defines": [
+			"_LINUX",
+		],
+		"terminal.integrated.scrollback": 10000,
+		"workbench.colorCustomizations": {},
+		"beautify.language": {
+			"js": {
+				"type": [
+					"javascript",
+					"json"
+				],
+				"ext": [
+					"js",
+					"json"
+				],
+				"filename": [
+					".jshintrc",
+					".jsbeautifyrc"
+				]
+			},
+			"css": [
+				"css",
+				"scss"
+			],
+			"html": [
+				"htm",
+				"html"
+			]
+		},
+}

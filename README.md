@@ -1,2 +1,2 @@
-# telematics-connector
+# tc
 IoT Telematics Connector

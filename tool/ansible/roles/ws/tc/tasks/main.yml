@@ -1,0 +1,10 @@
+- name: srv
+  include_role:
+    name: '{{it.role}}'
+  when: it.enabled
+  vars:
+    svc: '{{it}}'
+    usvc: '{{it}}'
+  loop: "{{ node.svc | tc_extract_services(node.services | default(None)) }}"
+  loop_control:
+    loop_var: 'it'

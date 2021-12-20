@@ -1,0 +1,11 @@
+- name: nc
+  hosts: ncr
+  remote_user: root
+  roles:
+    - role: ws/tc
+  vars:
+    node: {
+      svc: {
+        newcommer: {enabled: true, name: '{{newcommer.name | default(newcommer.fullname | rg_nc_name)}}', mcast: '{{newcommer.mcast | default(218)}}', ip: '{{ansible_default_ipv4.address}}', fullname: '{{newcommer.fullname}}',}
+      }
+    }
