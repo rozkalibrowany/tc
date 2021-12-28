@@ -12,8 +12,6 @@ using RecordIoPropertySptr = std::shared_ptr< RecordIoProperty >;
 using RecordsIoPropertyList = std::vector< RecordIoPropertySptr >;
 using RecordsIoMap = std::map< int, RecordsIoPropertyList >;
 
-
-
 class IoRecord : public RecordI< IoRecord > {
 public:
 	enum ByteSize {
@@ -31,6 +29,7 @@ public:
 
 	virtual result_t parse(const reader::ReaderSPtr &reader, int codec);
 	virtual result_t parse(const reader::ReaderSPtr &reader) { return RES_OK; };
+	virtual std::string toString();
 
 private:
 	int iEventID;
@@ -41,14 +40,12 @@ private:
 
 class RecordIoProperty {
 public:
-
-
   RecordIoProperty(int id, int64_t val) : iID(id), iValue(val) {}
   RecordIoProperty() : RecordIoProperty(0, 0LL) {}
 
 	result_t parse(const reader::ReaderSPtr &reader, int id_size);
 	result_t parse(const reader::ReaderSPtr &reader, int id_size, int val_size);
-
+	
   int iID;
   int64_t iValue;
 };

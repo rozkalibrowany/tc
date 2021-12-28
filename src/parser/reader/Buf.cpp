@@ -56,7 +56,6 @@ const unsigned char &Buf::operator[](uint idx) const
 
 uint16_t Buf::toUInt16(int offset)
 {
-	std::cout << "readValueUnsigned 4" << std::endl;
 	return ((iBuf[offset] & 0xFF) | ((iBuf[offset + 1] & 0xFF) << 8));
 }
 

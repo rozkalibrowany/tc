@@ -22,10 +22,13 @@ result_t AVLRecord::read(const reader::ReaderSPtr &reader)
   result_t res = RES_OK;
   res |= iRecordHeader.parse(reader);
   std::cout << "iRecordHeader reader offset: " << reader->iOffset << std::endl;
+  std::cout << iRecordHeader.toString() << std::endl;
   res |= iGPSRecord.parse(reader);
   std::cout << "iGPSRecord reader offset: " << reader->iOffset << std::endl;
+  std::cout << iGPSRecord.toString() << std::endl;
   res |= iRecordIo.parse(reader, iCodec);
   std::cout << "iRecordIo reader offset: " << reader->iOffset << std::endl;
+  std::cout << iRecordIo.toString() << std::endl;
 
   return res;
 }

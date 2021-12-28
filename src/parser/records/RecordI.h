@@ -16,8 +16,8 @@ public:
   virtual result_t parse(const reader::ReaderSPtr &reader, int codec) = 0;
   virtual result_t parse(const reader::ReaderSPtr &reader) = 0;
 
-//protected:
-//  virtual std::string toString() = 0;
+protected:
+  virtual std::string toString() = 0;
 };
 
 } // namespace parser::records

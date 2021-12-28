@@ -1,4 +1,5 @@
 #include <records/avl/AVLRecordHeader.h>
+#include <fmt/format.h>
 
 namespace parser::records::avl {
 
@@ -32,6 +33,13 @@ result_t AVLRecordHeader::parse(const reader::ReaderSPtr &reader)
   iPriority = reader->read(1);
 
   return RES_OK;
+}
+
+std::string AVLRecordHeader::toString()
+{
+  return fmt::format("************ Header Record ************\
+  \n\tTimestamp: {}\n\tPriority: {}\n\t",
+  iTimestamp, iPriority);
 }
 
 } // namespace parser::records::avl

@@ -37,8 +37,12 @@ public:
 
 	GPSRecord &operator=(const GPSRecord &rhs);
 
-  virtual result_t parse(const reader::ReaderSPtr &reader);
-	virtual result_t parse(const reader::ReaderSPtr &reader, int codec) { return RES_OK; };
+  result_t parse(const reader::ReaderSPtr &reader) override;
+	result_t parse(const reader::ReaderSPtr &reader, int codec) override;
+
+	uint8_t *data();
+	const uint8_t *cdata() const;
+	std::string toString();
 
 private:
 	GPSData iData;

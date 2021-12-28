@@ -1,4 +1,5 @@
 #include <records/io/IoRecord.h>
+#include <fmt/format.h>
 
 namespace parser::records::io {
 
@@ -58,6 +59,7 @@ result_t IoRecord::parse(const reader::ReaderSPtr &reader, int codec)
     recordsMap.insert(std::make_pair(byteSize, propertyList));
   }
 
+  iRecordsMap = std::move(recordsMap);
   return RES_OK;
 }
 result_t RecordIoProperty::parse(const reader::ReaderSPtr &reader, int id_size)
@@ -80,9 +82,47 @@ result_t RecordIoProperty::parse(const reader::ReaderSPtr &reader, int id_size, 
 
   iID = reader->readU(id_size);
   iValue = reader->read(val_size);
-  std::cout << "RecordIoProperty iID " << iID <<  " iValue " << iValue << std::endl;
 
   return RES_OK;
+}
+
+std::string IoRecord::toString()
+{
+  auto s = fmt::format("************ Io Record ************\
+  \n\tEvent ID: {}\n", iEventID);
+
+  if (iRecordsMap[ByteSize::BYTE_1].size() > 0) {
+    s += std::string("\tByte 1\n");
+    for (auto r : iRecordsMap[ByteSize::BYTE_1]) {
+      s += fmt::format("\n\t\tID: {}, val: {}\n", r->iID, r->iValue);
+    }
+  }
+  if (iRecordsMap[ByteSize::BYTE_2].size() > 0) {
+    s += std::string("\tByte 2\n");
+    for (auto r : iRecordsMap[ByteSize::BYTE_2]) {
+      s += fmt::format("\n\t\tID: {}, val: {}\n", r->iID, r->iValue);
+    }
+  }
+  if (iRecordsMap[ByteSize::BYTE_4].size() > 0) {
+    s += std::string("\tByte 4\n");
+    for (auto r : iRecordsMap[ByteSize::BYTE_4]) {
+      s += fmt::format("\n\t\tID: {}, val: {}\n", r->iID, r->iValue);
+    }
+  }
+  if (iRecordsMap[ByteSize::BYTE_8].size() > 0) {
+    s += std::string("\tByte 8\n");
+    for (auto r : iRecordsMap[ByteSize::BYTE_8]) {
+      s += fmt::format("\n\t\tID: {}, val: {}\n", r->iID, r->iValue);
+    }
+  }
+  if (iRecordsMap[ByteSize::BYTE_X].size() > 0) {
+    s += std::string("\tByte X\n");
+    for (auto r : iRecordsMap[ByteSize::BYTE_X]) {
+      s += fmt::format("\n\t\tID: {}, val: {}\n", r->iID, r->iValue);
+    }
+  }
+
+  return s;
 }
 
 } // namespace parser::records::avl

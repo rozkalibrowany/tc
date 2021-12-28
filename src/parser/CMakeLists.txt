@@ -11,6 +11,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 include_directories(.)
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++20")
 
+add_subdirectory(fmt)
+
+
 set(HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/Packet.h
     ${CMAKE_CURRENT_SOURCE_DIR}/common/Result.h
@@ -38,3 +41,6 @@ set(SRC
 
 
 add_executable(${PROJECT} ${SRC})
+
+find_package(fmt)
+target_link_libraries(${PROJECT}  fmt::fmt)

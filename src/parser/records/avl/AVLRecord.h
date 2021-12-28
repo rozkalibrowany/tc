@@ -22,26 +22,11 @@ public:
 	result_t set(const int codec);
 
 private:
-	//template <typename P, typename R>
-	//result_t get(R &record);
-
 	int iCodec;
 	AVLRecordHeader iRecordHeader;
 	gps::GPSRecord iGPSRecord;
 	io::IoRecord iRecordIo;
 };
-
-/*template <typename P, typename R>
-result_t AVLRecord::get(R &rec)
-{
-	if (iReader == nullptr) {
-		return RES_NOENT;
-	}
-
-	ParserI<P> *basePtr = new ParserI<P>(iReader);
-  auto sptr = std::make_shared< R >(rec);
-  return basePtr->parse(sptr);
-}*/
 
 class AVLRecords {
 public:

@@ -18,12 +18,9 @@ public:
 
 	virtual result_t parse(const reader::ReaderSPtr &reader);
 	virtual result_t parse(const reader::ReaderSPtr &reader, int codec) { return RES_OK; };
+	std::string toString();
 
 protected:
-	virtual std::string toString() {
-		return std::string();
-	}
-
 	int64_t iTimestamp;
 	int iPriority;
 };
