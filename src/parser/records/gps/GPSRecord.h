@@ -27,37 +27,22 @@ struct GPSData {
 };
 
 
-class GPSRecord : public RecordI {
+class GPSRecord : public RecordI< GPSRecord > {
 public:
 
-	GPSRecord(const GPSData &data) : iData(data) {}
-	GPSRecord() : GPSRecord(GPSData{}) {}
-
-	GPSRecord &operator=(const GPSRecord &rhs) {
-		iData = rhs.iData;
-		return *this;
-	}
+	GPSRecord(const GPSData &data);
+	GPSRecord();
 
 	virtual ~GPSRecord() = default;
 
-	//virtual result_t getParser(std::shared_ptr<GPSRecord> &parser);
+	GPSRecord &operator=(const GPSRecord &rhs);
 
-	std::string toString() override {
-	/*	return std::format(R"(
-			********** Record GPS **********
-			longitude: {}
-			latitude: {}
-			altitude: {}
-			angle: {}
-			satelites: {}
-			km/h: {}
-		)", std::to_string(iData.iLongitude), std::to_string(iData.iLatitude), std::to_string(iData.iAltitude),
-				std::to_string(iData.iAngle), std::to_string(iData.iSatellites), std::to_string(iData.iSpeed)); */
-		return std::string();
-	}
+  virtual result_t parse(const reader::ReaderSPtr &reader);
+	virtual result_t parse(const reader::ReaderSPtr &reader, int codec) { return RES_OK; };
+
+private:
 	GPSData iData;
 };
-
 
 } // namespace parser::records::avl
 

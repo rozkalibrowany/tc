@@ -1,4 +1,5 @@
 #include <reader/Reader.h>
+#include <common/Result.h>
 #include <array>
 #include <algorithm>
 
@@ -31,10 +32,10 @@ uint Reader::readU(int bytes)
   std::reverse(subBuf.begin(), subBuf.end());
 
   if (bytes == 1)
-      return subBuf[0] & 0xFF;
+    return subBuf[0] & 0xFF;
 
   if (bytes == 2)
-      return subBuf.toUInt16(0);
+    return subBuf.toUInt16(0);
 
   return 0;
 }
@@ -49,7 +50,7 @@ int64_t Reader::readL(int bytes)
       return subBuf[0] & 0xFF;
 
   if (bytes == 2)
-      return subBuf.toUInt16(0);
+    return subBuf.toUInt16(0);
 
   return 0;
 }
@@ -57,7 +58,6 @@ int64_t Reader::readL(int bytes)
 int Reader::read(int bytes)
 {
   Buf subBuf(Buf::ByteArray{iBuf.begin() + iOffset, iBuf.begin() + bytes + iOffset});
-  std::cout << "subBuf size " << subBuf.size() << std::endl;
   iOffset += bytes;
   std::reverse(subBuf.begin(), subBuf.end());
 
@@ -65,7 +65,7 @@ int Reader::read(int bytes)
       return (int) subBuf[0];
 
   if (bytes == 2)
-      return (int) subBuf.toInt16(0);
+    return (int) subBuf.toInt16(0);
 
   if (bytes == 4)
     return (int) subBuf.toInt32(0);
@@ -74,6 +74,17 @@ int Reader::read(int bytes)
     return static_cast<int>(subBuf.toInt64(0));
 
   return 0;
+}
+
+Buf Reader::copy(int bytes)
+{
+  Buf subBuf(Buf::ByteArray{iBuf.begin() + iOffset, iBuf.begin() + bytes + iOffset});
+  return subBuf;
+}
+
+void Reader::skip(int bytes)
+{
+  iOffset += bytes;
 }
 
 

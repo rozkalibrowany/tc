@@ -31,7 +31,11 @@ public:
   uint readU(int bytes);
   int read(int bytes);
 
-protected:
+  Buf copy(int bytes);
+  void skip(int bytes);
+
+
+//protected:
   Buf &iBuf;
   int iOffset;
 };

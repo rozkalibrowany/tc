@@ -11,7 +11,7 @@ using PacketUPtr = std::unique_ptr< AVLPacket >;
 class AVLPacket {
 public:
 
-	AVLPacket(int codec, int recordC, Records &records)
+	AVLPacket(int codec, int recordC, AVLRecords &records)
 	 : iCodec(codec)
 	 , iRecordC(recordC)
 	 , iRecords(records)
@@ -19,7 +19,7 @@ public:
 
 	int iCodec;
 	int iRecordC;
-	Records iRecords;
+	AVLRecords iRecords;
 };
 
 

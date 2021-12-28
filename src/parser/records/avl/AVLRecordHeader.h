@@ -6,20 +6,18 @@
 
 namespace parser::records::avl {
 
-class RecordHeader : public RecordI {
+class AVLRecordHeader : public RecordI< AVLRecordHeader > {
 public:
 
-	RecordHeader(int64_t timestamp, int priority)
-	 : iTimestamp(timestamp)
-	 , iPriority(priority) {}
+	AVLRecordHeader(int64_t timestamp, int priority);
+	AVLRecordHeader();
 
-	RecordHeader &operator=(const RecordHeader &rhs) {
-		iTimestamp = rhs.iTimestamp;
-		iPriority = rhs.iPriority;
-		return *this;
-	}
+	virtual ~AVLRecordHeader() = default;
 
-	virtual ~RecordHeader() {}
+	AVLRecordHeader &operator=(const AVLRecordHeader &rhs);
+
+	virtual result_t parse(const reader::ReaderSPtr &reader);
+	virtual result_t parse(const reader::ReaderSPtr &reader, int codec) { return RES_OK; };
 
 protected:
 	virtual std::string toString() {

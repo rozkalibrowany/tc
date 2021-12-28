@@ -11,23 +11,12 @@ template <typename T>
 class ParserI {
 public:
 
-  ParserI(reader::ReaderSPtr &reader) : iReader(reader) {}
+  ParserI() = default;
+  virtual ~ParserI() = default;
 
-  virtual ~ParserI() {};
-
-  template <typename R>
-  result_t parse(std::shared_ptr<R> &record) {
-    return static_cast<T*>(this)->parse(record);
+  result_t parse(const reader::ReaderSPtr &reader) {
+    return static_cast<T*>(this)->parse(reader);
   }
-
-  reader::ReaderSPtr iReader;
-
-
-protected:
-  virtual result_t set(const reader::ReaderSPtr &reader) {
-    return RES_OK;
-  }
-
 };
 
 } // namespace parser::records
