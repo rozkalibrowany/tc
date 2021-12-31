@@ -6,7 +6,7 @@
 
 namespace parser::records::avl {
 
-class AVLRecordHeader : public RecordI< AVLRecordHeader > {
+class AVLRecordHeader : public RecordI {
 public:
 
 	AVLRecordHeader(int64_t timestamp, int priority);
@@ -16,9 +16,9 @@ public:
 
 	AVLRecordHeader &operator=(const AVLRecordHeader &rhs);
 
-	virtual result_t parse(const reader::ReaderSPtr &reader);
-	virtual result_t parse(const reader::ReaderSPtr &reader, int codec) { return RES_OK; };
-	std::string toString();
+	result_t parse(const reader::ReaderSPtr &reader) override;
+	result_t parse(const reader::ReaderSPtr &reader, int codec) override;
+	std::string toString() override;
 
 protected:
 	int64_t iTimestamp;

@@ -12,9 +12,24 @@ IoRecord::IoRecord(int eventID, int elements)
 }
 
 IoRecord::IoRecord()
- : IoRecord(0, 0)// RecordsIoMap{})
+ : IoRecord(0, 0)
 {
   // nothing to do
+}
+
+int IoRecord::getIdSize(int codec)
+{
+  switch (codec) {
+    case 142:
+      return 2;
+    default:
+      return 1;
+  }
+}
+
+result_t IoRecord::parse(const reader::ReaderSPtr &reader)
+{
+  return RES_NOIMPL;
 }
 
 result_t IoRecord::parse(const reader::ReaderSPtr &reader, int codec)
@@ -22,21 +37,21 @@ result_t IoRecord::parse(const reader::ReaderSPtr &reader, int codec)
   if (reader == nullptr) {
     return RES_INVARG;
   }
-  int ioIdSize = codec == 142 ? 2 : 1;
+  int idSize = getIdSize(codec);
 
-  iEventID = static_cast<int>(reader->readU(ioIdSize));
-  iElements = static_cast<int>(reader->readU(ioIdSize));
+  iEventID = static_cast<int>(reader->readU(idSize));
+  iElements = static_cast<int>(reader->readU(idSize));
 
   result_t res;
-  RecordsIoMap recordsMap;
+  IoRecordsMap recordsMap;
 
   for (auto byteSize : iByteSizes) {
-    RecordsIoPropertyList propertyList;
-    if (byteSize == ByteSize::BYTE_X && (int) ioIdSize == 2) {
-      auto recordsCount = reader->readU(ioIdSize);
+    IoRecordsPropertyList propertyList;
+    if (byteSize == ByteSize::BYTE_X && (int) idSize == 2) {
+      auto recordsCount = reader->readU(idSize);
       for (int i = 0; i < recordsCount; i++) {
-        auto io_property = std::make_shared< RecordIoProperty >();
-        io_property->parse(reader, ioIdSize);
+        auto io_property = std::make_shared< IoRecordProperty >();
+        io_property->parse(reader, idSize);
         auto buf = reader->copy(io_property->iValue);
         switch(io_property->iID) {
           case 10358:
@@ -50,10 +65,10 @@ result_t IoRecord::parse(const reader::ReaderSPtr &reader, int codec)
       }
       continue;
     }
-    int recordsCount = reader->readU(ioIdSize);
+    int recordsCount = reader->readU(idSize);
     for (int i = 0; i < recordsCount; i++) {
-      auto io_property = std::make_shared< RecordIoProperty >();
-      io_property->parse(reader, ioIdSize, (int) byteSize);
+      auto io_property = std::make_shared< IoRecordProperty >();
+      io_property->parse(reader, idSize, (int) byteSize);
       propertyList.push_back(io_property);
     }
     recordsMap.insert(std::make_pair(byteSize, propertyList));
@@ -62,7 +77,7 @@ result_t IoRecord::parse(const reader::ReaderSPtr &reader, int codec)
   iRecordsMap = std::move(recordsMap);
   return RES_OK;
 }
-result_t RecordIoProperty::parse(const reader::ReaderSPtr &reader, int id_size)
+result_t IoRecordProperty::parse(const reader::ReaderSPtr &reader, int id_size)
 {
   if (reader == nullptr) {
     return RES_INVARG;
@@ -74,7 +89,7 @@ result_t RecordIoProperty::parse(const reader::ReaderSPtr &reader, int id_size)
   return RES_OK;
 }
 
-result_t RecordIoProperty::parse(const reader::ReaderSPtr &reader, int id_size, int val_size)
+result_t IoRecordProperty::parse(const reader::ReaderSPtr &reader, int id_size, int val_size)
 {
   if (reader == nullptr) {
     return RES_INVARG;

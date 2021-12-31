@@ -35,6 +35,11 @@ result_t AVLRecordHeader::parse(const reader::ReaderSPtr &reader)
   return RES_OK;
 }
 
+result_t AVLRecordHeader::parse(const reader::ReaderSPtr &reader, int codec)
+{
+  return parse(reader);
+}
+
 std::string AVLRecordHeader::toString()
 {
   return fmt::format("************ Header Record ************\

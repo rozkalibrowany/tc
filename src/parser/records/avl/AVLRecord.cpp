@@ -54,23 +54,23 @@ void AVLRecords::clear()
   iData.clear();
 }
 
-AVLRecordSptr &AVLRecords::first()
+AVLRecordSPtr &AVLRecords::first()
 {
   return size() > 0 ? iData.front() : cInvalidEl;
 }
 
-AVLRecordSptr &AVLRecords::last()
+AVLRecordSPtr &AVLRecords::last()
 {
   return size() > 0 ? iData.back() : cInvalidEl;
 }
 
 
-const AVLRecordSptr &AVLRecords::first() const
+const AVLRecordSPtr &AVLRecords::first() const
 {
   return size() > 0 ? iData.front() : cInvalidEl;
 }
 
-const AVLRecordSptr &AVLRecords::last() const
+const AVLRecordSPtr &AVLRecords::last() const
 {
   return size() > 0 ? iData.back() : cInvalidEl;
 }
@@ -95,7 +95,7 @@ AVLRecordList::iterator AVLRecords::end()
   return iData.end();
 }
 
-void AVLRecords::add(const AVLRecordSptr &rhs)
+void AVLRecords::add(const AVLRecordSPtr &rhs)
 {
   iData.push_back(rhs);
 }

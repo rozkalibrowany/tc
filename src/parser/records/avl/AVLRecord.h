@@ -10,8 +10,8 @@
 namespace parser::records::avl {
 
 class AVLRecord;
-using AVLRecordSptr = std::shared_ptr< AVLRecord >;
-using AVLRecordList = std::vector< AVLRecordSptr >;
+using AVLRecordSPtr = std::shared_ptr< AVLRecord >;
+using AVLRecordList = std::vector< AVLRecordSPtr >;
 
 class AVLRecord {
 public:
@@ -34,11 +34,11 @@ public:
 	bool empty() const;
 	void clear();
 
-	AVLRecordSptr &first();
-	AVLRecordSptr &last();
+	AVLRecordSPtr &first();
+	AVLRecordSPtr &last();
 
-	const AVLRecordSptr &first() const;
-	const AVLRecordSptr &last() const;
+	const AVLRecordSPtr &first() const;
+	const AVLRecordSPtr &last() const;
 
 	AVLRecordList::const_iterator begin() const;
 	AVLRecordList::const_iterator end() const;
@@ -46,7 +46,7 @@ public:
 	AVLRecordList::iterator begin();
 	AVLRecordList::iterator end();
 
-	virtual void add(const AVLRecordSptr &rhs);
+	virtual void add(const AVLRecordSPtr &rhs);
 	virtual void add(const AVLRecord &rhs);
 
 	AVLRecordList &data();
@@ -54,7 +54,7 @@ public:
 
 protected:
 	AVLRecordList iData;
-	AVLRecordSptr cInvalidEl {std::make_shared< AVLRecord >()};
+	AVLRecordSPtr cInvalidEl {std::make_shared< AVLRecord >()};
 };
 
 

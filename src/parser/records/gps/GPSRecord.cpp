@@ -15,10 +15,14 @@ GPSRecord::GPSRecord()
   // nothing to do
 }
 
-GPSRecord& GPSRecord::operator=(const GPSRecord &rhs)
+GPSData &GPSRecord::data()
 {
-	iData = rhs.iData;
-	return *this;
+  return iData;
+}
+
+const GPSData &GPSRecord::cdata() const
+{
+  return iData;
 }
 
 result_t GPSRecord::parse(const reader::ReaderSPtr &reader, int codec)

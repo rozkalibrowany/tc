@@ -8,15 +8,7 @@ namespace parser::records::gps {
 
 
 struct GPSData {
-	GPSData &operator=(const GPSData &rhs) {
-		iLongitude = rhs.iLongitude;
-		iLatitude = rhs.iLatitude;
-		iAltitude = rhs.iAltitude;
-		iAngle = rhs.iAngle;
-		iSatellites = rhs.iSatellites;
-		iSpeed = rhs.iSpeed;
-		return *this;
-	}
+	GPSData &operator=(const GPSData &rhs) = default;
 
 	uint32_t iLongitude {0U};
 	uint32_t iLatitude {0U};
@@ -27,7 +19,7 @@ struct GPSData {
 };
 
 
-class GPSRecord : public RecordI< GPSRecord > {
+class GPSRecord : public RecordI {
 public:
 
 	GPSRecord(const GPSData &data);
@@ -35,14 +27,15 @@ public:
 
 	virtual ~GPSRecord() = default;
 
-	GPSRecord &operator=(const GPSRecord &rhs);
+	GPSRecord &operator=(const GPSRecord &rhs) = default;
+
+	GPSData &data();
+	const GPSData &cdata() const;
 
   result_t parse(const reader::ReaderSPtr &reader) override;
 	result_t parse(const reader::ReaderSPtr &reader, int codec) override;
 
-	uint8_t *data();
-	const uint8_t *cdata() const;
-	std::string toString();
+	std::string toString() override;
 
 private:
 	GPSData iData;
