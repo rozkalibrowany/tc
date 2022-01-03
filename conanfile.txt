@@ -1,0 +1,9 @@
+[requires]
+cppserver/1.0.1.0
+
+[generators]
+cmake
+
+[options]
+cppserver:shared=True
+openssl:shared=True
