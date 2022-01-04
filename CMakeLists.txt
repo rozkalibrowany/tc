@@ -112,6 +112,8 @@ TcOptMsg("TC_SYSTEM_NAME"             TC_SYSTEM_NAME)
 TcOptMsg("TC_SYSTEM_VERSION"          RG_SYSTEM_VERSION)
 message(STATUS "")
 
+add_subdirectory("src/rg/parser")
+
 add_custom_target(
 	conan-install
 	COMMAND conan imports ${CMAKE_SOURCE_DIR}/conanfile.py -imf ${CMAKE_INSTALL_PREFIX}
