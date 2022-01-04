@@ -6,7 +6,11 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD 11)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../tool/cmake")
+<<<<<<< HEAD
 include(tc)
+=======
+include_directories(tc)
+>>>>>>> 35747a9a6e7801b0bd85c0e7fd028e860f0a213a
 include("${CMAKE_CURRENT_SOURCE_DIR}/../tool/cmake/rg.cmake")
 
 tc_detect_system()
@@ -70,8 +74,13 @@ tc_conan_build_package(NAME tc
 	UBUNTU
 )
 
+<<<<<<< HEAD
 tc_conan_build_package(NAME cppserver
 	VERSION 1.0.1.0
+=======
+tc_conan_build_package(NAME CppServer
+	VERSION master
+>>>>>>> 35747a9a6e7801b0bd85c0e7fd028e860f0a213a
 	DEPENDS conan-profiles conan-tc-build
 	UBUNTU
 )
