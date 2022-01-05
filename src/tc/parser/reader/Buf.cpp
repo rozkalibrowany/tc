@@ -1,4 +1,4 @@
-#include <reader/Buf.h>
+#include <tc/parser/reader/Buf.h>
 #include <array>
 
 namespace parser::reader {
@@ -61,15 +61,15 @@ uint16_t Buf::toUInt16(int offset)
 
 int16_t Buf::toInt16(int offset)
 {
-	 return (int16_t) (iBuf[offset] & 0xFF | (iBuf[offset + 1] & 0xFF) << 8);
+	 return (int16_t) ((iBuf[offset] & 0xFF) | ((iBuf[offset + 1] & 0xFF) << 8));
 }
 
 int32_t Buf::toInt32(int offset)
 {
-	return (iBuf[offset] & 0xFF) |
+	return ((iBuf[offset] & 0xFF) |
                 ((iBuf[offset + 1] & 0xFF) << 8)
                 | ((iBuf[offset + 2] & 0xFF) << 16)
-                | ((iBuf[offset + 3] & 0xFF) << 24);
+                | ((iBuf[offset + 3] & 0xFF) << 24));
 }
 
 int64_t Buf::toInt64(int offset)

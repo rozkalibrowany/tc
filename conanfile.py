@@ -43,6 +43,7 @@ class TcConan(ConanFile, Os):
 	def requirements(s):
 		print(s.os_variant, s.os_version)
 		s.requires("tc/0.1.0@tc/stable")
+		s.requires("fmt/8.0.0@tc/stable")
 		s.requires("cppserver/1.0.1.0@tc/stable")
 
 	def imports(self):

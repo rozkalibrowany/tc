@@ -1,4 +1,4 @@
-#include <records/io/IoRecord.h>
+#include <tc/parser/records/io/IoRecord.h>
 #include <fmt/format.h>
 
 namespace parser::records::io {
@@ -41,8 +41,6 @@ result_t IoRecord::parse(const reader::ReaderSPtr &reader, int codec)
 
   iEventID = static_cast<int>(reader->readU(idSize));
   iElements = static_cast<int>(reader->readU(idSize));
-
-  result_t res;
   IoRecordsMap recordsMap;
 
   for (auto byteSize : iByteSizes) {

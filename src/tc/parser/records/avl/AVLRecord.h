@@ -1,11 +1,11 @@
 #ifndef E4EF0871_8722_4CC4_8A6F_AD01CD2675AF
 #define E4EF0871_8722_4CC4_8A6F_AD01CD2675AF
 
-#include <records/avl/AVLRecordHeader.h>
-#include <records/io/IoRecord.h>
-#include <records/gps/GPSRecord.h>
-#include <reader/Reader.h>
-#include <common/Result.h>
+#include <tc/parser/records/avl/AVLRecordHeader.h>
+#include <tc/parser/records/io/IoRecord.h>
+#include <tc/parser/records/gps/GPSRecord.h>
+#include <tc/parser/reader/Reader.h>
+#include <tc/parser/common/Result.h>
 
 namespace parser::records::avl {
 

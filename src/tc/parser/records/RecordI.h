@@ -1,8 +1,8 @@
 #ifndef CDB95BC9_0A6E_4C4B_A858_F0CAB1CFC34C
 #define CDB95BC9_0A6E_4C4B_A858_F0CAB1CFC34C
 
-#include <reader/Reader.h>
-#include <common/Result.h>
+#include <tc/parser/reader/Reader.h>
+#include <tc/parser/common/Result.h>
 
 namespace parser::records {
 

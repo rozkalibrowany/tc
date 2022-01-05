@@ -1,7 +1,7 @@
 #ifndef B6ED04E5_AB7F_4453_BE91_514FC5836D3B
 #define B6ED04E5_AB7F_4453_BE91_514FC5836D3B
 
-#include <records/avl/AVLRecord.h>
+#include <tc/parser/records/avl/AVLRecord.h>
 
 namespace parser::records::avl {
 

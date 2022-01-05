@@ -1,34 +1,39 @@
-from conans import ConanFile, CMake
-import os
+from conans import ConanFile, python_requires
 
-class Fmt(ConanFile):
-    settings = 'os', 'compiler', 'build_type', 'arch'
-    name = 'fmt'
-    url = 'https://github.com/fmtlib/fmt.git'
-    license = 'MIT'
-    version = '8.0.1'
-    no_copy_source = True
-    exports_sources = "src/*"
-    scm = {
-        "type": "git",
-        "url": "https://extgit.iaik.tugraz.at/conan/fmt.git",
-        "revision": "auto"
-    }
-    options = {
-        "header_only": [True, False],
-        "shared": [True, False],
-        "fPIC": [True, False]
-    }
-    default_options = {
-        "header_only": False,
-        "shared": True,
-        "fPIC": True
-    }
-    def build(self):
-        cmake = CMake(self)
-        cmake.configure(source_folder="src")
-        cmake.build()
-        cmake.install()
+tc = python_requires('tc/0.1.0@tc/stable')
+opts = tc.OptCreator() \
+ .add_bool('shared', True)
 
-    def package_id(self):
-        self.info.header_only()
+class FmtConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelper):
+	name = 'fmt'
+	license = 'MIT'
+	exports_sources = ['CMakeLists.txt']
+	generators = tc.CmakeHelper.generators
+	settings = tc.CmakeHelper.settings
+
+	options, default_options = opts.options, opts.default
+
+	def configure(s):
+		del s.settings.compiler.cppstd
+
+	def source(s):
+		return s.do_source()
+
+	def build(s):
+		definitions = {
+		    'FMT_DOC': False,
+		    'FMT_TEST': False,
+		    'FMT_INSTALL': True,
+		}
+		s.do_build(definitions=definitions)
+
+	def package(s):
+		s.do_package()
+
+	def package_info(s):
+		s.add_components([
+		    {
+		        'target': 'lib',
+		        'libs': ['fmt'],
+		    },
+		])

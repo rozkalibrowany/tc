@@ -1,5 +1,5 @@
-#include <reader/Reader.h>
-#include <common/Result.h>
+#include <tc/parser/reader/Reader.h>
+#include <tc/parser/common/Result.h>
 #include <array>
 #include <algorithm>
 

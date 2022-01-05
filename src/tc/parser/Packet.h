@@ -3,10 +3,10 @@
 
 #include <iostream>
 #include <vector>
-#include <reader/Buf.h>
-#include <common/Result.h>
-#include <records/avl/AVLPacket.h>
-#include <reader/Reader.h>
+#include <tc/parser/reader/Buf.h>
+#include <tc/parser/common/Result.h>
+#include <tc/parser/records/avl/AVLPacket.h>
+#include <tc/parser/reader/Reader.h>
 
 namespace parser {
 

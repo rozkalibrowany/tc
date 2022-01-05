@@ -1,0 +1,4 @@
+sources:
+  "8.0.0":
+    url: https://github.com/fmtlib/fmt/archive/refs/tags/8.0.0.tar.gz
+    sha256: 7bce0e9e022e586b178b150002e7c2339994e3c2bbe44027e9abb0d60f9cce83

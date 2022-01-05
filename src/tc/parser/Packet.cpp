@@ -1,6 +1,6 @@
-#include <Packet.h>
+#include <tc/parser/Packet.h>
+#include <tc/parser/records/avl/AVLRecord.h>
 #include <algorithm>
-#include <records/avl/AVLRecord.h>
 
 namespace parser {
 
@@ -25,7 +25,7 @@ result_t Packet::parse(Buf &buf)
 
 		for (int i = 0; i < recordC; i++) {
 			auto record = std::make_shared< avl::AVLRecord >(codec);
-			auto res = record->read(reader);
+			record->read(reader);
 			records.add(record);
 		}
 

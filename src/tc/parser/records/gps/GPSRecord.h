@@ -1,7 +1,7 @@
 #ifndef D426066F_F3EE_412F_864E_4D6726173ECE
 #define D426066F_F3EE_412F_864E_4D6726173ECE
 
-#include <records/RecordI.h>
+#include <tc/parser/records/RecordI.h>
 #include <chrono>
 
 namespace parser::records::gps {

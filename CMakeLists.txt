@@ -76,7 +76,7 @@ SET(TcCompileFlags  "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}}" 
 string (REPLACE " " ";" TcCompileFlagsList "${TcCompileFlags}")
 SET(TcSourceDir     "${CMAKE_CURRENT_SOURCE_DIR}" CACHE STRING "TcSourceDir"     FORCE)
 SET(TcCmakeDir      "${TcSourceDir}/tool/cmake"   CACHE STRING "TcCmakeDir"      FORCE)
-SET(TcIncludeDir    "${TcSourceDir}/src"          CACHE STRING "TcIncludeDir"    FORCE)
+SET(TcIncludeDir    "${TcSourceDir}/src"       CACHE STRING "TcIncludeDir"    FORCE)
 SET(TcInstallPrefix "/usr/local/ifm"              CACHE STRING "TcInstallPrefix" FORCE)
 
 set(CMAKE_INSTALL_PREFIX "${TcInstallPrefix}" CACHE PATH "Prefix prepended to install directories" FORCE)
@@ -112,7 +112,8 @@ TcOptMsg("TC_SYSTEM_NAME"             TC_SYSTEM_NAME)
 TcOptMsg("TC_SYSTEM_VERSION"          RG_SYSTEM_VERSION)
 message(STATUS "")
 
-add_subdirectory("src/rg/parser")
+tc_find_package_status(NAME fmt REQUIRED)
+add_subdirectory("src/tc/parser")
 
 add_custom_target(
 	conan-install

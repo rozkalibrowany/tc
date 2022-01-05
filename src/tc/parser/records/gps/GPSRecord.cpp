@@ -1,4 +1,4 @@
-#include <records/gps/GPSRecord.h>
+#include <tc/parser/records/gps/GPSRecord.h>
 #include <fmt/format.h>
 namespace parser::records::gps {
 
