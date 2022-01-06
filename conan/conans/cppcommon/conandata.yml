@@ -1,0 +1,4 @@
+sources:
+  "1.0.3.0":
+    url: https://github.com/chronoxor/CppCommon/archive/refs/tags/1.0.3.0.tar.gz
+    sha256: af530d3550a050d4ed73a680b016e043ea6f4f56e11163226f2a6e24d9eae4ca

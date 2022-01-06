@@ -1,7 +1,7 @@
 #include <tc/parser/records/io/IoRecord.h>
 #include <fmt/format.h>
 
-namespace parser::records::io {
+namespace tc::parser::records::io {
 
 IoRecord::IoRecord(int eventID, int elements)
  : iEventID(eventID)
@@ -138,4 +138,4 @@ std::string IoRecord::toString()
   return s;
 }
 
-} // namespace parser::records::avl
+} // namespace tc::parser::records::avl

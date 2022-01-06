@@ -1,9 +1,9 @@
 #include <tc/parser/reader/Reader.h>
-#include <tc/parser/common/Result.h>
+#include <tc/common/Result.h>
 #include <array>
 #include <algorithm>
 
-namespace parser::reader {
+namespace tc::parser::reader {
 
 Reader::Reader(Buf &buf, int offset)
  : iBuf(buf)
@@ -88,4 +88,4 @@ void Reader::skip(int bytes)
 }
 
 
-} // namespace parser::reader
+} // namespace tc::parser::reader

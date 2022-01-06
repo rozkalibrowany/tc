@@ -1,6 +1,6 @@
 #include <tc/parser/records/gps/GPSRecord.h>
 #include <fmt/format.h>
-namespace parser::records::gps {
+namespace tc::parser::records::gps {
 
 GPSRecord::GPSRecord(const GPSData &data)
  : iData(data)
@@ -53,4 +53,4 @@ std::string GPSRecord::toString()
   iData.iLongitude, iData.iLatitude, iData.iAltitude, iData.iAngle, iData.iSatellites);
 }
 
-} // namespace parser::records::gps
+} // namespace tc::parser::records::gps

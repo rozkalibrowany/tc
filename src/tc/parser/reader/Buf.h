@@ -5,7 +5,7 @@
 #include <iostream>
 #include <iterator>
 
-namespace parser::reader {
+namespace tc::parser::reader {
 
 class Buf {
 public:
@@ -28,8 +28,8 @@ public:
   int16_t toInt16(int offset);
   int32_t toInt32(int offset);
   int64_t toInt64(int offset);
-  const size_t size();
 
+	const size_t size();
   Buf::ByteArray::iterator begin();
 	Buf::ByteArray::iterator end();
 
@@ -40,6 +40,6 @@ public:
   int iPos;
 };
 
-} // namespace parser::reader
+} // namespace tc::parser::reader
 
 #endif /* DA60B58C_59CB_4A50_9994_E86447621129 */

@@ -4,7 +4,7 @@
 #include <tc/parser/records/RecordI.h>
 #include <chrono>
 
-namespace parser::records::gps {
+namespace tc::parser::records::gps {
 
 
 struct GPSData {
@@ -41,7 +41,7 @@ private:
 	GPSData iData;
 };
 
-} // namespace parser::records::avl
+} // namespace tc::parser::records::avl
 
 
 #endif /* D426066F_F3EE_412F_864E_4D6726173ECE */

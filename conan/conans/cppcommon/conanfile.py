@@ -5,11 +5,10 @@ import os.path as osp
 tc = python_requires("tc/0.1.0@tc/stable")
 opts = tc.OptCreator().add_bool("shared", True)
 
-class CppServerConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelper):
-	name = "cppserver"
+class CppCommonConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelper):
+	name = "cppcommon"
 	license = "MIT"
 	exports_sources = ["patches/**", "CMakeLists.txt"]
-	#requires = ["asio/1.19.1"]
 	generators = "cmake_find_package", "cmake"
 	settings = tc.CmakeHelper.settings
 	options, default_options = opts.options, opts.default
@@ -22,14 +21,14 @@ class CppServerConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHel
 		del s.settings.compiler.cppstd
 
 	def source(s):
-		return s.do_source()
-
-	def build(s):
+		s.do_source()
 		os.chdir(s._source_subfolder)
 		s.run("gil update")
-		s.run("cd modules/CppCommon/modules/fmt && git checkout 8.0.0")
+		s.run("cd modules/fmt && git checkout 8.0.0")
+
+	def build(s):
 		definitions = {
-			"CPPSERVER_MODULE": "OFF",
+			"CPPCOMMON_MODULE": "OFF",
 		}
 		return s.do_build(definitions=definitions)
 
@@ -44,7 +43,6 @@ class CppServerConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHel
 		s.add_components([
 		    {
 		        'target': 'lib',
-		        'libs': ['cppserver'],
-#						'requires': ['asio'],
+		        'libs': ['cppcommon'],
 		    },
 		])

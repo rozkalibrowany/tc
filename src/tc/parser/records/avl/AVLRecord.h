@@ -5,9 +5,9 @@
 #include <tc/parser/records/io/IoRecord.h>
 #include <tc/parser/records/gps/GPSRecord.h>
 #include <tc/parser/reader/Reader.h>
-#include <tc/parser/common/Result.h>
+#include <tc/common/Result.h>
 
-namespace parser::records::avl {
+namespace tc::parser::records::avl {
 
 class AVLRecord;
 using AVLRecordSPtr = std::shared_ptr< AVLRecord >;
@@ -21,12 +21,14 @@ public:
 	result_t read(const reader::ReaderSPtr &reader);
 	result_t set(const int codec);
 
-private:
 	int iCodec;
 	AVLRecordHeader iRecordHeader;
 	gps::GPSRecord iGPSRecord;
 	io::IoRecord iRecordIo;
 };
+
+class AVLRecords;
+using AVLRecordsUPtr = std::unique_ptr< AVLRecords >;
 
 class AVLRecords {
 public:
@@ -58,6 +60,6 @@ protected:
 };
 
 
-} // namespace parser::records::avl
+} // namespace tc::parser::records::avl
 
 #endif /* E4EF0871_8722_4CC4_8A6F_AD01CD2675AF */

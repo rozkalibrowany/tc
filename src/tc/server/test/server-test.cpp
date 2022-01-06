@@ -1,16 +1,17 @@
-#include <asio/asio_service.h>
-#include <asio/tcp_server.h>
+#include <tc/server/tcp/asio/AsioService.h>
+#include <tc/server/tcp/session/Session.h>
+#include <server/asio/tcp_server.h>
 
 #include <algorithm>
 #include <iterator>
 #include <iostream>
 #include <bitset>
-#include <fmt/core.h>
+
 
 constexpr char hexmap[] = {'0', '1', '2', '3', '4', '5', '6', '7',
                         '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
-
+using namespace tc::server::tcp::session;
 
 class ChatServer : public CppServer::Asio::TCPServer
 {
@@ -20,7 +21,7 @@ public:
 protected:
     std::shared_ptr<CppServer::Asio::TCPSession> CreateSession(const std::shared_ptr<CppServer::Asio::TCPServer>& server) override
     {
-        return std::make_shared<ChatSession>(server);
+        return std::make_shared<Session>(server);
     }
 
 protected:

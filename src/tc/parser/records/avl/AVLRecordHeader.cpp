@@ -1,7 +1,7 @@
 #include <tc/parser/records/avl/AVLRecordHeader.h>
 #include <fmt/format.h>
 
-namespace parser::records::avl {
+namespace tc::parser::records::avl {
 
 AVLRecordHeader::AVLRecordHeader(int64_t timestamp, int priority)
   : iTimestamp(timestamp)
@@ -47,4 +47,4 @@ std::string AVLRecordHeader::toString()
   iTimestamp, iPriority);
 }
 
-} // namespace parser::records::avl
+} // namespace tc::parser::records::avl

@@ -6,7 +6,7 @@
 #include <vector>
 #include <tc/parser/reader/Buf.h>
 
-namespace parser::reader {
+namespace tc::parser::reader {
 
 class Reader;
 using ReaderUPtr = std::unique_ptr< Reader >;
@@ -34,12 +34,10 @@ public:
   Buf copy(int bytes);
   void skip(int bytes);
 
-
-//protected:
   Buf &iBuf;
   int iOffset;
 };
 
-} // namespace parser::reader
+} // namespace tc::parser::reader
 
 #endif /* EA08E4E5_5129_433F_9DA9_28685085CB1C */

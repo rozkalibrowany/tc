@@ -5,7 +5,7 @@
 #include <list>
 #include <map>
 
-namespace parser::records::io {
+namespace tc::parser::records::io {
 
 class IoRecordProperty;
 using IoRecordPropertySPtr = std::shared_ptr< IoRecordProperty >;
@@ -55,6 +55,6 @@ public:
   int64_t iValue;
 };
 
-} // namespace parser::records::io
+} // namespace tc::parser::records::io
 
 #endif /* B2813421_A4C9_496C_930F_A76CC1C8337F */

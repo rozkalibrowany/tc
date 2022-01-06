@@ -113,7 +113,11 @@ TcOptMsg("TC_SYSTEM_VERSION"          RG_SYSTEM_VERSION)
 message(STATUS "")
 
 tc_find_package_status(NAME fmt REQUIRED)
+tc_find_package_status(NAME spdlog REQUIRED)
+tc_find_package_status(NAME cppcommon REQUIRED)
+tc_find_package_status(NAME cppserver REQUIRED)
 add_subdirectory("src/tc/parser")
+add_subdirectory("src/tc/server")
 
 add_custom_target(
 	conan-install

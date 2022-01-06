@@ -4,7 +4,7 @@
 #include <tc/parser/records/RecordI.h>
 #include <chrono>
 
-namespace parser::records::avl {
+namespace tc::parser::records::avl {
 
 class AVLRecordHeader : public RecordI {
 public:
@@ -25,6 +25,6 @@ protected:
 	int iPriority;
 };
 
-} // namespace parser::records::avl
+} // namespace tc::parser::records::avl
 
 #endif /* D876042F_EF7D_45D4_82F7_B53125967A96 */

@@ -1,6 +1,6 @@
 #include <tc/parser/records/avl/AVLRecord.h>
 
-namespace parser::records::avl {
+namespace tc::parser::records::avl {
 
 AVLRecord::AVLRecord(int codec)
  : iCodec(codec)
@@ -116,4 +116,4 @@ const AVLRecordList &AVLRecords::data() const
 }
 
 
-} // namespace parser::AVLRecords::avl
+} // namespace tc::parser::AVLRecords::avl

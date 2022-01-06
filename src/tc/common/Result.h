@@ -1,9 +1,7 @@
 #ifndef C8DBCF4B_3542_437E_9D9A_104B1D5B003B
 #define C8DBCF4B_3542_437E_9D9A_104B1D5B003B
-#ifndef B1784999_D046_4667_B88C_CC933B747B00
-#define B1784999_D046_4667_B88C_CC933B747B00
 
-namespace parser {
+namespace tc {
 using result_t = int;
 
 /* Error codes */
@@ -41,9 +39,6 @@ enum
 	RES_ABORTED = -258,
 };
 
-} // namespace parser
-
-#endif /* B1784999_D046_4667_B88C_CC933B747B00 */
-
+} // namespace tc
 
 #endif /* C8DBCF4B_3542_437E_9D9A_104B1D5B003B */

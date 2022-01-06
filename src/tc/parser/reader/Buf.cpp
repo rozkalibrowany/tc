@@ -1,7 +1,7 @@
 #include <tc/parser/reader/Buf.h>
 #include <array>
 
-namespace parser::reader {
+namespace tc::parser::reader {
 
 Buf::Buf(const size_t size)
  : iBuf(ByteArray(size))
@@ -109,4 +109,4 @@ Buf::ByteArray::const_iterator Buf::cend() const
 }
 
 
-} // namespace parser::reader
+} // namespace tc::parser::reader

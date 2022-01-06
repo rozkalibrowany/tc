@@ -2,9 +2,9 @@
 #define CDB95BC9_0A6E_4C4B_A858_F0CAB1CFC34C
 
 #include <tc/parser/reader/Reader.h>
-#include <tc/parser/common/Result.h>
+#include <tc/common/Result.h>
 
-namespace parser::records {
+namespace tc::parser::records {
 
 class RecordI {
 public:
@@ -17,6 +17,6 @@ public:
   virtual std::string toString() = 0;
 };
 
-} // namespace parser::records
+} // namespace tc::parser::records
 
 #endif /* CDB95BC9_0A6E_4C4B_A858_F0CAB1CFC34C */

@@ -75,6 +75,18 @@ tc_conan_build_package(NAME fmt
 	UBUNTU
 )
 
+tc_conan_build_package(NAME spdlog
+	VERSION 1.9.2
+	DEPENDS conan-profiles conan-tc-build
+	UBUNTU
+)
+
+tc_conan_build_package(NAME cppcommon
+	VERSION 1.0.3.0
+	DEPENDS conan-profiles conan-tc-build
+	UBUNTU
+)
+
 tc_conan_build_package(NAME cppserver
 	VERSION 1.0.1.0
 	DEPENDS conan-profiles conan-tc-build
