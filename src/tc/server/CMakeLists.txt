@@ -8,9 +8,10 @@ TcAddLibrary(
 	INCLUDE "${TcIncludeDir}"
 	LIBRARIES
 		tc-parser
-		asio
+		tc-common
 		cppcommon
 		cppserver
+		asio
 		spdlog
 	VERSION ${TcVersion}
 )

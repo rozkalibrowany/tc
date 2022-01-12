@@ -38,12 +38,6 @@ class Common:
 	generators = ['cmake', 'cmake_find_package']
 	settings = ['os', 'compiler', 'build_type', 'arch']
 
-
-class Common:
-	generators = ['cmake', 'cmake_find_package']
-	settings = ['os', 'compiler', 'build_type', 'arch']
-
-
 class Test:
 	generators = Common.generators
 	settings = Common.settings
@@ -234,7 +228,7 @@ class ComponentHelper(object):
 
 class TcConan(ConanFile):
 	name = 'tc'
-	version = '0.1.0'
+	version = '0.2.0'
 	exports = '*'
 	build_policy = 'missing'
 

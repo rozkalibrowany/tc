@@ -2,7 +2,7 @@ from conans import ConanFile, python_requires
 from conans import CMake, ConanFile, tools
 import os
 
-tc = python_requires('tc/0.1.0@tc/stable')
+tc = python_requires('tc/0.2.0@tc/stable')
 opts = tc.OptCreator() \
  .add_bool('shared', True) \
  .add_bool('header_only', False)

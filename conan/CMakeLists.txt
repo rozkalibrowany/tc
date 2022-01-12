@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(tc-conan CXX C)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_C_STANDARD 11)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../tool/cmake")
@@ -64,7 +64,7 @@ add_custom_target(
 )
 
 tc_conan_build_package(NAME tc
-	VERSION 0.1.0
+	VERSION 0.2.0
 	DEPENDS conan-profiles
 	UBUNTU
 )

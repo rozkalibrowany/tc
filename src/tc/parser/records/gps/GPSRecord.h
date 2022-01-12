@@ -9,6 +9,9 @@ namespace tc::parser::records::gps {
 
 struct GPSData {
 	GPSData &operator=(const GPSData &rhs) = default;
+	bool empty() const {
+		return !iLongitude && !iLatitude && !iAltitude && !iAngle && !iSatellites;
+	}
 
 	uint32_t iLongitude {0U};
 	uint32_t iLatitude {0U};
@@ -24,11 +27,11 @@ public:
 
 	GPSRecord(const GPSData &data);
 	GPSRecord();
-
 	virtual ~GPSRecord() = default;
 
 	GPSRecord &operator=(const GPSRecord &rhs) = default;
 
+	bool empty() const override;
 	GPSData &data();
 	const GPSData &cdata() const;
 

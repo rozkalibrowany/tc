@@ -76,6 +76,21 @@ int Reader::read(int bytes)
   return 0;
 }
 
+std::string Reader::readImei(const std::string &str)
+{
+	if (str.empty()) {
+		return std::string();
+	}
+
+	std::string s_out;
+	for (std::string::size_type i = 1; i < str.size(); i += 2)
+	{
+		char c = str[i];
+		s_out.push_back(c);
+	}
+	return s_out;
+}
+
 Buf Reader::copy(int bytes)
 {
   Buf subBuf(Buf::ByteArray{iBuf.begin() + iOffset, iBuf.begin() + bytes + iOffset});

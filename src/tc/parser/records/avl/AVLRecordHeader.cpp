@@ -23,6 +23,11 @@ AVLRecordHeader& AVLRecordHeader::operator=(const AVLRecordHeader &rhs)
   return *this;
 }
 
+bool AVLRecordHeader::empty() const
+{
+	return (iTimestamp == 0LL && iPriority == 0);
+}
+
 result_t AVLRecordHeader::parse(const reader::ReaderSPtr &reader)
 {
   if (reader == nullptr) {
@@ -42,9 +47,8 @@ result_t AVLRecordHeader::parse(const reader::ReaderSPtr &reader, int codec)
 
 std::string AVLRecordHeader::toString()
 {
-  return fmt::format("************ Header Record ************\
-  \n\tTimestamp: {}\n\tPriority: {}\n\t",
-  iTimestamp, iPriority);
+  return !empty() ? fmt::format("************ Header Record ************\
+  	\n\tTimestamp: {}\n\tPriority: {}\n\t", std::to_string(iTimestamp), std::to_string(iPriority)) : fmt::format("************ Header Record EMPTY ************\n");
 }
 
 } // namespace tc::parser::records::avl

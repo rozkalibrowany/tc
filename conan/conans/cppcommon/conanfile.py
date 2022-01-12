@@ -2,7 +2,7 @@ from conans import ConanFile, tools, python_requires
 import os
 import os.path as osp
 
-tc = python_requires("tc/0.1.0@tc/stable")
+tc = python_requires("tc/0.2.0@tc/stable")
 opts = tc.OptCreator().add_bool("shared", True)
 
 class CppCommonConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelper):
@@ -25,6 +25,7 @@ class CppCommonConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHel
 		os.chdir(s._source_subfolder)
 		s.run("gil update")
 		s.run("cd modules/fmt && git checkout 8.0.0")
+		#s.run("cd ../asio/asio && git checkout 1.20.0")
 
 	def build(s):
 		definitions = {

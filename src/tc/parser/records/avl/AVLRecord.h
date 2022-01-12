@@ -6,6 +6,7 @@
 #include <tc/parser/records/gps/GPSRecord.h>
 #include <tc/parser/reader/Reader.h>
 #include <tc/common/Result.h>
+#include <tc/common/Logger.h>
 
 namespace tc::parser::records::avl {
 
@@ -13,7 +14,7 @@ class AVLRecord;
 using AVLRecordSPtr = std::shared_ptr< AVLRecord >;
 using AVLRecordList = std::vector< AVLRecordSPtr >;
 
-class AVLRecord {
+class AVLRecord : public common::LogI {
 public:
 	AVLRecord();
 	AVLRecord(int codec);

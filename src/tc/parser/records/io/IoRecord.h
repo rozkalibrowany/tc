@@ -29,6 +29,7 @@ public:
 
 	virtual ~IoRecord() = default;
 
+	bool empty() const override;
 	result_t parse(const reader::ReaderSPtr &reader, int codec) override;
 	result_t parse(const reader::ReaderSPtr &reader) override;
 

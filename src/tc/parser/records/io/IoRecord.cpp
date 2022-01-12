@@ -27,6 +27,11 @@ int IoRecord::getIdSize(int codec)
   }
 }
 
+bool IoRecord::empty() const
+{
+	return iRecordsMap.empty();
+}
+
 result_t IoRecord::parse(const reader::ReaderSPtr &reader)
 {
   return RES_NOIMPL;
@@ -47,7 +52,7 @@ result_t IoRecord::parse(const reader::ReaderSPtr &reader, int codec)
     IoRecordsPropertyList propertyList;
     if (byteSize == ByteSize::BYTE_X && (int) idSize == 2) {
       auto recordsCount = reader->readU(idSize);
-      for (int i = 0; i < recordsCount; i++) {
+      for (uint i = 0; i < recordsCount; i++) {
         auto io_property = std::make_shared< IoRecordProperty >();
         io_property->parse(reader, idSize);
         auto buf = reader->copy(io_property->iValue);
@@ -101,37 +106,41 @@ result_t IoRecordProperty::parse(const reader::ReaderSPtr &reader, int id_size, 
 
 std::string IoRecord::toString()
 {
-  auto s = fmt::format("************ Io Record ************\
+	if (empty()) {
+		return fmt::format("************ Io Record EMPTY ************\n");
+	}
+
+	auto s = fmt::format("*************** Io Record ***************\
   \n\tEvent ID: {}\n", iEventID);
 
   if (iRecordsMap[ByteSize::BYTE_1].size() > 0) {
-    s += std::string("\tByte 1\n");
+    s += std::string("\tByte 1");
     for (auto r : iRecordsMap[ByteSize::BYTE_1]) {
-      s += fmt::format("\n\t\tID: {}, val: {}\n", r->iID, r->iValue);
+      s += fmt::format("\n\t\tID: {}, val: {}", r->iID, r->iValue);
     }
   }
   if (iRecordsMap[ByteSize::BYTE_2].size() > 0) {
-    s += std::string("\tByte 2\n");
+    s += std::string("\n\tByte 2");
     for (auto r : iRecordsMap[ByteSize::BYTE_2]) {
-      s += fmt::format("\n\t\tID: {}, val: {}\n", r->iID, r->iValue);
+      s += fmt::format("\n\t\tID: {}, val: {}", r->iID, r->iValue);
     }
   }
   if (iRecordsMap[ByteSize::BYTE_4].size() > 0) {
-    s += std::string("\tByte 4\n");
+    s += std::string("\n\tByte 4");
     for (auto r : iRecordsMap[ByteSize::BYTE_4]) {
-      s += fmt::format("\n\t\tID: {}, val: {}\n", r->iID, r->iValue);
+      s += fmt::format("\n\t\tID: {}, val: {}", r->iID, r->iValue);
     }
   }
   if (iRecordsMap[ByteSize::BYTE_8].size() > 0) {
-    s += std::string("\tByte 8\n");
+    s += std::string("\n\tByte 8");
     for (auto r : iRecordsMap[ByteSize::BYTE_8]) {
-      s += fmt::format("\n\t\tID: {}, val: {}\n", r->iID, r->iValue);
+      s += fmt::format("\n\t\tID: {}, val: {}", r->iID, r->iValue);
     }
   }
   if (iRecordsMap[ByteSize::BYTE_X].size() > 0) {
-    s += std::string("\tByte X\n");
+    s += std::string("\n\tByte X");
     for (auto r : iRecordsMap[ByteSize::BYTE_X]) {
-      s += fmt::format("\n\t\tID: {}, val: {}\n", r->iID, r->iValue);
+      s += fmt::format("\n\t\tID: {}, val: {}", r->iID, r->iValue);
     }
   }
 

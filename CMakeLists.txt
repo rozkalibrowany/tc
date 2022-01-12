@@ -39,7 +39,7 @@ include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_C_STANDARD 11)
 
 enable_testing()
@@ -57,12 +57,12 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/lib") # static l
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/lib") # shared libs
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin") # binaries
 
-set(CMAKE_CXX_FLAGS_BASE "-std=c++17 -D_FILE_OFFSET_BITS=64 -D_REENTRANT -fPIC -fno-strict-aliasing -fno-stack-protector -fdiagnostics-color=always -Wno-unused-parameter -Wno-unknown-pragmas -fdiagnostics-color=always")
+set(CMAKE_CXX_FLAGS_BASE "-std=c++2a -D_FILE_OFFSET_BITS=64 -D_REENTRANT -fPIC -fno-strict-aliasing -fno-stack-protector -fdiagnostics-color=always -Wno-unused-parameter -Wno-unknown-pragmas -fdiagnostics-color=always")
 
 set(CMAKE_CXX_FLAGS_DEBUG_EXTERNAL      "${CMAKE_CXX_FLAGS_RELEASE} -O2")
 set(CMAKE_CXX_FLAGS_DEBUG_EXTERNAL_17   "${CMAKE_CXX_FLAGS_RELEASE} -O2")
 set(CMAKE_CXX_FLAGS_RELEASE_EXTERNAL    "${CMAKE_CXX_FLAGS_RELEASE} -O2")
-set(CMAKE_CXX_FLAGS_RELEASE_EXTERNAL_17 "${CMAKE_CXX_FLAGS_RELEASE} -O2 -std=c++17")
+set(CMAKE_CXX_FLAGS_RELEASE_EXTERNAL_17 "${CMAKE_CXX_FLAGS_RELEASE} -O2 -std=c++2a")
 
 set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG}   -Wall -O0 -DTRC -ggdb3") # -Werror
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -Wno-unused-result -O2 -g") #- Werror
@@ -112,10 +112,12 @@ TcOptMsg("TC_SYSTEM_NAME"             TC_SYSTEM_NAME)
 TcOptMsg("TC_SYSTEM_VERSION"          RG_SYSTEM_VERSION)
 message(STATUS "")
 
+#tc_find_package_status(NAME asio REQUIRED)
 tc_find_package_status(NAME fmt REQUIRED)
 tc_find_package_status(NAME spdlog REQUIRED)
 tc_find_package_status(NAME cppcommon REQUIRED)
 tc_find_package_status(NAME cppserver REQUIRED)
+add_subdirectory("src/tc/common")
 add_subdirectory("src/tc/parser")
 add_subdirectory("src/tc/server")
 

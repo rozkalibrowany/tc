@@ -3,7 +3,8 @@
 namespace tc::parser::records::avl {
 
 AVLRecord::AVLRecord(int codec)
- : iCodec(codec)
+ : common::LogI("console")
+ , iCodec(codec)
 {
   // nothing to do
 }
@@ -16,20 +17,22 @@ AVLRecord::AVLRecord()
 
 result_t AVLRecord::read(const reader::ReaderSPtr &reader)
 {
-  if (reader == nullptr) {
+	SPDLOG_LOGGER_INFO(this->logger(), "AVLRecord::read");
+
+	if (reader == nullptr) {
     return RES_NOENT;
   }
   result_t res = RES_OK;
   res |= iRecordHeader.parse(reader);
-  std::cout << "iRecordHeader reader offset: " << reader->iOffset << std::endl;
-  std::cout << iRecordHeader.toString() << std::endl;
-  res |= iGPSRecord.parse(reader);
-  std::cout << "iGPSRecord reader offset: " << reader->iOffset << std::endl;
-  std::cout << iGPSRecord.toString() << std::endl;
+	res |= iGPSRecord.parse(reader);
   res |= iRecordIo.parse(reader, iCodec);
-  std::cout << "iRecordIo reader offset: " << reader->iOffset << std::endl;
-  std::cout << iRecordIo.toString() << std::endl;
 
+	if (res != RES_OK) {
+		SPDLOG_LOGGER_ERROR(this->logger(), "Unable to parse some AVL data.");
+		return res;
+	}
+
+	SPDLOG_LOGGER_INFO(this->logger(), "\n{}{}{}", iRecordHeader.toString(), iGPSRecord.toString(), iRecordIo.toString());
   return res;
 }
 

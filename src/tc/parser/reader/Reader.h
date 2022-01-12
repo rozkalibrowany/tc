@@ -21,8 +21,7 @@ ReaderSPtr msptr(Args &&... args)
 
 class Reader {
 public:
-
-  Reader(Buf &buf);
+	Reader(Buf &buf);
   Reader(Buf &buf, int offset);
 
   Reader &operator=(const Reader &reader);
@@ -30,8 +29,9 @@ public:
   int64_t readL(int bytes);
   uint readU(int bytes);
   int read(int bytes);
+	std::string readImei(const std::string &str);
 
-  Buf copy(int bytes);
+	Buf copy(int bytes);
   void skip(int bytes);
 
   Buf &iBuf;

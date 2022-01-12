@@ -15,6 +15,11 @@ GPSRecord::GPSRecord()
   // nothing to do
 }
 
+bool GPSRecord::empty() const
+{
+	return iData.empty();
+}
+
 GPSData &GPSRecord::data()
 {
   return iData;
@@ -48,9 +53,9 @@ result_t GPSRecord::parse(const reader::ReaderSPtr &reader)
 
 std::string GPSRecord::toString()
 {
- return fmt::format("************ GPS Record ************\
+	return !empty() ? fmt::format("**************** GPS Record *****************\
   \n\tLongitude: {}\n\tLatitude: {}\n\tAltitude: {}\n\tAngle: {}\n\tSatellites: {}\n\n",
-  iData.iLongitude, iData.iLatitude, iData.iAltitude, iData.iAngle, iData.iSatellites);
+	iData.iLongitude, iData.iLatitude, iData.iAltitude, iData.iAngle, iData.iSatellites) : fmt::format("************* GPS Record EMPTY *************\n");
 }
 
 } // namespace tc::parser::records::gps

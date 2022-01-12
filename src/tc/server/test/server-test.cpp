@@ -63,7 +63,7 @@ int main(int argc, char** argv)
 
     // Perform text input
     std::string line;
-    while (getline(std::cin, line))
+    while (service->IsStarted())
     {
         if (line.empty())
             break;

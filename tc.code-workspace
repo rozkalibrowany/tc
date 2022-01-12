@@ -144,7 +144,7 @@
 		"[markdown]": {
 			"editor.formatOnSave": true,
 			"editor.tabSize": 2,
-			"editor.insertSpaces": true
+			"editor.insertSpaces": false
 		},
 		"restructuredtext.confPath": "",
 		"trailing-spaces.trimOnSave": true,
@@ -160,19 +160,14 @@
 		"editor.renderWhitespace": "boundary",
 		"editor.renderControlCharacters": true,
 		"python.languageServer": "Pylance",
-		"python.linting.enabled": false,
-		"python.linting.lintOnSave": false,
-		"python.formatting.yapfArgs": ["--style", "{based_on_style: google, indent_width: 1, use_tabs: true, column_limit: 160}"],
+		"clang-format.executable": "/usr/bin/clang-format",
 		"python.formatting.autopep8Args": [
 			"-ignore=W191,E101,E111"
 		],
 		"python.formatting.provider": "yapf",
-		"python.formatting.blackArgs": ["--line-length", "120"],
 		"cmake.configureOnOpen": false,
 		"C_Cpp.default.includePath": [
-			"/usr/include/".
-			"/usr/include/apr-1.0",
-			"/usr/include/apache2",
+			"/usr/include/",
 			"${workspaceFolder}/src"
 		],
 		"C_Cpp.default.defines": [
