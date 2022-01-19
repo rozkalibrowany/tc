@@ -5,7 +5,7 @@
 #include <tc/common/Result.h>
 #include <tc/common/SysTime.h>
 #include <tc/common/Logger.h>
-#include <tc/parser/records/avl/AVLPacket.h>
+#include <tc/parser/records/avl/AVLRecord.h>
 #include <tc/parser/reader/Reader.h>
 #include <string>
 
@@ -17,20 +17,12 @@ using namespace avl;
 
 class Packet;
 using PacketSPtr = std::shared_ptr<Packet>;
-using PacketUPtr = std::unique_ptr<Packet>;
 
 class Packet : common::LogI
 {
 public:
 	static size_t PACKET_DATA_MIN_SIZE;
 	static size_t PACKET_IMEI_MIN_SIZE;
-
-	struct Imei {
-		result_t parse(Buf &buf);
-
-		size_t length {0};
-		std::string imei;
-	};
 
 	struct ID {
 		ID &operator=(const ID &rhs) = default;
@@ -44,7 +36,14 @@ public:
 
 	Packet(bool time_now = true);
 	Packet(const ID &id);
-	~Packet() = default;
+	virtual ~Packet() = default;
+
+	Packet &operator=(const Packet &rhs);
+	bool operator<(const Packet &rhs) const;
+	bool operator<=(const Packet &rhs) const;
+	bool operator>(const Packet &rhs) const;
+	bool operator>=(const Packet &rhs) const;
+	bool operator==(const Packet &rhs) const;
 
 	result_t parse(Buf &buf);
 	result_t parse(unsigned char* cbuf, size_t size);
@@ -55,20 +54,21 @@ public:
 	int size() const;
 
 	ID &id();
-	Imei &imei();
-	AVLRecordsUPtr records();
+	std::string imei() const;
+	AVLRecords &records();
 	SysTime timestamp() const;
 
 private:
+	result_t parseImei(Buf &buf);
 	bool contains(const Buf &buf, const unsigned char c) const;
 	int getIdx(const Buf &buf, const unsigned char c);
 
 	int iCodec{0};
 	int iRecordsTotal {0};
-	Imei iImei;
+	std::string iImei;
 	ID iID;
-	ReaderSPtr iReader;
-	AVLRecordsUPtr iAVLRecordsUPtr{nullptr};
+	ReaderSPtr iReader {nullptr};
+	AVLRecords iAVLRecords;
 };
 
 } // namespace tc::parser

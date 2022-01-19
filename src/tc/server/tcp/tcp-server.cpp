@@ -47,11 +47,11 @@ int main(int argc, char** argv)
 
 
 	while (true) {
-		CppCommon::Thread::Sleep(1000);
+		CppCommon::Thread::Sleep(2000);
 		////spdlog::info("Alive! server address: {} connected sessions: {} threads: {} IsPolling: {} IsStarted: {}",
 		//server->address(), (int) server->connected_sessions(), (int) service->threads(), (int) service->IsPolling(), (int) service->IsStarted());
 
-		server->printSessions();
+		SPDLOG_LOGGER_INFO(log.logger(), "Sessions: {} sessionPackets size {}", server->sessionsSize(), (int) server->sessionPackets().size());
 	}
 
 	// Stop the server

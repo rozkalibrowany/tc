@@ -11,11 +11,7 @@ class AsioService : public CppServer::Asio::Service
 public:
 	using CppServer::Asio::Service::Service;
 
-	protected:
-    void onError(int error, const std::string& category, const std::string& message) override
-    {
-        //spdlog::critical("Asio service caught an error with code {} and category {}", error, category);
-    }
+	virtual ~AsioService() = default;
 };
 
 

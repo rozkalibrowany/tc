@@ -3,12 +3,13 @@
 
 #include <tc/parser/reader/Reader.h>
 #include <tc/common/Result.h>
+#include <tc/common/Logger.h>
 
 namespace tc::parser::records {
 
-class RecordI {
+class RecordI : public common::LogI {
 public:
-  RecordI() = default;
+  RecordI() : common::LogI("console") {}
   virtual ~RecordI() = default;
 
   virtual result_t parse(const reader::ReaderSPtr &reader, int codec) = 0;

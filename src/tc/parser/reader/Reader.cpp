@@ -91,12 +91,6 @@ std::string Reader::readImei(const std::string &str)
 	return s_out;
 }
 
-Buf Reader::copy(int bytes)
-{
-  Buf subBuf(Buf::ByteArray{iBuf.begin() + iOffset, iBuf.begin() + bytes + iOffset});
-  return subBuf;
-}
-
 void Reader::skip(int bytes)
 {
   iOffset += bytes;

@@ -19,6 +19,8 @@ public:
 	AVLRecord();
 	AVLRecord(int codec);
 
+	virtual ~AVLRecord() = default;
+
 	result_t read(const reader::ReaderSPtr &reader);
 	result_t set(const int codec);
 
@@ -27,12 +29,10 @@ public:
 	gps::GPSRecord iGPSRecord;
 	io::IoRecord iRecordIo;
 };
-
-class AVLRecords;
-using AVLRecordsUPtr = std::unique_ptr< AVLRecords >;
-
 class AVLRecords {
 public:
+	~AVLRecords() = default;
+
 	size_t size() const;
 	bool empty() const;
 	void clear();
@@ -49,8 +49,8 @@ public:
 	AVLRecordList::iterator begin();
 	AVLRecordList::iterator end();
 
-	virtual void add(const AVLRecordSPtr &rhs);
-	virtual void add(const AVLRecord &rhs);
+	void add(const AVLRecordSPtr &rhs);
+	void add(const AVLRecord &rhs);
 
 	AVLRecordList &data();
 	const AVLRecordList &data() const;

@@ -1,4 +1,5 @@
 #include <tc/parser/records/io/IoRecord.h>
+#include <tc/parser/records/io/IoRecordProperty.h>
 #include <fmt/format.h>
 
 namespace tc::parser::records::io {
@@ -42,72 +43,86 @@ result_t IoRecord::parse(const reader::ReaderSPtr &reader, int codec)
   if (reader == nullptr) {
     return RES_INVARG;
   }
-  int idSize = getIdSize(codec);
+  auto ioIdSize = getIdSize(codec);
 
-  iEventID = static_cast<int>(reader->readU(idSize));
-  iElements = static_cast<int>(reader->readU(idSize));
-  IoRecordsMap recordsMap;
+  iEventID = static_cast<int>(reader->readU(ioIdSize));
+  iElements = static_cast<int>(reader->readU(ioIdSize));
 
-  for (auto byteSize : iByteSizes) {
-    IoRecordsPropertyList propertyList;
-    if (byteSize == ByteSize::BYTE_X && (int) idSize == 2) {
-      auto recordsCount = reader->readU(idSize);
-      for (uint i = 0; i < recordsCount; i++) {
-        auto io_property = std::make_shared< IoRecordProperty >();
-        io_property->parse(reader, idSize);
-        auto buf = reader->copy(io_property->iValue);
-        switch(io_property->iID) {
-          case 10358:
-            break;
-          default:
-            io_property->iValue = buf.size();
-            reader->skip(buf.size());
-            break;
-        }
-        propertyList.push_back(io_property);
-      }
-      continue;
-    }
-    int recordsCount = reader->readU(idSize);
-    for (int i = 0; i < recordsCount; i++) {
-      auto io_property = std::make_shared< IoRecordProperty >();
-      io_property->parse(reader, idSize, (int) byteSize);
-      propertyList.push_back(io_property);
-    }
-    recordsMap.insert(std::make_pair(byteSize, propertyList));
-  }
+  IoRecordsPropertyMap recordsMap;
+	result_t res = RES_OK;
 
-  iRecordsMap = std::move(recordsMap);
-  return RES_OK;
-}
-result_t IoRecordProperty::parse(const reader::ReaderSPtr &reader, int id_size)
-{
-  if (reader == nullptr) {
-    return RES_INVARG;
-  }
+	for (auto b : iByteSizes) {
+		if (res != RES_OK) {
+			break;
+		}
 
-  iID = reader->readU(id_size);
-  iValue = reader->readU(2);
+		IoRecordsPropertyList propertyList;
+    if (b == ByteSize::BYTE_X && (int) ioIdSize == 2) {
+			res |= parseVariableSize(reader, propertyList, ioIdSize);
+		} else {
+			res |= parseFixedSize(reader, propertyList, ioIdSize, b);
+		}
+		recordsMap.insert(std::make_pair(b, propertyList));
+	}
 
-  return RES_OK;
+	iRecordsMap = std::move(recordsMap);
+  return res;
 }
 
-result_t IoRecordProperty::parse(const reader::ReaderSPtr &reader, int id_size, int val_size)
+result_t IoRecord::parseFixedSize(const reader::ReaderSPtr &reader, IoRecordsPropertyList &list, int ioIdSize, int byteSize)
 {
-  if (reader == nullptr) {
-    return RES_INVARG;
-  }
+	int recordsCount = static_cast< int>(reader->readU(ioIdSize));
 
-  iID = reader->readU(id_size);
-  iValue = reader->read(val_size);
+	for (int i = 0; i < recordsCount; i++) {
+		auto id = reader->readU(ioIdSize);
+		auto value = reader->read(byteSize);
+		auto ioProperty = std::make_shared< IoRecordProperty >(id, value);
+		list.push_back(std::move(ioProperty));
+	}
+	return RES_OK;
+}
 
-  return RES_OK;
+result_t IoRecord::parseVariableSize(const reader::ReaderSPtr &reader, IoRecordsPropertyList &list, int ioIdSize)
+{
+	int recordsCount = static_cast< int>(reader->readU(ioIdSize));
+	std::shared_ptr< IoRecordProperty > ioProperty;
+
+	for (int i = 0; i < recordsCount; i++) {
+		auto id = reader->readU(ioIdSize);
+		auto length = reader->readU(2);
+
+		auto begin = reader->iBuf.begin() + reader->iOffset;
+		auto end = reader->iBuf.begin() + reader->iOffset + length;
+
+		if (begin == reader->iBuf.end() || end == reader->iBuf.end()) {
+			SPDLOG_LOGGER_ERROR(this->logger(), "Unable to create copy buffer. Offset[{}], length[{}]", reader->iOffset, length);
+			return RES_NOENT;
+		}
+
+		reader::Buf subBuf(begin, end);
+
+		if (id == 10358) {
+			ioProperty = std::make_shared< IoMcanProperty >(id);
+			auto readerMcan = std::make_shared<reader::Reader>(subBuf);
+			if (ioProperty->parse(readerMcan) != RES_OK) {
+				SPDLOG_LOGGER_ERROR(this->logger(), "Unable to parse Mcan. Offset[{}], length[{}]", reader->iOffset, length);
+				return RES_NOENT;
+			}
+		} else {
+			ioProperty = std::make_shared< IoRecordProperty >(id, subBuf.size());
+			reader->skip(subBuf.size());
+		}
+
+		list.push_back(ioProperty);
+	}
+
+	return RES_OK;
 }
 
 std::string IoRecord::toString()
 {
 	if (empty()) {
-		return fmt::format("************ Io Record EMPTY ************\n");
+		return std::string();
 	}
 
 	auto s = fmt::format("*************** Io Record ***************\
@@ -147,4 +162,4 @@ std::string IoRecord::toString()
   return s;
 }
 
-} // namespace tc::parser::records::avl
+} // namespace tc::parser::records::io

@@ -17,8 +17,11 @@ public:
   Buf(const char *rhs, size_t size);
 	Buf(const std::string &rhs);
   Buf(const ByteArray &rhs);
+	Buf(ByteArray::iterator &begin, ByteArray::iterator &end);
 
-  bool operator==(const Buf &rhs) const;
+	~Buf();
+
+	bool operator==(const Buf &rhs) const;
 	Buf &operator=(const Buf &rhs);
 
   unsigned char &operator[](uint idx);
@@ -37,7 +40,6 @@ public:
 	Buf::ByteArray::const_iterator cend() const;
 
   ByteArray iBuf;
-  int iPos;
 };
 
 } // namespace tc::parser::reader

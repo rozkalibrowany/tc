@@ -8,7 +8,6 @@
 namespace tc::server::tcp {
 
 using namespace CppServer::Asio;
-using namespace std::chrono;
 
 class Server;
 class Session;
@@ -37,27 +36,23 @@ public:
 
 	using TCPSession::TCPSession;
 
-	Session(const std::shared_ptr<TCPServer> &server); //, common::LogI &log
+	Session(const std::shared_ptr<TCPServer> &server);
+	Session(const Session&) = delete;
+	Session(Session&&) = delete;
+
 	virtual ~Session() = default;
 
-	virtual parser::PacketUPtr data();
-	virtual bool emptyData() const;
-
+	SysTime iTimestamp;
 protected:
-	void onConnected() override;
-	void onDisconnected() override;
-
 	void onReceived(const void *buffer, size_t size) override;
-	void onError(int error, const std::string &category, const std::string &message) override;
 
 private:
-	//common::LogI &logger() const;
+	result_t handleDataBuffer(const void *buffer, size_t size);
+	void handleResponse(Action action, bool async = false);
+
 	std::string ids() const;
 	Action getAction(size_t size);
-	void sendResponse(Action action, bool async = false);
-
 	std::shared_ptr<Server> iServer;
-	parser::PacketUPtr iPacket;
 };
 
 } // namespace tc::server::tcp

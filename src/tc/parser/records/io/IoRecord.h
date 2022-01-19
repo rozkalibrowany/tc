@@ -10,7 +10,7 @@ namespace tc::parser::records::io {
 class IoRecordProperty;
 using IoRecordPropertySPtr = std::shared_ptr< IoRecordProperty >;
 using IoRecordsPropertyList = std::vector< IoRecordPropertySPtr >;
-using IoRecordsMap = std::map< int, IoRecordsPropertyList >;
+using IoRecordsPropertyMap = std::map< int, IoRecordsPropertyList >;
 
 class IoRecord : public RecordI {
 public:
@@ -36,25 +36,16 @@ public:
 	std::string toString() override;
 
 private:
+	result_t parseFixedSize(const reader::ReaderSPtr &reader, IoRecordsPropertyList &list, int ioIdSize, int byteSize);
+	result_t parseVariableSize(const reader::ReaderSPtr &reader, IoRecordsPropertyList &list, int ioIdSize);
 	int getIdSize(int codec);
 
 	int iEventID;
 	int iElements;
 	ByteSizeList iByteSizes;
-	IoRecordsMap iRecordsMap;
+	IoRecordsPropertyMap iRecordsMap;
 };
 
-class IoRecordProperty {
-public:
-  IoRecordProperty(int id, int64_t val) : iID(id), iValue(val) {}
-  IoRecordProperty() : IoRecordProperty(0, 0LL) {}
-
-	result_t parse(const reader::ReaderSPtr &reader, int id_size);
-	result_t parse(const reader::ReaderSPtr &reader, int id_size, int val_size);
-
-  int iID;
-  int64_t iValue;
-};
 
 } // namespace tc::parser::records::io
 

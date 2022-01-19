@@ -1,15 +1,11 @@
 #include <tc/parser/Packet.h>
 #include <tc/parser/records/avl/AVLRecord.h>
 #include <tc/common/Convert.h>
-#include <spdlog/spdlog.h>
 #include <algorithm>
-#include <chrono>
 
 namespace tc::parser {
 
-using namespace std::chrono;
-
-size_t Packet::PACKET_DATA_MIN_SIZE = 52;
+size_t Packet::PACKET_DATA_MIN_SIZE = 45;
 size_t Packet::PACKET_IMEI_MIN_SIZE = 15;
 
 Packet::Packet(const ID &id)
@@ -33,14 +29,14 @@ result_t Packet::parse(Buf &buf)
 
 	if (contains(buf, '8') || contains(buf, '\x8E')) {
 		int offset = -1;
-		iAVLRecordsUPtr.reset(new AVLRecords);
-		if (getIdx(buf, '\x8E') == 23 || getIdx(buf, '\x8E') == 8) {
-				offset = getIdx(buf,'\x8E');
-		} else if (getIdx(buf, '8') == 23 || getIdx(buf, '8') == 8) {
-				offset = getIdx(buf, '8');
-		}
-		auto reader = reader::msptr(buf, offset);
 
+		if (getIdx(buf, '\x8E') == 23 || getIdx(buf, '\x8E') == 8) {
+			offset = getIdx(buf,'\x8E');
+		} else if (getIdx(buf, '8') == 23 || getIdx(buf, '8') == 8) {
+			offset = getIdx(buf, '8');
+		}
+
+		auto reader = reader::msptr(buf, offset);
 		int codec = reader->readU(1);
 		int records_total = reader->readU(1);
 
@@ -48,10 +44,10 @@ result_t Packet::parse(Buf &buf)
 			auto record = std::make_shared< AVLRecord >(codec);
 			if (record->read(reader) != RES_OK)
 				break;
-			iAVLRecordsUPtr->add(record);
+			iAVLRecords.add(std::move(record));
 		}
 
-		if (records_total != (int) iAVLRecordsUPtr->size()) {
+		if (records_total != (int) iAVLRecords.size()) {
 			return RES_NOENT;
 		}
 
@@ -70,12 +66,12 @@ result_t Packet::parse(unsigned char* cbuf, size_t size)
 	Buf buffer(cbuf, size);
 
 	if (size > PACKET_DATA_MIN_SIZE) {
-		SPDLOG_LOGGER_DEBUG(this->logger(), "Parse data");
+		SPDLOG_LOGGER_INFO(this->logger(), "Parse data");
 		return parse(buffer);
 	}
 
-	SPDLOG_LOGGER_DEBUG(this->logger(), "Parse imei");
-	return iImei.parse(buffer);
+	SPDLOG_LOGGER_INFO(this->logger(), "Parse imei");
+	return parseImei(buffer);
 }
 
 Packet::ID &Packet::id()
@@ -83,7 +79,7 @@ Packet::ID &Packet::id()
 	return iID;
 }
 
-Packet::Imei &Packet::imei()
+std::string Packet::imei() const
 {
 	return iImei;
 }
@@ -103,9 +99,9 @@ ReaderSPtr &Packet::reader()
 	return iReader;
 }
 
-AVLRecordsUPtr Packet::records()
+AVLRecords &Packet::records()
 {
-	return std::move(iAVLRecordsUPtr);
+	return iAVLRecords;
 }
 
 SysTime Packet::timestamp() const
@@ -115,9 +111,9 @@ SysTime Packet::timestamp() const
 
 bool Packet::contains(const Buf &buf, unsigned char c) const
 {
-    if (std::find(buf.cbegin(), buf.cend(), c) != buf.cend())
-        return true;
-    return false;
+	if (std::find(buf.cbegin(), buf.cend(), c) != buf.cend())
+			return true;
+	return false;
 }
 
 int Packet::getIdx(const Buf &buf, const unsigned char c) {
@@ -129,7 +125,7 @@ int Packet::getIdx(const Buf &buf, const unsigned char c) {
     return -1;
 }
 
-result_t Packet::Imei::parse(Buf &buf)
+result_t Packet::parseImei(Buf &buf)
 {
 	if (buf.size() <= 2) {
 		return RES_INVARG;
@@ -138,14 +134,44 @@ result_t Packet::Imei::parse(Buf &buf)
 	auto imei_length = ((buf[0]) << 8) | ((buf[1]) << 0);
 
 	buf.iBuf.erase(buf.begin(), buf.begin() + 2);
-	length = imei_length;
 
-	auto hex_str = unsigned_char_to_string(&buf.iBuf.front(), length);
-	Reader reader(buf);
-	imei = reader.readImei(hex_str);
+	auto hex_str = unsigned_char_to_string(&buf.iBuf.front(), imei_length);
+	auto reader = reader::msptr(buf);
+	auto imei = reader->readImei(hex_str);
 
-	SPDLOG_LOGGER_DEBUG(this->logger(), "Got IMEI: {}", imei);
+	SPDLOG_LOGGER_INFO(this->logger(), "Got IMEI: {}", imei);
+	iImei = std::move(imei);
 	return RES_OK;
+}
+
+Packet &Packet::operator=(const Packet &rhs)
+{
+	return *this;
+}
+
+bool Packet::operator<(const Packet &rhs) const
+{
+	return iID.timestamp.timestamp() < rhs.iID.timestamp.timestamp();
+}
+
+bool Packet::operator<=(const Packet &rhs) const
+{
+	return iID.timestamp.timestamp() <= rhs.iID.timestamp.timestamp();
+}
+
+bool Packet::operator>(const Packet &rhs) const
+{
+	return iID.timestamp.timestamp() > rhs.iID.timestamp.timestamp();
+}
+
+bool Packet::operator>=(const Packet &rhs) const
+{
+	return iID.timestamp.timestamp() >= rhs.iID.timestamp.timestamp();
+}
+
+bool Packet::operator==(const Packet &rhs) const
+{
+	return iID.timestamp.timestamp() == rhs.iID.timestamp.timestamp();
 }
 
 } // namespace tc::parser

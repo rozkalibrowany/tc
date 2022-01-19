@@ -7,46 +7,22 @@ namespace tc::server::tcp {
 Session::Session(const std::shared_ptr<TCPServer> &server)
  : TCPSession(server)
  , common::LogI("console")
- , iServer(std::dynamic_pointer_cast<Server>(server))
- , iPacket(std::make_unique< parser::Packet >(true))
-// , iLog(log)
+ , iTimestamp(SysTime(true))
+ , iServer(std::move(std::dynamic_pointer_cast<Server>(server)))
 {
 	// nothing to do
 }
 
-parser::PacketUPtr Session::data()
-{
-	return std::move(iPacket);
-}
-
-bool Session::emptyData() const
-{
-	if (iPacket == nullptr || iPacket->size() == 0) {
-		return true;
-	}
-	return false;
-}
-
-void Session::onConnected()
-{
-	SPDLOG_LOGGER_INFO(this->logger(), "TCP session with Id {} connected!", ids());
-}
-
-void Session::onDisconnected()
-{
-	SPDLOG_LOGGER_INFO(this->logger(), "TCP session with Id {} disconnected!", ids());
-}
-
 void Session::onReceived(const void* buffer, size_t size)
 {
-	SPDLOG_LOGGER_INFO(this->logger(), "Session got buffer with size[ {} ]", (int)size);
+	SPDLOG_LOGGER_INFO(this->logger(), "Session[{}] got buffer, size[{}]", ids(), (int) size);
 
 	result_t res = RES_OK;
 	auto action = getAction(size);
 	switch(action) {
 		case A_PARSE_DATA:
 		case A_PARSE_IMEI:
-			res = iPacket->parse((unsigned char *)buffer, size);
+			res = handleDataBuffer(buffer, size);
 			break;
 		case A_NO_ACTION:
 			res = RES_NOENT;
@@ -57,15 +33,36 @@ void Session::onReceived(const void* buffer, size_t size)
 
 	if (res != RES_OK) {
 		SPDLOG_LOGGER_ERROR(this->logger(), "Handle received data error. Session[{}], data size[{}]", ids(), (int) size);
+		iServer->sessionPackets().erase(id());
+		this->Disconnect();
 		return;
 	}
 
-	sendResponse(action);
+	handleResponse(action, true);
 }
 
-void Session::onError(int error, const std::string& category, const std::string& message)
+result_t Session::handleDataBuffer(const void *buffer, size_t size)
 {
-	SPDLOG_LOGGER_ERROR(this->logger(), "TCP session with Id {} ERROR!", ids());
+	result_t res = RES_OK;
+
+	auto it = iServer->sessionPackets().find(id());
+	if (it == iServer->sessionPackets().end()) {
+		SPDLOG_LOGGER_ERROR(this->logger(), "Error getting packet. Session[{}], data size[{}]", ids(), (int) size);
+		return res;
+	}
+	auto &packet = iServer->sessionPackets().at(id());
+
+	if ((res = packet.parse((unsigned char *)buffer, size)) != RES_OK) {
+		SPDLOG_LOGGER_ERROR(this->logger(), "Error parsing packet. Session[{}], data size[{}]", ids(), (int) size);
+		return res;
+	}
+
+	if (packet.imei().empty() == false && packet.size() > 0) {
+		iServer->add(packet.imei(), packet);
+		iServer->sessionPackets().erase(id());
+	}
+
+	return res;
 }
 
 Session::Action Session::getAction(size_t size)
@@ -89,24 +86,26 @@ std::string Session::ids() const
 {
 	auto id_str = id().string();
 	auto id_str_out = std::string("...-");
-	id_str_out.append(id_str.substr(id_str.find_first_of("-"), 0));
+	id_str_out.append(id_str.substr(0, id_str.find("-")));
 	return id_str_out;
 }
 
-void Session::sendResponse(Action action, bool async)
+void Session::handleResponse(Action action, bool async)
 {
-	if (action == A_NO_ACTION || iPacket == nullptr) {
+	if (action == A_NO_ACTION) {
 		return;
 	}
 
 	int response = (int) R_REFUSE;
-	switch(action) {
-		case A_PARSE_DATA:
-			response = (int) iPacket->size();
-			break;
-		default:
-			response = (int)R_ACCEPT;
-			break;
+
+	if (action == A_PARSE_DATA) {
+		auto it = iServer->sessionPackets().find(id());
+		if (it != iServer->sessionPackets().end()) {
+			//auto &packet = iServer->sessionPackets().at(id());
+			response = (int) it->second.size();
+		}
+	} else {
+		response = (int) R_ACCEPT;
 	}
 
 	if (!async) {

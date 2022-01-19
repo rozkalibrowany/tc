@@ -17,18 +17,17 @@ AVLRecord::AVLRecord()
 
 result_t AVLRecord::read(const reader::ReaderSPtr &reader)
 {
-	SPDLOG_LOGGER_INFO(this->logger(), "AVLRecord::read");
-
 	if (reader == nullptr) {
     return RES_NOENT;
   }
   result_t res = RES_OK;
-  res |= iRecordHeader.parse(reader);
-	res |= iGPSRecord.parse(reader);
-  res |= iRecordIo.parse(reader, iCodec);
-
-	if (res != RES_OK) {
-		SPDLOG_LOGGER_ERROR(this->logger(), "Unable to parse some AVL data.");
+  if((res = iRecordHeader.parse(reader)) != RES_OK) {
+		return res;
+	}
+	if((res = iGPSRecord.parse(reader)) != RES_OK) {
+		return res;
+	}
+	if((res = iRecordIo.parse(reader, iCodec)) != RES_OK) {
 		return res;
 	}
 

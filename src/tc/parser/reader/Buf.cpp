@@ -5,7 +5,6 @@ namespace tc::parser::reader {
 
 Buf::Buf(const size_t size)
  : iBuf(ByteArray(size))
- , iPos(0)
 {
 	// nothing to do
 }
@@ -29,6 +28,17 @@ Buf::Buf(const std::string &rhs)
 
 Buf::Buf(const ByteArray &rhs)
  : iBuf(ByteArray(rhs.begin(), rhs.end()))
+{
+	// nothing to do
+}
+
+Buf::Buf(Buf::ByteArray::iterator &begin, Buf::ByteArray::iterator &end)
+ : iBuf(ByteArray(begin, end))
+{
+	// nothing to do
+}
+
+Buf::~Buf()
 {
 	// nothing to do
 }
