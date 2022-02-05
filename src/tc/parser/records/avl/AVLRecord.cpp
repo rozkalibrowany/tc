@@ -3,7 +3,7 @@
 namespace tc::parser::records::avl {
 
 AVLRecord::AVLRecord(int codec)
- : common::LogI("console")
+ : tc::LogI("console")
  , iCodec(codec)
 {
   // nothing to do
@@ -15,7 +15,23 @@ AVLRecord::AVLRecord()
   // nothing to do
 }
 
-result_t AVLRecord::read(const reader::ReaderSPtr &reader)
+AVLRecord &AVLRecord::operator=(AVLRecord &&rhs)
+{
+	if (this == &rhs) return *this;
+
+	iCodec = rhs.iCodec;
+	iRecordHeader = rhs.iRecordHeader;
+	iGPSRecord = rhs.iGPSRecord;
+	iRecordIo = rhs.iRecordIo;
+
+	rhs.iRecordHeader.clear();
+	rhs.iGPSRecord.clear();
+	rhs.iRecordIo.clear();
+
+	return *this;
+}
+
+result_t AVLRecord::read(const std::shared_ptr< Reader > &reader)
 {
 	if (reader == nullptr) {
     return RES_NOENT;
@@ -31,7 +47,7 @@ result_t AVLRecord::read(const reader::ReaderSPtr &reader)
 		return res;
 	}
 
-	SPDLOG_LOGGER_INFO(this->logger(), "\n{}{}{}", iRecordHeader.toString(), iGPSRecord.toString(), iRecordIo.toString());
+	LG_NFO(this->logger(), "\n{}{}{}", iRecordHeader.toString(), iGPSRecord.toString(), iRecordIo.toString());
   return res;
 }
 

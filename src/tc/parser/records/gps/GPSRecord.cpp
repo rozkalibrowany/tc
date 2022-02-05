@@ -15,6 +15,17 @@ GPSRecord::GPSRecord()
   // nothing to do
 }
 
+void GPSRecord::clear()
+{
+	iData.iAltitude = 0;
+	iData.iLatitude = 0;
+	iData.iLongitude = 0;
+	iData.iAngle = 0;
+	iData.iSatellites = 0;
+	iData.iSpeed = 0;
+}
+
+
 bool GPSRecord::empty() const
 {
 	return iData.empty();
@@ -30,12 +41,12 @@ const GPSData &GPSRecord::cdata() const
   return iData;
 }
 
-result_t GPSRecord::parse(const reader::ReaderSPtr &reader, int codec)
+result_t GPSRecord::parse(const std::shared_ptr< Reader > &reader, int codec)
 {
   return RES_OK;
 }
 
-result_t GPSRecord::parse(const reader::ReaderSPtr &reader)
+result_t GPSRecord::parse(const std::shared_ptr< Reader > &reader)
 {
   if (reader == nullptr) {
     return RES_INVARG;

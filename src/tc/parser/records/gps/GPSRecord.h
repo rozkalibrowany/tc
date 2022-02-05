@@ -2,7 +2,6 @@
 #define D426066F_F3EE_412F_864E_4D6726173ECE
 
 #include <tc/parser/records/RecordI.h>
-#include <chrono>
 
 namespace tc::parser::records::gps {
 
@@ -31,12 +30,13 @@ public:
 
 	GPSRecord &operator=(const GPSRecord &rhs) = default;
 
+	void clear() override;
 	bool empty() const override;
 	GPSData &data();
 	const GPSData &cdata() const;
 
-  result_t parse(const reader::ReaderSPtr &reader) override;
-	result_t parse(const reader::ReaderSPtr &reader, int codec) override;
+  result_t parse(const std::shared_ptr< Reader > &reader) override;
+	result_t parse(const std::shared_ptr< Reader > &reader, int codec) override;
 
 	std::string toString() override;
 

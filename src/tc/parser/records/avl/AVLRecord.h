@@ -4,9 +4,7 @@
 #include <tc/parser/records/avl/AVLRecordHeader.h>
 #include <tc/parser/records/io/IoRecord.h>
 #include <tc/parser/records/gps/GPSRecord.h>
-#include <tc/parser/reader/Reader.h>
-#include <tc/common/Result.h>
-#include <tc/common/Logger.h>
+#include <tc/parser/Reader.h>
 
 namespace tc::parser::records::avl {
 
@@ -14,14 +12,16 @@ class AVLRecord;
 using AVLRecordSPtr = std::shared_ptr< AVLRecord >;
 using AVLRecordList = std::vector< AVLRecordSPtr >;
 
-class AVLRecord : public common::LogI {
+class AVLRecord : public tc::LogI {
 public:
 	AVLRecord();
 	AVLRecord(int codec);
 
+	AVLRecord &operator=(AVLRecord &&rhs);
+
 	virtual ~AVLRecord() = default;
 
-	result_t read(const reader::ReaderSPtr &reader);
+	result_t read(const std::shared_ptr< Reader > &reader);
 	result_t set(const int codec);
 
 	int iCodec;

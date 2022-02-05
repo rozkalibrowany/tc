@@ -15,12 +15,12 @@ bool IoRecordProperty::empty() const
 	return iID == 0 && iValue == 0;
 }
 
-result_t IoRecordProperty::parse(const reader::ReaderSPtr &reader)
+result_t IoRecordProperty::parse(const std::shared_ptr< Reader > &reader)
 {
 	return RES_NOIMPL;
 }
 
-result_t IoRecordProperty::parse(const reader::ReaderSPtr &reader, int id_size)
+result_t IoRecordProperty::parse(const std::shared_ptr< Reader > &reader, int id_size)
 {
 	return RES_NOIMPL;
 }
@@ -53,12 +53,12 @@ bool IoMcanProperty::empty() const
 	return iIoElements.empty();
 }
 
-result_t IoMcanProperty::parse(const reader::ReaderSPtr &reader)
+result_t IoMcanProperty::parse(const std::shared_ptr< Reader > &reader)
 {
 	return RES_NOIMPL;
 }
 
-result_t IoMcanProperty::parse(const reader::ReaderSPtr &reader, int id_size)
+result_t IoMcanProperty::parse(const std::shared_ptr< Reader > &reader, int id_size)
 {
 	if (reader == nullptr) {
 		return RES_INVARG;

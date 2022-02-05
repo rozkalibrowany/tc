@@ -119,7 +119,8 @@ tc_find_package_status(NAME cppcommon REQUIRED)
 tc_find_package_status(NAME cppserver REQUIRED)
 add_subdirectory("src/tc/common")
 add_subdirectory("src/tc/parser")
-add_subdirectory("src/tc/server")
+add_subdirectory("src/tc/server/tcp")
+#add_subdirectory("src/tc/server/tcp/commands")
 
 add_custom_target(
 	conan-install

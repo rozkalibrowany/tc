@@ -29,15 +29,16 @@ public:
 
 	virtual ~IoRecord() = default;
 
+	void clear() override;
 	bool empty() const override;
-	result_t parse(const reader::ReaderSPtr &reader, int codec) override;
-	result_t parse(const reader::ReaderSPtr &reader) override;
+	result_t parse(const std::shared_ptr< Reader > &reader, int codec) override;
+	result_t parse(const std::shared_ptr< Reader > &reader) override;
 
 	std::string toString() override;
 
 private:
-	result_t parseFixedSize(const reader::ReaderSPtr &reader, IoRecordsPropertyList &list, int ioIdSize, int byteSize);
-	result_t parseVariableSize(const reader::ReaderSPtr &reader, IoRecordsPropertyList &list, int ioIdSize);
+	result_t parseFixedSize(const std::shared_ptr< Reader > &reader, IoRecordsPropertyList &list, int ioIdSize, int byteSize);
+	result_t parseVariableSize(const std::shared_ptr< Reader > &reader, IoRecordsPropertyList &list, int ioIdSize);
 	int getIdSize(int codec);
 
 	int iEventID;

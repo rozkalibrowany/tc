@@ -2,7 +2,6 @@
 #define D876042F_EF7D_45D4_82F7_B53125967A96
 
 #include <tc/parser/records/RecordI.h>
-#include <chrono>
 
 namespace tc::parser::records::avl {
 
@@ -17,8 +16,9 @@ public:
 	AVLRecordHeader &operator=(const AVLRecordHeader &rhs);
 
 	bool empty() const override;
-	result_t parse(const reader::ReaderSPtr &reader) override;
-	result_t parse(const reader::ReaderSPtr &reader, int codec) override;
+	void clear() override;
+	result_t parse(const std::shared_ptr<Reader> &reader) override;
+	result_t parse(const std::shared_ptr< Reader > &reader, int codec) override;
 	std::string toString() override;
 
 protected:

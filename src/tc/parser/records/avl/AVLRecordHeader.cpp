@@ -23,12 +23,18 @@ AVLRecordHeader& AVLRecordHeader::operator=(const AVLRecordHeader &rhs)
   return *this;
 }
 
+void AVLRecordHeader::clear()
+{
+	iTimestamp = 0LL;
+	iPriority = 0;
+}
+
 bool AVLRecordHeader::empty() const
 {
 	return (iTimestamp == 0LL && iPriority == 0);
 }
 
-result_t AVLRecordHeader::parse(const reader::ReaderSPtr &reader)
+result_t AVLRecordHeader::parse(const std::shared_ptr< Reader > &reader)
 {
   if (reader == nullptr) {
     return RES_INVARG;
@@ -40,7 +46,7 @@ result_t AVLRecordHeader::parse(const reader::ReaderSPtr &reader)
   return RES_OK;
 }
 
-result_t AVLRecordHeader::parse(const reader::ReaderSPtr &reader, int codec)
+result_t AVLRecordHeader::parse(const std::shared_ptr< Reader > &reader, int codec)
 {
   return parse(reader);
 }

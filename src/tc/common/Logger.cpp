@@ -1,6 +1,6 @@
 #include <tc/common/Logger.h>
 
-namespace tc::common {
+namespace tc {
 
 SpdLogSptr LogI::defaultLogger(const std::string name)
 {
@@ -46,4 +46,4 @@ const std::string &LogI::name() const
 	return m_name;
 }
 
-} // namespace tc::common
+} // namespace tc

@@ -1,5 +1,5 @@
 //#include <tc/common/Convert.h>
-#include <tc/parser/Packet.h>
+#include <tc/parser/packet/Packet.h>
 #include <string>
 
 int main(int argc, char** argv) {
@@ -8,7 +8,7 @@ int main(int argc, char** argv) {
   std::string fromHex = tc::hex_to_string(str);
 
 
-  unsigned char v[fromHex.length() + 1];
+  uchar v[fromHex.length() + 1];
   std::copy(fromHex.data(), fromHex.data() + fromHex.length() + 1, v);
 
   tc::parser::Packet packet;

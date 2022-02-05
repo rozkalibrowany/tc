@@ -1,9 +1,9 @@
 #ifndef FEE8E53A_FF07_4D39_8BDA_27202A9F053E
 #define FEE8E53A_FF07_4D39_8BDA_27202A9F053E
 
-#include <tc/parser/reader/Reader.h>
+#include <tc/parser/Reader.h>
 #include <tc/parser/records/RecordI.h>
-#include <tc/common/Result.h>
+#include <tc/common/Common.h>
 #include <list>
 
 namespace tc::parser::records::io {
@@ -13,8 +13,8 @@ public:
 	IoRecordProperty(int id = 0, int64_t val = 0);
 	virtual ~IoRecordProperty() = default;
 
-	result_t parse(const reader::ReaderSPtr &reader) override;
-	result_t parse(const reader::ReaderSPtr &reader, int id_size) override;
+	result_t parse(const std::shared_ptr< Reader > &reader) override;
+	result_t parse(const std::shared_ptr< Reader > &reader, int id_size) override;
 
 	bool empty() const override;
 	std::string toString() override;
@@ -39,8 +39,8 @@ public:
 	IoMcanProperty(int id = 0);
 	virtual ~IoMcanProperty() = default;
 
-	result_t parse(const reader::ReaderSPtr &reader) override;
-	result_t parse(const reader::ReaderSPtr &reader, int id_size) override;
+	result_t parse(const std::shared_ptr< Reader > &reader) override;
+	result_t parse(const std::shared_ptr< Reader > &reader, int id_size) override;
 
 	bool empty() const override;
 	std::string toString() override;

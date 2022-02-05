@@ -1,7 +1,7 @@
-#include <tc/parser/reader/Buf.h>
+#include <tc/parser/Buf.h>
 #include <array>
 
-namespace tc::parser::reader {
+namespace tc::parser {
 
 Buf::Buf(const size_t size)
  : iBuf(ByteArray(size))
@@ -9,21 +9,10 @@ Buf::Buf(const size_t size)
 	// nothing to do
 }
 
-Buf::Buf(const unsigned char *rhs, size_t size)
+Buf::Buf(const uchar *rhs, size_t size)
  : iBuf(rhs, rhs + size)
 {
 	// nothing to do
-}
-
-Buf::Buf(const char *rhs, size_t size)
- : Buf(reinterpret_cast< const unsigned char* >(rhs), size)
-{
-  // nothing to do
-}
-Buf::Buf(const std::string &rhs)
- : Buf(rhs.c_str(), rhs.size())
-{
-  // nothing to do
 }
 
 Buf::Buf(const ByteArray &rhs)
@@ -40,7 +29,7 @@ Buf::Buf(Buf::ByteArray::iterator &begin, Buf::ByteArray::iterator &end)
 
 Buf::~Buf()
 {
-	// nothing to do
+	iBuf.clear();
 }
 
 Buf &Buf::operator=(const Buf &rhs)
@@ -54,12 +43,23 @@ bool Buf::operator==(const Buf &rhs) const
 	return iBuf == rhs.iBuf;
 }
 
-unsigned char &Buf::operator[](uint idx)
+Buf &Buf::operator=(Buf &&rhs)
+{
+	if (this == &rhs) return *this;
+
+	iBuf.clear();
+	iBuf.swap(rhs.iBuf);
+
+	rhs.iBuf.clear();
+	return *this;
+}
+
+uchar &Buf::operator[](uint idx)
 {
 	return iBuf[idx];
 }
 
-const unsigned char &Buf::operator[](uint idx) const
+const uchar &Buf::operator[](uint idx) const
 {
 	return iBuf[idx];
 }

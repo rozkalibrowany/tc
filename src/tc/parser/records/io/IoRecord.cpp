@@ -28,17 +28,24 @@ int IoRecord::getIdSize(int codec)
   }
 }
 
+void IoRecord::clear()
+{
+	iEventID = 0;
+	iElements = 0;
+	iRecordsMap.clear();
+}
+
 bool IoRecord::empty() const
 {
 	return iRecordsMap.empty();
 }
 
-result_t IoRecord::parse(const reader::ReaderSPtr &reader)
+result_t IoRecord::parse(const std::shared_ptr< Reader > &reader)
 {
   return RES_NOIMPL;
 }
 
-result_t IoRecord::parse(const reader::ReaderSPtr &reader, int codec)
+result_t IoRecord::parse(const std::shared_ptr< Reader > &reader, int codec)
 {
   if (reader == nullptr) {
     return RES_INVARG;
@@ -69,7 +76,7 @@ result_t IoRecord::parse(const reader::ReaderSPtr &reader, int codec)
   return res;
 }
 
-result_t IoRecord::parseFixedSize(const reader::ReaderSPtr &reader, IoRecordsPropertyList &list, int ioIdSize, int byteSize)
+result_t IoRecord::parseFixedSize(const std::shared_ptr< Reader > &reader, IoRecordsPropertyList &list, int ioIdSize, int byteSize)
 {
 	int recordsCount = static_cast< int>(reader->readU(ioIdSize));
 
@@ -82,7 +89,7 @@ result_t IoRecord::parseFixedSize(const reader::ReaderSPtr &reader, IoRecordsPro
 	return RES_OK;
 }
 
-result_t IoRecord::parseVariableSize(const reader::ReaderSPtr &reader, IoRecordsPropertyList &list, int ioIdSize)
+result_t IoRecord::parseVariableSize(const std::shared_ptr< Reader > &reader, IoRecordsPropertyList &list, int ioIdSize)
 {
 	int recordsCount = static_cast< int>(reader->readU(ioIdSize));
 	std::shared_ptr< IoRecordProperty > ioProperty;
@@ -91,26 +98,27 @@ result_t IoRecord::parseVariableSize(const reader::ReaderSPtr &reader, IoRecords
 		auto id = reader->readU(ioIdSize);
 		auto length = reader->readU(2);
 
-		auto begin = reader->iBuf.begin() + reader->iOffset;
-		auto end = reader->iBuf.begin() + reader->iOffset + length;
+		auto begin = reader->iBuf->begin() + reader->iOffset;
+		auto end = reader->iBuf->begin() + reader->iOffset + length;
 
-		if (begin == reader->iBuf.end() || end == reader->iBuf.end()) {
-			SPDLOG_LOGGER_ERROR(this->logger(), "Unable to create copy buffer. Offset[{}], length[{}]", reader->iOffset, length);
+		if (begin == reader->iBuf->end() || end == reader->iBuf->end()) {
+			LG_ERR(this->logger(), "Unable to create copy buffer. Offset[{}], length[{}]", reader->iOffset, length);
 			return RES_NOENT;
 		}
 
-		reader::Buf subBuf(begin, end);
+		//Buf subBuf(begin, end);
+		auto subBuf = std::make_unique<Buf>(begin, end);
 
 		if (id == 10358) {
 			ioProperty = std::make_shared< IoMcanProperty >(id);
-			auto readerMcan = std::make_shared<reader::Reader>(subBuf);
+			auto readerMcan = std::make_shared< Reader >(std::move(subBuf));
 			if (ioProperty->parse(readerMcan) != RES_OK) {
-				SPDLOG_LOGGER_ERROR(this->logger(), "Unable to parse Mcan. Offset[{}], length[{}]", reader->iOffset, length);
+				LG_ERR(this->logger(), "Unable to parse Mcan. Offset[{}], length[{}]", reader->iOffset, length);
 				return RES_NOENT;
 			}
 		} else {
-			ioProperty = std::make_shared< IoRecordProperty >(id, subBuf.size());
-			reader->skip(subBuf.size());
+			ioProperty = std::make_shared< IoRecordProperty >(id, subBuf->size());
+			reader->skip(subBuf->size());
 		}
 
 		list.push_back(ioProperty);

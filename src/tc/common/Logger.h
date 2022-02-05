@@ -9,7 +9,7 @@
 #include <memory>
 #include <string>
 
-namespace tc::common {
+namespace tc {
 
 using SpdLogSptr = std::shared_ptr<spdlog::logger>;
 class Log;
@@ -44,6 +44,6 @@ public:
 	virtual ~Log() = default;
 };
 
-} // namespace tc::common
+} // namespace tc
 
 #endif /* CD123D7B_6390_454A_9DB3_5EAE34FB9315 */
