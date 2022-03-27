@@ -11,9 +11,9 @@ class AsioService : public CppServer::Asio::Service
 public:
 	using CppServer::Asio::Service::Service;
 
-	virtual ~AsioService() = default;
+protected:
+	void onError(int error, const std::string &category, const std::string &message) override;
 };
-
 
 } // namespace tc::server::tcp
 

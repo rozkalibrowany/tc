@@ -1,14 +1,6 @@
-#include <tc/client/TelematicsClient.h>
+#include <client/tcp/TelematicsClient.h>
 
 namespace tc::client::tcp {
-
-
-TelematicsClient::TelematicsClient(const std::shared_ptr< AsioService >& service, const std::string& address, int port)
- : CppServer::Asio::TCPClient(service, address, port)
- , tc::LogI("console")
-{
-	// nothing to do
-}
 
 void TelematicsClient::disconnectAndStop()
 {

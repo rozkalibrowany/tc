@@ -13,7 +13,8 @@ std::shared_ptr<TelematicsServer> TelematicsSession::tcServer()
 
 void TelematicsSession::onReceived(const void *buffer, size_t size)
 {
-	LG_NFO(this->logger(), "Session[{}] received buffer[{}]", id().string(), unsigned_char_to_string((const uchar*) buffer, size));
+
+	LG_NFO(this->logger(), "Session[{}] received buffer[{}] [{}]", id().string(), size, unsigned_char_to_string((unsigned char*) buffer, size));
 
 	Action action;
 	if (action.parse(buffer, size) != RES_OK)
@@ -87,7 +88,7 @@ result_t TelematicsSession::handlePayload(const uchar *buffer, size_t size, bool
 	int response = 0;
 
 	if (iImei.empty()) { //  && iServer->has(iImei) == true
-		send(response);
+		send(response, true);
 		return res;
 	}
 
@@ -95,13 +96,14 @@ result_t TelematicsSession::handlePayload(const uchar *buffer, size_t size, bool
 
 	res = checkCrc(buf, size, crc_ok);
 	if (res != RES_OK) {
-		send(response);
+		send(response, true);
 		return res;
 	}
 
 	if (crc_ok == false) {
 		LG_WRN(this->logger(), "Incorrect CRC checksum.");
 		iBufferIncomplete = buf;
+		CppCommon::Thread::Sleep(100);
 		return RES_NOENT;
 	}
 

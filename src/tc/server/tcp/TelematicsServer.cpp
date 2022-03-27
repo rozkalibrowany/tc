@@ -21,10 +21,7 @@ TelematicsServer::PayloadPackets &TelematicsServer::payloadPackets()
 
 std::shared_ptr< CppServer::Asio::TCPSession > TelematicsServer::CreateSession(const std::shared_ptr< TCPServer > &server)
 {
-	auto s = std::make_shared< TelematicsSession >(server);
-	s->ReceiveAsync();
-
-	return std::move(s);
+	return std::make_shared< TelematicsSession >(server);
 }
 
 void TelematicsServer::onConnected(std::shared_ptr< CppServer::Asio::TCPSession > &session)

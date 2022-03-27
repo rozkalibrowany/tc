@@ -8,7 +8,7 @@
 #ifndef E9477072_6179_498A_92A0_E6BDB3FF0516
 #define E9477072_6179_498A_92A0_E6BDB3FF0516
 
-#include <tc/client/CommandFactory.h>
+#include <client/tcp/CommandFactory.h>
 #include <tc/common/CRC16.h>
 #include <iostream>
 #include <algorithm>
@@ -26,6 +26,20 @@ const std::string CommandFactory::cmd_led_off = "scledctrl 0";
 const std::string CommandFactory::cmd_engine_on = "scenginectrl 1";
 const std::string CommandFactory::cmd_engine_off = "scenginectrl 0";
 
+const std::string CommandFactory::getCommandType(const std::string &cmd)
+{
+	if (cmd.compare("unlock") == 0) {
+		return CommandFactory::cmd_unlock;
+	} else if (cmd.compare("lock") == 0) {
+		return CommandFactory::cmd_lock;
+	} else if (cmd.compare("engine_on") == 0) {
+		return CommandFactory::cmd_engine_on;
+	} else if (cmd.compare("engine_off") == 0) {
+		return CommandFactory::cmd_engine_off;
+	}
+	return std::string();
+}
+
 CommandFactory::CommandFactory(const std::string &imei)
 	: tc::LogI("console")
 	, iImei(imei)
@@ -33,70 +47,49 @@ CommandFactory::CommandFactory(const std::string &imei)
 		// nothing to do
 }
 
-result_t CommandFactory::create(std::map< int, std::vector< uchar > > &cmdMap, const std::string &cmd, bool cr)
+std::string CommandFactory::create(const std::string &cmd, bool cr)
 {
-	result_t res = RES_INVARG;
-
 	auto command = cmd;
 	std::transform(command.begin(), command.end(), command.begin(),
 		[](unsigned char c) { return std::tolower(c); });
 
-	if (command.compare("unlock") == 0) {
-		std::vector<uchar> unlock;
-		std::string sPacket = "00000000"; // 4 zero-bytes
 
-		std::string data;
-		data += "0C"; //0x0C
-		data += "01"; //0x1
-		data += "05"; //0x05
-		data += "000000"; // 3 zero-bytes
-		data += getHex(CommandFactory::cmd_unlock.length());
-		data += tc::tohex(CommandFactory::cmd_unlock, true);
-		data += "01"; //0x1
+	std::string sPacket = "00000000"; // 4 zero-bytes
 
-		common::CRC16 crc;
-		auto crcStr = data;
-		crcStr.erase(0, 1);
-		auto sum = crc.calc(crcStr);
-		auto calc = getHex(sum);
+	std::string data;
+	data += "0C"; //0x0C
+	data += "01"; //0x1
+	data += "05"; //0x05
+	data += "000000"; // 3 zero-bytes
+	data += getStringHex(CommandFactory::getCommandType(cmd).length());
+	data += tc::tohex(CommandFactory::getCommandType(cmd), true);
+	data += "01"; //0x1
 
-		sPacket += "000000"; // 3 zero-bytes
-		sPacket += getHex(data.length() / 2);
-		sPacket += data;
-		sPacket += cr ? "0D0A" : "0000"; // <CR><LF>
-		sPacket += calc;
+	common::CRC16 crc;
+	auto sum = crc.calc((const uchar *) data.data(), data.size());
+	auto calc = getStringHex(sum);
 
-		res |= convertCommand(unlock, sPacket);
+	sPacket += "000000"; // 3 zero-bytes
+	sPacket += getStringHex(data.length() / 2);
+	sPacket += data;
+	sPacket += cr ? "0D0A" : "0000"; // <CR><LF>
+	sPacket += calc;
 
-		for (const auto c : unlock) {
-			std::cout << c;
-		}
-		std::cout << std::endl;
-	}
-	return RES_OK;
+	return sPacket;
 }
 
-inline std::string CommandFactory::getHex(int val, int width)
+inline std::string CommandFactory::getStringHex(int val, int width)
 {
 	std::stringstream ss;
 	ss << std::setw(width) << std::setfill('0') << std::hex << (val);
 	std::string res(ss.str());
 
 	std::transform(res.begin(), res.end(), res.begin(),
-		[](unsigned char c) { return std::toupper(c); });
+		[](char c) { return std::toupper(c); });
 
 	return res;
 }
 
-result_t CommandFactory::convertCommand(std::vector<uchar> &packet, const std::string &cmd)
-{
-	std::string stringHex = tc::tohex(cmd, true);
-
-	std::transform(stringHex.begin(), stringHex.end(), back_inserter(packet),
-    [](uchar c) { return reinterpret_cast<uchar>(c); });
-
-	return RES_OK;
-}
 
 } // namespace tc::client::tcp
 

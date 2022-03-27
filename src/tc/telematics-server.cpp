@@ -42,7 +42,7 @@ int main(int argc, char** argv)
 
 	while (true) {
 		//sleep(1);
-		CppCommon::Thread::Sleep(1000);
+		CppCommon::Thread::Sleep(500);
 		////spdlog::info("Alive! server address: {} connected sessions: {} threads: {} IsPolling: {} IsStarted: {}",
 		//server->address(), (int) server->connected_sessions(), (int) service->threads(), (int) service->IsPolling(), (int) service->IsStarted());
 		LG_NFO(log.logger(), "sessionsSize: {} payloadPackets size {} service threads: {}", server->sessionsSize(), (int) server->payloadPackets().size(), service->threads());

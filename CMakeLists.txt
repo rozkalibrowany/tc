@@ -119,7 +119,7 @@ tc_find_package_status(NAME args-parser REQUIRED)
 #add_subdirectory("src/tc/common")
 #add_subdirectory("src/tc/parser")
 add_subdirectory("src/tc")
-#add_subdirectory("src/tc/client")
+add_subdirectory("src/client")
 #add_subdirectory("src/tc/server/tcp/commands")
 
 add_custom_target(
