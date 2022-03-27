@@ -1,11 +1,12 @@
 from conans import ConanFile, python_requires
+import os
 
-tc = python_requires('tc/0.2.0@tc/stable')
+tc = python_requires('tc/0.3.0@tc/stable')
 opts = tc.OptCreator() \
  .add_bool('shared', True)
 
-class FmtConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelper):
-	name = 'fmt'
+class ArgsParserConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelper):
+	name = 'args-parser'
 	license = 'MIT'
 	exports_sources = ['CMakeLists.txt']
 	generators = tc.CmakeHelper.generators
@@ -20,20 +21,18 @@ class FmtConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelper):
 		return s.do_source()
 
 	def build(s):
-		definitions = {
-		    'FMT_DOC': False,
-		    'FMT_TEST': False,
-		    'FMT_INSTALL': True,
-		}
-		s.do_build(definitions=definitions)
+		s.do_build(definitions=None)
 
 	def package(s):
-		s.do_package()
+		s.copy("*.hpp", src=os.path.join(s._source_subfolder, "args-parser"), dst=os.path.join("include", "args-parser"))
+
+	def package_id(s):
+		s.info.header_only()
 
 	def package_info(s):
 		s.add_components([
 		    {
 		        'target': 'lib',
-		        'libs': ['fmt'],
+		        'libs': ['args-parser'],
 		    },
 		])

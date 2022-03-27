@@ -54,7 +54,7 @@ macro(TcTarget)
 	list(GET TcTarget_VERSION 1 minor)
 	list(GET TcTarget_VERSION 2 patch)
 
-	set_target_properties(${target} PROPERTIES VERSION ${major}.${minor}.${patch} SOVERSION ${major}.${minor}.${patch})
+	set_target_properties(${target} PROPERTIES VERSION 0.3.0 SOVERSION 0.3.0)
 endmacro(TcTarget)
 
 macro(TcAddLibrary)

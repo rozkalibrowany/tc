@@ -21,8 +21,7 @@ public:
 		SysTime timestamp;
 	};
 
-	Packet(bool time_now = true);
-	Packet(const ID &id);
+	Packet(const std::string imei = "");
 	virtual ~Packet() = default;
 
 	virtual bool operator<(const Packet &rhs) const;
@@ -31,16 +30,17 @@ public:
 	virtual bool operator>=(const Packet &rhs) const;
 	virtual bool operator==(const Packet &rhs) const;
 
-	virtual result_t parse(uchar *cbuf, size_t size) = 0;
+	virtual result_t parse(const uchar *cbuf, size_t size) = 0;
+	virtual const size_t size() = 0;
+	virtual void setImei(const std::string imei);
 
 	virtual int codec() const;
-	virtual int totalRecords() const;
 	virtual const ID &id() const;
 
 protected:
 	ID iID;
+	std::string iImei;
 	int iCodec;
-	int iTotalRecords;
 };
 
 } // namespace tc::parser

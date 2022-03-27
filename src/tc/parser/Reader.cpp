@@ -1,11 +1,12 @@
 #include <tc/parser/Reader.h>
 #include <tc/common/Common.h>
+#include <iostream>
 #include <array>
 #include <algorithm>
 
 namespace tc::parser {
 
-Reader::Reader(std::unique_ptr< Buf > buf, int offset)
+Reader::Reader(std::shared_ptr<Buf> buf, int offset)
  : iBuf(std::move(buf))
  , iOffset(offset)
 {
@@ -21,10 +22,22 @@ Reader::Reader(std::unique_ptr< Buf > buf, int offset)
 	return *this;
 }*/
 
-uint Reader::readU(int bytes)
+std::shared_ptr<Buf> Reader::buf()
 {
-  Buf subBuf(Buf::ByteArray{iBuf->begin() + iOffset, iBuf->begin() + bytes + iOffset});
-  iOffset += bytes;
+	return iBuf;
+}
+
+int Reader::offset() const
+{
+	return iOffset;
+}
+
+uint Reader::readU(int bytes, int offset)
+{
+	auto offs = offset == 0 ? iOffset : offset;
+  Buf subBuf(Buf::ByteArray{iBuf->begin() + offs, iBuf->begin() + bytes + offs});
+	if (offset == 0)
+		iOffset += bytes;
   std::reverse(subBuf.begin(), subBuf.end());
 
   if (bytes == 1)
@@ -36,10 +49,12 @@ uint Reader::readU(int bytes)
   return 0;
 }
 
-int64_t Reader::readL(int bytes)
+int64_t Reader::readL(int bytes, int offset)
 {
-  Buf subBuf(Buf::ByteArray{iBuf->begin() + iOffset, iBuf->begin() + bytes + iOffset});
-  iOffset += bytes;
+	auto offs = offset == 0 ? iOffset : offset;
+  Buf subBuf(Buf::ByteArray{iBuf->begin() + offs, iBuf->begin() + bytes + offs});
+	if (offset == 0)
+		iOffset += bytes;
   std::reverse(subBuf.begin(), subBuf.end());
 
   if (bytes == 1)
@@ -51,10 +66,12 @@ int64_t Reader::readL(int bytes)
   return 0;
 }
 
-int Reader::read(int bytes)
+int Reader::read(int bytes, int offset)
 {
-  Buf subBuf(Buf::ByteArray{iBuf->begin() + iOffset, iBuf->begin() + bytes + iOffset});
-  iOffset += bytes;
+	auto offs = offset == 0 ? iOffset : offset;
+	Buf subBuf(Buf::ByteArray{iBuf->begin() + offs, iBuf->begin() + bytes + offs});
+	if (offset == 0)
+		iOffset += bytes;
   std::reverse(subBuf.begin(), subBuf.end());
 
   if (bytes == 1)
@@ -70,21 +87,6 @@ int Reader::read(int bytes)
 		return static_cast<int>(subBuf.toInt64(0));
 
   return 0;
-}
-
-std::string Reader::readImei(const std::string &str)
-{
-	if (str.empty()) {
-		return std::string();
-	}
-
-	std::string s_out;
-	for (std::string::size_type i = 1; i < str.size(); i += 2)
-	{
-		char c = str[i];
-		s_out.push_back(c);
-	}
-	return s_out;
 }
 
 void Reader::skip(int bytes)

@@ -10,6 +10,13 @@ IoRecordProperty::IoRecordProperty(int id, int64_t val)
 	// nothing to do
 }
 
+void IoRecordProperty::clear()
+{
+	iID = 0;
+	iValue = 0;
+	iData.clear();
+}
+
 bool IoRecordProperty::empty() const
 {
 	return iID == 0 && iValue == 0;

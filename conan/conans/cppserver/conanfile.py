@@ -1,51 +1,66 @@
 from conans import ConanFile, tools, python_requires
 import os
 import os.path as osp
+import glob
 
-tc = python_requires("tc/0.2.0@tc/stable")
-opts = tc.OptCreator().add_bool("shared", True)
+tc = python_requires("tc/0.3.0@tc/stable")
+opts = (
+    tc.OptCreator()
+    .add_bool("shared", True)
+    .add_bool("fPIC", True)
+    .add_bool("system", False)
+)
 
 class CppServerConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelper):
 	name = "cppserver"
 	license = "MIT"
-	exports_sources = ["patches/**", "CMakeLists.txt"]
-#	requires = ["asio/1.20.0"]
-	generators = "cmake_find_package", "cmake"
+	exports_sources = ["CMakeLists.txt", "patches/**"]
+	generators = tc.CmakeHelper.generators
 	settings = tc.CmakeHelper.settings
 	options, default_options = opts.options, opts.default
 
-	@property
-	def _build_subfolder(s):
-		return "build_subfolder"
+	def source(self):
+		return self.do_source()
 
-	def configure(s):
-		del s.settings.compiler.cppstd
-
-	def source(s):
-		return s.do_source()
-
-	def build(s):
-		os.chdir(s._source_subfolder)
-		s.run("gil update")
-		s.run("cd modules/CppCommon/modules/fmt && git checkout 8.0.0")
-		s.run("cd modules/asio/asio && git checkout asio-1-20-0")
+	def build(self):
+		os.chdir(self._source_subfolder)
+		self.run("gil update")
 		definitions = {
-			"CPPSERVER_MODULE": "OFF",
+		"CPPSERVER_MODULE": "OFF",
 		}
-		return s.do_build(definitions=definitions)
+		return self.do_build(definitions=definitions)
 
-	def package(s):
-		inc_dir = osp.join(s._source_subfolder, 'include')
-		lib_dir = osp.join(s._build_subfolder, 'lib')
-		s.copy("*.h", dst="include", src=inc_dir)
-		s.copy("*.inl", dst="include", src=inc_dir)
-		s.copy("*.so", dst="lib", src=lib_dir)
-		return s.do_package()
+	def package(self):
+		inc_dir = osp.join(self._source_subfolder, 'include')
+		lib_dir = osp.join(self._build_subfolder, 'lib')
+		common_dir = osp.join(self._source_subfolder, "modules", "CppCommon", "include")
+		self.copy("*.h", dst="include", src=inc_dir)
+		self.copy("*.h", dst="include", src=common_dir)
+		self.copy("*.inl", dst="include", src=common_dir)
+		self.copy("*.inl", dst="include", src=inc_dir)
+		self.copy("*.so", dst="lib", src=lib_dir)
 
-	def package_info(s):
-		s.add_components([
+	def package_info(self):
+
+		self.add_components([
+
 			{
-					'target': 'lib',
-					'libs': ['cppserver'],
+				"target": "cppcommon",
+				"libs": ['cppcommon'],
+				"requires": [],
 			},
+
+			{
+				"target": "asio",
+				"libs": ['asio'],
+				"requires": [],
+				"system_libs": ["pthread"],
+			},
+
+			{
+				'target': 'lib',
+				'libs': ['cppserver'],
+				"requires": ['cppcommon', 'asio'],
+			},
+
 		])

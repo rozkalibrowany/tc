@@ -1,4 +1,4 @@
 sources:
-  "1.0.1.0":
-    url: https://github.com/chronoxor/CppServer/archive/refs/tags/1.0.1.0.tar.gz
-    sha256: eff49607a18821de6b992e6b0d9c3d48fa6726242546a1da08cbc2832f901ffc
+  "1.0.2.0":
+    url: "https://github.com/chronoxor/CppServer/archive/refs/tags/1.0.2.0.tar.gz"
+    sha256: 512b2ada2ddebcedcfac814e3d0784ccef410506dab5dcf64c56302b40e042d4

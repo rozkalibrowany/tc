@@ -228,7 +228,7 @@ class ComponentHelper(object):
 
 class TcConan(ConanFile):
 	name = 'tc'
-	version = '0.2.0'
+	version = '0.3.0'
 	exports = '*'
 	build_policy = 'missing'
 

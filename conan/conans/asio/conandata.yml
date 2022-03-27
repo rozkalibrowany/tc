@@ -1,4 +1,0 @@
-sources:
-  "1.20.0":
-    url: https://github.com/chriskohlhoff/asio/archive/refs/tags/asio-1-20-0.tar.gz
-    sha256: 34a8f07be6f54e3753874d46ecfa9b7ab7051c4e3f67103c52a33dfddaea48e6

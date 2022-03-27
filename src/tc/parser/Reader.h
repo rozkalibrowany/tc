@@ -10,22 +10,22 @@ namespace tc::parser {
 
 class Reader {
 public:
-  Reader(std::unique_ptr< Buf > buf, int offset = 0);
+  Reader(std::shared_ptr<Buf> buf, int offset = 0);
 	Reader(const Reader &reader) = delete; // delete copy constructor
 
 	~Reader() = default;
 
-	// Reader &operator=(const Reader &reader);
+	std::shared_ptr<Buf> buf();
+	int offset() const;
 
-	int64_t readL(int bytes);
-  uint readU(int bytes);
-  int read(int bytes);
+	int64_t readL(int bytes, int offset = 0);
+  uint readU(int bytes, int offset = 0);
+  int read(int bytes, int offset = 0);
 	void skip(int bytes);
 
-	std::string readImei(const std::string &str);
-
-  std::unique_ptr< Buf > iBuf;
-  int iOffset;
+private:
+	std::shared_ptr<Buf> iBuf;
+	int iOffset;
 };
 
 } // namespace tc::parser

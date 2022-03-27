@@ -2,6 +2,7 @@
 #define B2813421_A4C9_496C_930F_A76CC1C8337F
 
 #include <tc/parser/records/RecordI.h>
+#include <tc/server/tcp/LockGuard.h>
 #include <list>
 #include <map>
 
@@ -24,8 +25,7 @@ public:
 
 	using ByteSizeList = std::vector < ByteSize >;
 
-	IoRecord(int eventID, int elements);
-	IoRecord();
+	IoRecord(int eventID = 0, int elements = 0);
 
 	virtual ~IoRecord() = default;
 
@@ -37,12 +37,13 @@ public:
 	std::string toString() override;
 
 private:
-	result_t parseFixedSize(const std::shared_ptr< Reader > &reader, IoRecordsPropertyList &list, int ioIdSize, int byteSize);
-	result_t parseVariableSize(const std::shared_ptr< Reader > &reader, IoRecordsPropertyList &list, int ioIdSize);
+	result_t parseFixedSize(const std::shared_ptr< Reader > &reader, int ioIdSize, int byteSize);
+	result_t parseVariableSize(const std::shared_ptr< Reader > &reader, int ioIdSize);
 	int getIdSize(int codec);
 
 	int iEventID;
 	int iElements;
+	//SysMutex iMutex;
 	ByteSizeList iByteSizes;
 	IoRecordsPropertyMap iRecordsMap;
 };

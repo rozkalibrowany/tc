@@ -9,27 +9,21 @@ AVLRecord::AVLRecord(int codec)
   // nothing to do
 }
 
-AVLRecord::AVLRecord()
- : AVLRecord(0)
-{
-  // nothing to do
-}
-
-AVLRecord &AVLRecord::operator=(AVLRecord &&rhs)
+/*AVLRecord &AVLRecord::operator=(AVLRecord &&rhs)
 {
 	if (this == &rhs) return *this;
 
 	iCodec = rhs.iCodec;
-	iRecordHeader = rhs.iRecordHeader;
-	iGPSRecord = rhs.iGPSRecord;
-	iRecordIo = rhs.iRecordIo;
+	//iRecordHeader = rhs.iRecordHeader;
+	//iGPSRecord = rhs.iGPSRecord;
+	//iRecordIo = rhs.iRecordIo;
 
 	rhs.iRecordHeader.clear();
 	rhs.iGPSRecord.clear();
 	rhs.iRecordIo.clear();
 
 	return *this;
-}
+}*/
 
 result_t AVLRecord::read(const std::shared_ptr< Reader > &reader)
 {
@@ -47,7 +41,7 @@ result_t AVLRecord::read(const std::shared_ptr< Reader > &reader)
 		return res;
 	}
 
-	LG_NFO(this->logger(), "\n{}{}{}", iRecordHeader.toString(), iGPSRecord.toString(), iRecordIo.toString());
+	//LG_NFO(this->logger(), "\n{}{}{}", iRecordHeader.toString(), iGPSRecord.toString(), iRecordIo.toString());
   return res;
 }
 

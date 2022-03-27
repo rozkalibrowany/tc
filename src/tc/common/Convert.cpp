@@ -1,10 +1,11 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <iostream>
 
 namespace tc {
 
-std::string unsigned_char_to_string(unsigned char* data, uint32_t length)
+std::string unsigned_char_to_string(const unsigned char* data, uint32_t length)
 {
 	std::stringstream ss;
 	ss << std::hex;
@@ -33,6 +34,29 @@ void hex2bin(const char* src, char* target)
 		*(target++) = char2int(*src)*16 + char2int(src[1]);
 		src += 2;
 	}
+}
+
+std::string tohex(const std::string &s, bool upper = false)
+{
+	std::ostringstream ret;
+
+	unsigned int c;
+	for (std::string::size_type i = 0; i < s.length(); ++i)
+	{
+		c = (unsigned int)(unsigned char)s[i];
+		ret << std::hex << std::setfill('0') <<
+			std::setw(2) << (upper ? std::uppercase : std::nouppercase) << c;
+	}
+	return ret.str();
+}
+
+unsigned int hex2int(const unsigned char* data)
+{
+	unsigned int x;
+	std::stringstream ss;
+	ss << std::hex << data;
+	ss >> x;
+	return x;
 }
 
 } // namespace tc

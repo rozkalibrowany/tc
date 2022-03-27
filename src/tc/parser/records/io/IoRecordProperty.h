@@ -16,6 +16,7 @@ public:
 	result_t parse(const std::shared_ptr< Reader > &reader) override;
 	result_t parse(const std::shared_ptr< Reader > &reader, int id_size) override;
 
+	void clear() override final;
 	bool empty() const override;
 	std::string toString() override;
 

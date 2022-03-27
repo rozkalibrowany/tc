@@ -6,8 +6,6 @@
 
 namespace tc::server::tcp {
 
-using namespace parser;
-
 class Action {
 public:
 
@@ -15,15 +13,16 @@ public:
 		unknown = 0,
 		payload,
 		payload_imei,
-		command
+		command,
+		incomplete_payload
 	};
 
 	Action(Type type = Type::unknown);
-	~Action() = default;
+	~Action();
 
-	const Type &type() const;
+	const Type type() const;
 
-	result_t parse(const uchar* buffer, size_t size);
+	result_t parse(const void* buffer, size_t size);
 
 private:
 	Type iType;

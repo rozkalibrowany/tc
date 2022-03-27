@@ -16,7 +16,7 @@ public:
   Buf(const size_t size);
   Buf(const uchar *rhs, size_t size);
   Buf(const ByteArray &rhs);
-	Buf(ByteArray::iterator &begin, ByteArray::iterator &end);
+	Buf(ByteArray::iterator begin, ByteArray::iterator end);
 
 	~Buf();
 

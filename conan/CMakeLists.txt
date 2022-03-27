@@ -64,31 +64,13 @@ add_custom_target(
 )
 
 tc_conan_build_package(NAME tc
-	VERSION 0.2.0
+	VERSION 0.3.0
 	DEPENDS conan-profiles
 	UBUNTU
 )
 
-tc_conan_build_package(NAME fmt
-	VERSION 8.0.0
-	DEPENDS conan-profiles conan-tc-build
-	UBUNTU
-)
-
-tc_conan_build_package(NAME spdlog
-	VERSION 1.9.2
-	DEPENDS conan-profiles conan-tc-build
-	UBUNTU
-)
-
-tc_conan_build_package(NAME cppcommon
-	VERSION 1.0.3.0
-	DEPENDS conan-profiles conan-tc-build
-	UBUNTU
-)
-
-tc_conan_build_package(NAME cppserver
-	VERSION 1.0.1.0
+tc_conan_build_package(NAME args-parser
+	VERSION 6.2.0.1
 	DEPENDS conan-profiles conan-tc-build
 	UBUNTU
 )

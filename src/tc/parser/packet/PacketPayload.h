@@ -18,27 +18,23 @@ public:
 	static size_t DATA_MIN_SIZE;
 	static size_t IMEI_MIN_SIZE;
 
-	PacketPayload(bool time_now = true);
-	PacketPayload(const ID &id);
-
-	virtual ~PacketPayload() = default;
-
 	static bool hasPayload(const uchar* buf, size_t size);
 	static bool hasPayloadImei(const uchar* buf, size_t size);
-	static bool contains(const uchar* cbuf, size_t size, uchar c);
-	static int getIdx(uchar* cbuf, size_t size, const uchar c);
+	static bool contains(const uchar* buf, size_t size, uchar c);
+	static int getIdx(const uchar* cbuf, size_t size, const uchar c);
 
-	result_t parse(uchar* cbuf, size_t size) override;
-	result_t parseImei(uchar* cbuf, size_t size);
+	result_t parse(const uchar* cbuf, size_t size) override;
+	virtual result_t parseImei(const uchar* cbuf, size_t size);
 
-	std::shared_ptr< Reader > &reader();
+	const size_t size() override;
+	std::shared_ptr< Reader > reader();
 
-	std::string imei() const;
+	const std::string imei() const;
 	AVLRecords &records();
 
 private:
 	std::shared_ptr< Reader > iReader;
-	std::string iImei;
+	size_t iRecords;
 	AVLRecords iAVLRecords;
 };
 

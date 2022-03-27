@@ -21,7 +21,7 @@ Buf::Buf(const ByteArray &rhs)
 	// nothing to do
 }
 
-Buf::Buf(Buf::ByteArray::iterator &begin, Buf::ByteArray::iterator &end)
+Buf::Buf(Buf::ByteArray::iterator begin, Buf::ByteArray::iterator end)
  : iBuf(ByteArray(begin, end))
 {
 	// nothing to do

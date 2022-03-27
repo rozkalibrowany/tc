@@ -1,6 +1,6 @@
 from conans import ConanFile, python_requires
 
-tc = python_requires("tc/0.2.0@tc/stable")
+tc = python_requires("tc/0.3.0@tc/stable")
 opts = tc.OptCreator()
 
 
@@ -35,17 +35,15 @@ class TcConan(ConanFile, Os):
 	def configure(s):
 		s.options["*"].shared = True
 		s.options["*/@tc/*"].compiler = "gcc"
-		s.options["*/@tc/*"].compiler.version = "11"
+		s.options["*/@tc/*"].compiler.version = "9"
 		s.options["*/@tc/*"].compiler.libcxx = "libstdc++11"
-		s.options["*/@tc/*"].compiler.cppstd = "2a"
+		s.options["*/@tc/*"].compiler.cppstd = "20"
 
 	def requirements(s):
 		print(s.os_variant, s.os_version)
-		s.requires("tc/0.2.0@tc/stable")
-		s.requires("spdlog/1.9.2@tc/stable")
-		s.requires("fmt/8.0.0@tc/stable")
-		s.requires("cppcommon/1.0.3.0@tc/stable")
-		s.requires("cppserver/1.0.1.0@tc/stable")
+		s.requires("tc/0.3.0@tc/stable")
+		s.requires("args-parser/6.2.0.1@tc/stable")
+		#s.requires("spdlog/1.9.2@tc/stable")
 
 	def imports(self):
 		self.copy("*", src="crt", dst="crt")
@@ -53,4 +51,4 @@ class TcConan(ConanFile, Os):
 		self.copy("*", src="bin", dst="bin")
 		self.copy("*.so.*", src="lib", dst="lib")
 		self.copy("*.so", src="lib", dst="lib")
-		self.copy("*", src="data", dst="data")
+		self.copy("*", src="include", dst="include")

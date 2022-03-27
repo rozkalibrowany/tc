@@ -8,3 +8,10 @@ conan_basic_setup()
 if (NOT BUILD_SYSTEM)
 	add_subdirectory(source_subfolder)
 endif()
+
+install(
+	CODE
+		"
+		message(STATUS \"install dummy\")
+		"
+)

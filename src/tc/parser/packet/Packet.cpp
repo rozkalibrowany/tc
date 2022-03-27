@@ -3,19 +3,12 @@
 
 namespace tc::parser {
 
-Packet::Packet(const ID &id)
+Packet::Packet(const std::string imei)
 	: tc::LogI("console")
-	, iID(id)
+	, iImei(imei)
 	, iCodec(0)
-	, iTotalRecords(0)
 {
 	// nothing to do
-}
-
-Packet::Packet(bool time_now)
- : Packet(ID(time_now))
-{
- // nothing to do
 }
 
 int Packet::codec() const
@@ -23,10 +16,11 @@ int Packet::codec() const
 	return iCodec;
 }
 
-int Packet::totalRecords() const
+void Packet::setImei(const std::string imei)
 {
-	return iTotalRecords;
+	iImei = imei;
 }
+
 
 const Packet::ID &Packet::id() const
 {

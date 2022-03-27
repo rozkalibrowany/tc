@@ -5,11 +5,9 @@
             "includePath": [
                 "/usr/include",
                 "/usr/local/include",
-                "${workspaceFolder}/src",
+                "/usr/local/ws/include",
+								"${workspaceFolder}/src",
                 "${workspaceFolder}/src/tc",
-                "/home/ks/.conan/data/cppserver/1.0.1.0/tc/stable/package/24a1063394942533f2cf97ad5f2ea44fa469331f/include",
-                "/home/ks/.conan/data/cppcommon/1.0.3.0/tc/stable/package/24a1063394942533f2cf97ad5f2ea44fa469331f/include",
-                "/home/ks/.conan/data/spdlog/1.9.2/tc/stable/package/973134d24deb7bd1656cd57f11aaaeb787dcaecb/include",
                 "/usr/include/boost"
             ],
             "defines": [

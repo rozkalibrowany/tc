@@ -76,8 +76,8 @@ SET(TcCompileFlags  "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}}" 
 string (REPLACE " " ";" TcCompileFlagsList "${TcCompileFlags}")
 SET(TcSourceDir     "${CMAKE_CURRENT_SOURCE_DIR}" CACHE STRING "TcSourceDir"     FORCE)
 SET(TcCmakeDir      "${TcSourceDir}/tool/cmake"   CACHE STRING "TcCmakeDir"      FORCE)
-SET(TcIncludeDir    "${TcSourceDir}/src"       CACHE STRING "TcIncludeDir"    FORCE)
-SET(TcInstallPrefix "/usr/local/ifm"              CACHE STRING "TcInstallPrefix" FORCE)
+SET(TcIncludeDir    "${TcSourceDir}/src"          CACHE STRING "TcIncludeDir"    FORCE)
+SET(TcInstallPrefix "/usr/local/ws"               CACHE STRING "TcInstallPrefix" FORCE)
 
 set(CMAKE_INSTALL_PREFIX "${TcInstallPrefix}" CACHE PATH "Prefix prepended to install directories" FORCE)
 
@@ -112,14 +112,14 @@ TcOptMsg("TC_SYSTEM_NAME"             TC_SYSTEM_NAME)
 TcOptMsg("TC_SYSTEM_VERSION"          RG_SYSTEM_VERSION)
 message(STATUS "")
 
-#tc_find_package_status(NAME asio REQUIRED)
-tc_find_package_status(NAME fmt REQUIRED)
-tc_find_package_status(NAME spdlog REQUIRED)
-tc_find_package_status(NAME cppcommon REQUIRED)
-tc_find_package_status(NAME cppserver REQUIRED)
-add_subdirectory("src/tc/common")
-add_subdirectory("src/tc/parser")
-add_subdirectory("src/tc/server/tcp")
+#tc_find_package_status(NAME spdlog REQUIRED)
+tc_find_package_status(NAME args-parser REQUIRED)
+#tc_find_package_status(NAME cppcommon REQUIRED)
+
+#add_subdirectory("src/tc/common")
+#add_subdirectory("src/tc/parser")
+add_subdirectory("src/tc")
+#add_subdirectory("src/tc/client")
 #add_subdirectory("src/tc/server/tcp/commands")
 
 add_custom_target(

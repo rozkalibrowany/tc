@@ -13,17 +13,16 @@ public:
 	static size_t DATA_MIN_SIZE;
 	static size_t IMEI_MIN_SIZE;
 
-	PacketCommand(bool time_now = true);
-	PacketCommand(const ID &id);
+	PacketCommand(const std::string imei = "");
 
 	virtual ~PacketCommand() = default;
 
 	static bool hasCommand(const uchar* cbuf, size_t size);
 
-	result_t parse(uchar* cbuf, size_t size) override;
+	result_t parse(const uchar* cbuf, size_t size) override;
+	const size_t size() override;
 
 private:
-	std::string iImei;
 	uchar *iCommand;
 };
 

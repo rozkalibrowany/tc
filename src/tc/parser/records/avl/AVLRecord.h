@@ -14,10 +14,9 @@ using AVLRecordList = std::vector< AVLRecordSPtr >;
 
 class AVLRecord : public tc::LogI {
 public:
-	AVLRecord();
-	AVLRecord(int codec);
+	AVLRecord(int codec = 142);
 
-	AVLRecord &operator=(AVLRecord &&rhs);
+	//AVLRecord &operator=(AVLRecord &&rhs);
 
 	virtual ~AVLRecord() = default;
 

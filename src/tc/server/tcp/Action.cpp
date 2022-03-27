@@ -10,34 +10,34 @@ Action::Action(Type type)
 	// nothing to do
 }
 
-const Action::Type &Action::type() const
+Action::~Action()
+{
+
+}
+
+const Action::Type Action::type() const
 {
 	return iType;
 }
 
-result_t Action::parse(const uchar* buffer, size_t size)
+result_t Action::parse(const void* buffer, size_t size)
 {
-	Type type = Type::unknown;
+	auto type = Type::unknown;
 
-	if (PacketPayload::hasPayload(buffer, size) == true) {
+	if (parser::PacketPayload::hasPayload((const uchar*) buffer, size) == true) {
 		type = Type::payload;
 	}
 
-	if (PacketPayload::hasPayloadImei(buffer, size) == true) {
+	if (parser::PacketPayload::hasPayloadImei((const uchar*) buffer, size) == true) {
 		type = Type::payload_imei;
 	}
 
-	if (PacketCommand::hasCommand(buffer, size) == true) {
+	if (parser::PacketCommand::hasCommand((const uchar*) buffer, size) == true) {
 		type = Type::command;
 	}
 
-	// nie wiem co to za zjebane pakiety 3 bajtowe, więc akceptuje
-	if (type == Type::unknown && size == 3) {
-		return RES_OK;
-	}
-
-	if (type == Type::unknown) {
-		return RES_NOENT;
+	if (type == Type::unknown && size < 5) {
+		type = Type::incomplete_payload;
 	}
 
 	iType = type;

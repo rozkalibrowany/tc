@@ -1,21 +1,14 @@
-#include <tc/server/tcp/telematics/TelematicsSession.h>
-#include <tc/server/tcp/telematics/TelematicsServer.h>
-#include <tc/server/asio/AsioService.h>
+#include <tc/server/tcp/TelematicsServer.h>
+#include <tc/server/tcp/AsioService.h>
 #include <tc/common/Common.h>
 
-#include <chrono>
-
 // core dumps may be disallowed by parent of this process; change that
-
-using namespace tc;
 
 int main(int argc, char** argv)
 {
 	auto logger = spdlog::stdout_color_mt("console");
 
 	tc::LogI log(logger);
-	LG_NFO(log.logger(), "TCP server port");
-
 	spdlog::set_default_logger(log.logger());
 
 	// TCP server port
@@ -24,7 +17,7 @@ int main(int argc, char** argv)
 	LG_NFO(log.logger(), "TCP server port: {}", port);
 
 	// Create a new Asio service
-	auto service = std::make_shared< tc::server::tcp::AsioService >(1);
+	const auto service = std::make_shared< tc::server::tcp::AsioService >();
 
 	// Start the Asio service
 	LG_NFO(log.logger(), "Asio service starting...");
@@ -36,21 +29,23 @@ int main(int argc, char** argv)
 
 	// Create a new TCP server
 	auto server = std::make_shared< tc::server::tcp::TelematicsServer >(service, port);
-
+	server->SetupReusePort(true);
+	server->SetupNoDelay(true);
 	// Start the server
 	LG_NFO(log.logger(), "TCP Server starting...");
 	if (server->Start() != true) {
-		SPDLOG_LOGGER_ERROR(log.logger(), "Unable to start server. Exiting...");
+		LG_ERR(log.logger(), "Unable to start server. Exiting...");
 		return 1;
 	}
 	LG_NFO(log.logger(), "Done!");
 
 
 	while (true) {
-		CppCommon::Thread::Sleep(2000);
+		//sleep(1);
+		CppCommon::Thread::Sleep(1000);
 		////spdlog::info("Alive! server address: {} connected sessions: {} threads: {} IsPolling: {} IsStarted: {}",
 		//server->address(), (int) server->connected_sessions(), (int) service->threads(), (int) service->IsPolling(), (int) service->IsStarted());
-		LG_NFO(log.logger(), "sessionsSize: {} payloadPackets size {}", server->sessionsSize(), (int) server->payloadPackets().size());
+		LG_NFO(log.logger(), "sessionsSize: {} payloadPackets size {} service threads: {}", server->sessionsSize(), (int) server->payloadPackets().size(), service->threads());
 	}
 
 	// Stop the server
@@ -62,6 +57,7 @@ int main(int argc, char** argv)
 	LG_NFO(log.logger(), "Asio service stopping...");
 	service->Stop();
 	LG_NFO(log.logger(), "Done!");
+
 
 	return 0;
 }
