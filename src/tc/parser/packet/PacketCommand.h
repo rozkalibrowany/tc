@@ -10,20 +10,25 @@ class PacketCommand : public Packet
 {
 public:
 
-	static size_t DATA_MIN_SIZE;
+	static size_t DATA_SIZE;
 	static size_t IMEI_MIN_SIZE;
 
 	PacketCommand(const std::string imei = "");
 
 	virtual ~PacketCommand() = default;
-
-	static bool hasCommand(const uchar* cbuf, size_t size);
+  static bool hasCommand(const uchar* cbuf, size_t size);
 
 	result_t parse(const uchar* cbuf, size_t size) override;
+	result_t parseImei(const uchar* cbuf, size_t size) override;
+
+	const std::string imei() const override;
 	const size_t size() override;
 
+	virtual uchar* command();
+
 private:
-	uchar *iCommand;
+	uchar* iCommand;
+	size_t iSize;
 };
 
 } // namespace tc::parser

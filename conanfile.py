@@ -5,50 +5,53 @@ opts = tc.OptCreator()
 
 
 class Os:
-	@property
-	def os_name(s):
-		return s.settings.os.name
+    @property
+    def os_name(s):
+        return s.settings.os.name
 
-	@property
-	def os_version(s):
-		return s.settings.os.version
+    @property
+    def os_version(s):
+        return s.settings.os.version
 
-	@property
-	def os_variant(s):
-		return s.settings.os.variant
+    @property
+    def os_variant(s):
+        return s.settings.os.variant
 
-	@property
-	def os_version(s):
-		return s.settings.os.version
+    @property
+    def os_version(s):
+        return s.settings.os.version
 
-	@property
-	def build_type(s):
-		return s.settings.build_type
+    @property
+    def build_type(s):
+        return s.settings.build_type
 
 
 class TcConan(ConanFile, Os):
-	settings = "os"
-	requires = ""
-	generators = "cmake_find_package", "cmake_paths"
-	options, default_options = opts.options, opts.default_options
+    settings = "os"
+    requires = ""
+    generators = "cmake_find_package", "cmake_paths"
+    options, default_options = opts.options, opts.default_options
 
-	def configure(s):
-		s.options["*"].shared = True
-		s.options["*/@tc/*"].compiler = "gcc"
-		s.options["*/@tc/*"].compiler.version = "9"
-		s.options["*/@tc/*"].compiler.libcxx = "libstdc++11"
-		s.options["*/@tc/*"].compiler.cppstd = "20"
+    def configure(s):
+        s.options["*"].shared = True
+        s.options["*/@tc/*"].compiler = "gcc"
+        s.options["*/@tc/*"].compiler.version = "10"
+        s.options["*/@tc/*"].compiler.libcxx = "libstdc++11"
+        s.options["*/@tc/*"].compiler.cppstd = "20"
 
-	def requirements(s):
-		print(s.os_variant, s.os_version)
-		s.requires("tc/0.3.0@tc/stable")
-		s.requires("args-parser/6.2.0.1@tc/stable")
-		#s.requires("spdlog/1.9.2@tc/stable")
+    def requirements(self):
+        print(self.os_variant, self.os_version)
+        self.requires("tc/0.3.0@tc/stable")
+        self.requires("cppserver/master@tc/stable")
+        self.requires("fmt/8.1.0@tc/stable")
+        self.requires("spdlog/1.9.2@tc/stable")
+        self.requires("args-parser/6.2.0.1@tc/stable")
+        self.requires("vscode/1.0.2@tc/stable")
 
-	def imports(self):
-		self.copy("*", src="crt", dst="crt")
-		self.copy("*", src="etc", dst="etc")
-		self.copy("*", src="bin", dst="bin")
-		self.copy("*.so.*", src="lib", dst="lib")
-		self.copy("*.so", src="lib", dst="lib")
-		self.copy("*", src="include", dst="include")
+    def imports(self):
+        self.copy("*", src="crt", dst="crt")
+        self.copy("*", src="etc", dst="etc")
+        self.copy("*", src="bin", dst="bin")
+        self.copy("*.so.*", src="lib", dst="lib")
+        self.copy("*.so", src="lib", dst="lib")
+        self.copy("*", src="include", dst="include")

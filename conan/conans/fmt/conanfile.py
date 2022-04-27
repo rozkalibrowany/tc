@@ -1,18 +1,17 @@
 from conans import ConanFile, python_requires
-import os
 
 tc = python_requires('tc/0.3.0@tc/stable')
 opts = tc.OptCreator() \
  .add_bool('shared', True)
 
 
-class SpdlogConan(ConanFile, tc.SourceHelper, tc.CmakeHelper,
-                  tc.ComponentHelper):
-    name = "spdlog"
+class FmtConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelper):
+    name = "fmt"
     license = "MIT"
-    settings = tc.CmakeHelper.settings
-    exports_sources = ['CMakeLists.txt']
+    exports_sources = ["CMakeLists.txt"]
     generators = tc.CmakeHelper.generators
+    settings = tc.CmakeHelper.settings
+
     options, default_options = opts.options, opts.default
 
     def configure(s):
@@ -23,18 +22,19 @@ class SpdlogConan(ConanFile, tc.SourceHelper, tc.CmakeHelper,
 
     def build(s):
         definitions = {
-            'SPDLOG_INSTALL': True,
-            'SPDLOG_BUILD_SHARED': True,
+            "FMT_DOC": False,
+            "FMT_TEST": False,
+            "FMT_INSTALL": True,
         }
         s.do_build(definitions=definitions)
 
     def package(s):
-        return s.do_package()
+        s.do_package()
 
     def package_info(s):
         s.add_components([
             {
-                'target': 'lib',
-                'libs': ['spdlog'],
+                "target": "lib",
+                "libs": ["fmt"],
             },
         ])

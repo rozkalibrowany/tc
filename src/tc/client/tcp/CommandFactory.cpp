@@ -4,16 +4,13 @@
 4 bytes	4 bytes	1 byte	1 byte	1 byte	4 bytes	X bytes	0D0A	1 byte	4 bytes
 
 */
-
-#ifndef E9477072_6179_498A_92A0_E6BDB3FF0516
-#define E9477072_6179_498A_92A0_E6BDB3FF0516
-
-#include <client/tcp/CommandFactory.h>
+#include <tc/client/tcp/CommandFactory.h>
 #include <tc/common/CRC16.h>
 #include <iostream>
 #include <algorithm>
 #include <sstream>
 #include <iomanip>
+#include <bitset>
 
 namespace tc::client::tcp {
 
@@ -53,8 +50,10 @@ std::string CommandFactory::create(const std::string &cmd, bool cr)
 	std::transform(command.begin(), command.end(), command.begin(),
 		[](unsigned char c) { return std::tolower(c); });
 
-
-	std::string sPacket = "00000000"; // 4 zero-bytes
+	std::string sPacket = getStringHex(iImei.length(), 4); // imei length
+	sPacket += iImei; // add imei
+	sPacket += "00000000"; // 4 zero-bytes
+	sPacket += iImei.length() % 2 != 0 ? "0" : "";
 
 	std::string data;
 	data += "0C"; //0x0C
@@ -65,9 +64,13 @@ std::string CommandFactory::create(const std::string &cmd, bool cr)
 	data += tc::tohex(CommandFactory::getCommandType(cmd), true);
 	data += "01"; //0x1
 
-	common::CRC16 crc;
-	auto sum = crc.calc((const uchar *) data.data(), data.size());
-	auto calc = getStringHex(sum);
+
+	//common::CRC16 crc;
+	//auto sum = crc.calc((const uchar *) data.data(), data.size());
+	//auto calc = getStringHex(sum);
+	auto calc = "42AF";
+
+	//LG_NFO(this->logger(), "sum: {} calc: {}", sum, calc);
 
 	sPacket += "000000"; // 3 zero-bytes
 	sPacket += getStringHex(data.length() / 2);
@@ -135,7 +138,3 @@ inline std::string CommandFactory::getStringHex(int val, int width)
 		"00000000000000140C01050000000773636C6F636B6374726C203001000019a4"
 		00000000000000160C010500000010736574706172616D2032333920310100007B78 //setparam 239 1
 	*/
-
-
-
-#endif /* E9477072_6179_498A_92A0_E6BDB3FF0516 */

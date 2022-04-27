@@ -1,0 +1,4 @@
+sources:
+  "1.22.1":
+    url: https://github.com/chriskohlhoff/asio/archive/refs/tags/asio-1-22-1.tar.gz
+    sha256: 30cb54a5de5e465d10ec0c2026d6b5917f5e89fffabdbabeb1475846fc9a2cf0

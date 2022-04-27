@@ -31,6 +31,9 @@ public:
 	virtual bool operator==(const Packet &rhs) const;
 
 	virtual result_t parse(const uchar *cbuf, size_t size) = 0;
+	virtual result_t parseImei(const uchar *cbuf, size_t size) = 0;
+
+	virtual const std::string imei() const = 0;
 	virtual const size_t size() = 0;
 	virtual void setImei(const std::string imei);
 

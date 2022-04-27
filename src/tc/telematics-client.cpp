@@ -1,14 +1,11 @@
-#include <tc/common/Common.h>
-#include <client/tcp/AsioService.h>
-#include <client/tcp/TelematicsClient.h>
-#include <client/tcp/CommandFactory.h>
+#include <tc/client/tcp/TelematicsClient.h>
+#include <tc/asio/AsioService.h>
+#include <tc/client/tcp/CommandFactory.h>
 #include <args-parser/all.hpp>
-#include <vector>
 // core dumps may be disallowed by parent of this process; change that
 
 int main(int argc, char** argv)
 {
-	using namespace tc;
 	using namespace Args;
 
 	std::string command, imei, address;
@@ -62,19 +59,20 @@ int main(int argc, char** argv)
 
 	address = address_full.substr(0, address_full.find(":", 0));
 
-	client::tcp::CommandFactory factory(imei);
+	tc::client::tcp::CommandFactory factory(imei);
 	std::string str_packet = factory.create(command);
 	std::vector<char> buf(str_packet.size() / 2);
-
 	std::transform(str_packet.begin(), str_packet.end(), str_packet.begin(), ::toupper);
 
-	hex2bin((const char*) str_packet.data(), buf.data());
+	tc::hex2bin((const char*) str_packet.data(), buf.data());
 
+	//auto str_hex = tc::string2hex(str_packet);
+	LG_NFO(log.logger(), "str_packet: {}", str_packet);
 
 	//std::copy(buf.begin(), buf.end(), std::back_inserter(ubuf));
 
 	// Create a new Asio service
-	auto service = std::make_shared<client::tcp::AsioService>();
+	auto service = std::make_shared<tc::asio::AsioService>();
 
 	// Start the Asio service
 	LG_NFO(log.logger(), "Asio service starting...");
@@ -85,7 +83,7 @@ int main(int argc, char** argv)
 	LG_NFO(log.logger(), "Done!");
 
 	// Create a new TCP chat client
-	auto client = std::make_shared< client::tcp::TelematicsClient >(service, address, port);
+	auto client = std::make_shared< tc::client::tcp::TelematicsClient >(service, address, port);
 
 	// Connect the client
 	LG_NFO(log.logger(), "Client connecting...");

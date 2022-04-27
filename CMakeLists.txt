@@ -112,17 +112,13 @@ TcOptMsg("TC_SYSTEM_NAME"             TC_SYSTEM_NAME)
 TcOptMsg("TC_SYSTEM_VERSION"          RG_SYSTEM_VERSION)
 message(STATUS "")
 
-#tc_find_package_status(NAME spdlog REQUIRED)
-tc_find_package_status(NAME args-parser REQUIRED)
-#tc_find_package_status(NAME cppcommon REQUIRED)
+tc_find_package_status(NAME cppserver REQUIRED)
+tc_find_package_status(NAME fmt REQUIRED)
+tc_find_package_status(NAME spdlog REQUIRED)
 
-#add_subdirectory("src/tc/common")
-#add_subdirectory("src/tc/parser")
 add_subdirectory("src/tc")
-add_subdirectory("src/client")
-#add_subdirectory("src/tc/server/tcp/commands")
 
 add_custom_target(
 	conan-install
-	COMMAND conan imports ${CMAKE_SOURCE_DIR}/conanfile.py -imf ${CMAKE_INSTALL_PREFIX}
+	COMMAND conan imports ${CMAKE_CURRENT_SOURCE_DIR}/conanfile.py -imf ${CMAKE_INSTALL_PREFIX}
 )

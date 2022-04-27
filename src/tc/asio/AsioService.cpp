@@ -1,6 +1,6 @@
-#include <tc/server/tcp/AsioService.h>
+#include <tc/asio/AsioService.h>
 
-namespace tc::server::tcp {
+namespace tc::asio {
 
 void AsioService::onError(int error, const std::string& category, const std::string& message)
 {
