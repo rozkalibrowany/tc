@@ -106,7 +106,6 @@
 	],
 	"C_Cpp.default.includePath": [
 		"/usr/include/",
-		"${workspaceFolder}/src",
 		"${workspaceFolder}/**"
 	],
 	"editor.suggestSelection": "first",
@@ -129,5 +128,4 @@
 	},
 	"window.zoomLevel": -1,
 	"editor.accessibilitySupport": "off"
-
 }

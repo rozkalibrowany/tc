@@ -32,6 +32,5 @@
 *.app
 
 # build
-build/
 build*
 CMakeFiles/

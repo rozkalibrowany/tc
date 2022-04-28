@@ -5,17 +5,14 @@
             "includePath": [
                 "/usr/include",
                 "/usr/local/include",
-                "/usr/local/ws/include",
-								"${workspaceFolder}/src",
-                "${workspaceFolder}/src/tc",
-                "/usr/include/boost"
+                "${workspaceFolder}/**"
             ],
             "defines": [
                 "_LINUX",
                 "TRC"
             ],
             "compileCommands": "${workspaceFolder}/build/compile_commands.json",
-            "compilerPath": "/usr/bin/g++-11",
+            "compilerPath": "/usr/bin/g++-10",
             "cStandard": "c11",
             "cppStandard": "c++20",
             "browse": {

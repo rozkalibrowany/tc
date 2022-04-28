@@ -75,4 +75,34 @@ tc_conan_build_package(NAME args-parser
 	UBUNTU
 )
 
+tc_conan_build_package(NAME asio
+	VERSION 1.22.1
+	DEPENDS conan-profiles conan-tc-build
+	UBUNTU
+)
+
+tc_conan_build_package(NAME cppserver
+	VERSION master
+	DEPENDS conan-profiles conan-tc-build
+	UBUNTU
+)
+
+tc_conan_build_package(NAME fmt
+	VERSION 8.1.0
+	DEPENDS conan-profiles conan-tc-build
+	UBUNTU
+)
+
+tc_conan_build_package(NAME spdlog
+	VERSION 1.9.2
+	DEPENDS conan-profiles conan-tc-build
+	UBUNTU
+)
+
+tc_conan_build_package(NAME vscode
+	VERSION 1.0.2
+	DEPENDS conan-profiles conan-tc-build
+	UBUNTU
+)
+
 message("${TcCbr}set ${TcCby}CONAN_CPU_COUNT${TcCra} for cpu count")

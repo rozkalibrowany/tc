@@ -64,6 +64,21 @@ const uchar &Buf::operator[](uint idx) const
 	return iBuf[idx];
 }
 
+result_t Buf::insert(const char* buf, size_t length)
+{
+	return insert((const uchar*) buf, length);
+}
+
+result_t Buf::insert(const uchar* buf, size_t length)
+{
+	if (buf == nullptr) {
+		return RES_INVARG;
+	}
+
+	iBuf.insert(end(), buf, buf + length);
+	return RES_OK;
+}
+
 uint16_t Buf::toUInt16(int offset)
 {
 	return ((iBuf[offset] & 0xFF) | ((iBuf[offset + 1] & 0xFF) << 8));

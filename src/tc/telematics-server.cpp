@@ -1,5 +1,5 @@
 #include <tc/server/tcp/TelematicsServer.h>
-#include <tc/server/tcp/AsioService.h>
+#include <tc/asio/AsioService.h>
 #include <tc/common/Common.h>
 
 // core dumps may be disallowed by parent of this process; change that
@@ -17,7 +17,7 @@ int main(int argc, char** argv)
 	LG_NFO(log.logger(), "TCP server port: {}", port);
 
 	// Create a new Asio service
-	const auto service = std::make_shared< tc::server::tcp::AsioService >();
+	const auto service = std::make_shared< tc::asio::AsioService >();
 
 	// Start the Asio service
 	LG_NFO(log.logger(), "Asio service starting...");
@@ -42,7 +42,7 @@ int main(int argc, char** argv)
 
 	while (true) {
 		//sleep(1);
-		CppCommon::Thread::Sleep(500);
+		CppCommon::Thread::Sleep(2000);
 		////spdlog::info("Alive! server address: {} connected sessions: {} threads: {} IsPolling: {} IsStarted: {}",
 		//server->address(), (int) server->connected_sessions(), (int) service->threads(), (int) service->IsPolling(), (int) service->IsStarted());
 		LG_NFO(log.logger(), "sessionsSize: {} payloadPackets size {} service threads: {}", server->sessionsSize(), (int) server->payloadPackets().size(), service->threads());

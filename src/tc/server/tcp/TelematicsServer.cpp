@@ -19,6 +19,11 @@ TelematicsServer::PayloadPackets &TelematicsServer::payloadPackets()
 	return iPayloadPackets;
 }
 
+TelematicsServer::PacketsCommand &TelematicsServer::packetsCommand()
+{
+	return iPacketsCommand;
+}
+
 std::shared_ptr< CppServer::Asio::TCPSession > TelematicsServer::CreateSession(const std::shared_ptr< TCPServer > &server)
 {
 	return std::make_shared< TelematicsSession >(server);
@@ -49,7 +54,17 @@ result_t TelematicsServer::get(const Imei &imei, parser::PacketPayload &packet)
 	return RES_OK;
 }
 
-result_t TelematicsServer::add(const Imei imei, const std::shared_ptr< parser::PacketPayload > &packet)
+result_t TelematicsServer::get(const Imei &imei, std::shared_ptr< parser::PacketCommand > &packet)
+{
+	auto it = iPacketsCommand.find(imei);
+	if (it == iPacketsCommand.end()) {
+		return RES_NOENT;
+	}
+	packet = iPacketsCommand.at(imei);
+	return RES_OK;
+}
+
+result_t TelematicsServer::add(const Imei &imei, const std::shared_ptr< parser::PacketPayload > &packet)
 {
 	if (iPayloadPackets.find(imei) != iPayloadPackets.end()) {
 		auto &packets = iPayloadPackets.at(imei);
@@ -63,9 +78,31 @@ result_t TelematicsServer::add(const Imei imei, const std::shared_ptr< parser::P
 	return RES_OK;
 }
 
+result_t TelematicsServer::add(const Imei &imei, const std::shared_ptr<parser::PacketCommand> &packet)
+{
+	iPacketsCommand.insert(std::make_pair(imei, packet));
+
+	return RES_OK;
+}
+
+result_t TelematicsServer::add(const Imei &imei, std::shared_ptr<TelematicsSession> &session)
+{
+	if (iActiveSessions.find(imei) != iActiveSessions.end() && iActiveSessions.at(imei) == session) {
+		return RES_INVARG;
+	}
+
+	iActiveSessions.insert(std::make_pair(imei, session));
+	return RES_OK;
+}
+
 bool TelematicsServer::has(const Imei &imei)
 {
 	return iPayloadPackets.find(imei) != iPayloadPackets.end();
+}
+
+bool TelematicsServer::hasQueuedCommands(const Imei &imei)
+{
+	return iPacketsCommand.find(imei) != iPacketsCommand.end();
 }
 
 } // namespace tc::server::tcp

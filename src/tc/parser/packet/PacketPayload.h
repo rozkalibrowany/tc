@@ -24,12 +24,12 @@ public:
 	static int getIdx(const uchar* cbuf, size_t size, const uchar c);
 
 	result_t parse(const uchar* cbuf, size_t size) override;
-	virtual result_t parseImei(const uchar* cbuf, size_t size);
+	result_t parseImei(const uchar* cbuf, size_t size) override;
 
+	const std::string imei() const override;
 	const size_t size() override;
 	std::shared_ptr< Reader > reader();
 
-	const std::string imei() const;
 	AVLRecords &records();
 
 private:

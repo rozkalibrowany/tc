@@ -2,6 +2,7 @@
 #define EBC1B453_899B_44DB_BCE2_D5BD9C5CF467
 
 #include <tc/common/Common.h>
+#include <tc/parser/Buf.h>
 #include <map>
 
 namespace tc::client::tcp {
@@ -29,7 +30,9 @@ public:
 	CommandFactory(const std::string& imei);
 	virtual ~CommandFactory() = default;
 
-	std::string create(const std::string &cmd, bool cr = false);
+	result_t create(const std::string &cmd, parser::Buf &buf);
+
+	//std::string create(const std::string &cmd, bool cr = false);
 
 private:
 	inline std::string getStringHex(int val, int width = 2);

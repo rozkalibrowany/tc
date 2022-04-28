@@ -1,10 +1,9 @@
-#ifndef A650B499_9C59_4E32_AE77_57A0CD8B07EC
-#define A650B499_9C59_4E32_AE77_57A0CD8B07EC
+#ifndef F2080690_61B2_4AD4_8BF5_96CEAFE240CE
+#define F2080690_61B2_4AD4_8BF5_96CEAFE240CE
 
 #include <server/asio/service.h>
-#include <spdlog/spdlog.h>
 
-namespace tc::client::tcp {
+namespace tc::asio {
 
 class AsioService : public CppServer::Asio::Service
 {
@@ -15,6 +14,6 @@ protected:
 	void onError(int error, const std::string &category, const std::string &message) override;
 };
 
-} // namespace tc::server::tcp
+} // namespace tc::asio
 
-#endif /* A650B499_9C59_4E32_AE77_57A0CD8B07EC */
+#endif /* F2080690_61B2_4AD4_8BF5_96CEAFE240CE */

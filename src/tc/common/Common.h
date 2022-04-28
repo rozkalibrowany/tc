@@ -5,10 +5,13 @@
 #include <tc/common/Convert.h>
 #include <tc/common/Result.h>
 #include <tc/common/SysTime.h>
+#include <tc/common/Codec.h>
 
 #ifdef unix
 #	undef unix
 #endif
+
+
 
 using uchar = unsigned char;
 

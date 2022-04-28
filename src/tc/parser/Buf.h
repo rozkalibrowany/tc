@@ -13,7 +13,7 @@ public:
 
   using ByteArray = std::vector < uchar >;
 
-  Buf(const size_t size);
+  Buf(const size_t size = 0);
   Buf(const uchar *rhs, size_t size);
   Buf(const ByteArray &rhs);
 	Buf(ByteArray::iterator begin, ByteArray::iterator end);
@@ -23,7 +23,6 @@ public:
 	bool operator==(const Buf &rhs) const;
 	Buf &operator=(const Buf &rhs);
 	Buf &operator=(Buf &&rhs);
-
   uchar &operator[](uint idx);
 	const uchar &operator[](uint idx) const;
 
@@ -33,6 +32,10 @@ public:
   int64_t toInt64(int offset);
 
 	const size_t size();
+
+  result_t insert(const uchar* buf, size_t length);
+  result_t insert(const char* buf, size_t length);
+
   Buf::ByteArray::iterator begin();
 	Buf::ByteArray::iterator end();
 
