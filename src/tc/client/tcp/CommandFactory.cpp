@@ -23,7 +23,7 @@ const std::string CommandFactory::cmd_led_off = "scledctrl 0";
 const std::string CommandFactory::cmd_engine_on = "scenginectrl 1";
 const std::string CommandFactory::cmd_engine_off = "scenginectrl 0";
 
-const std::string CommandFactory::getCommandType(const std::string &cmd)
+const std::string CommandFactory::cmdToString(const std::string &cmd)
 {
 	if (cmd.compare("unlock") == 0) {
 		return CommandFactory::cmd_unlock;
@@ -33,7 +33,12 @@ const std::string CommandFactory::getCommandType(const std::string &cmd)
 		return CommandFactory::cmd_engine_on;
 	} else if (cmd.compare("engine_off") == 0) {
 		return CommandFactory::cmd_engine_off;
+	} else if (cmd.compare("led_on") == 0) {
+		return CommandFactory::cmd_led_on;
+	} else if (cmd.compare("led_off") == 0) {
+		return CommandFactory::cmd_led_off;
 	}
+
 	return std::string();
 }
 
@@ -44,85 +49,111 @@ CommandFactory::CommandFactory(const std::string &imei)
 		// nothing to do
 }
 
-/*std::string CommandFactory::create(const std::string &cmd, bool cr)
+result_t CommandFactory::create(const std::string &cmd, parser::Buf &buf, bool cr)
 {
-	auto command = cmd;
-	std::transform(command.begin(), command.end(), command.begin(),
-		[](unsigned char c) { return std::tolower(c); });
-
-	std::string sPacket = getStringHex(iImei.length(), 4); // imei length
-	sPacket += iImei; // add imei
-	sPacket += "00000000"; // 4 zero-bytes
-	sPacket += iImei.length() % 2 != 0 ? "0" : "";
-
-	std::string data;
-	data += "0C"; //0x0C
-	data += "01"; //0x1
-	data += "05"; //0x05
-	data += "000000"; // 3 zero-bytes
-	data += getStringHex(CommandFactory::getCommandType(cmd).length());
-	data += tc::tohex(CommandFactory::getCommandType(cmd), true);
-	data += "01"; //0x1
-
-
-	//common::CRC16 crc;
-	//auto sum = crc.calc((const uchar *) data.data(), data.size());
-	//auto calc = getStringHex(sum);
-	auto calc = "D2AE";
-
-	//LG_NFO(this->logger(), "sum: {} calc: {}", sum, calc);
-
-	sPacket += "000000"; // 3 zero-bytes
-	sPacket += getStringHex(data.length() / 2);
-	sPacket += data;
-	sPacket += cr ? "0D0A" : "0000"; // <CR><LF>
-	sPacket += calc;
-
-	return sPacket;
-}*/
-
-result_t CommandFactory::create(const std::string &cmd, parser::Buf &buf)
-{
-	//parser::Buf::ByteArray::iterator it = buf.begin();
-	//std::fill(it, it + 2, 1); // first two bytes are zeros
+	result_t res = RES_OK;
 
 	// imei length
-	auto imei_size = getStringHex(iImei.length(), 4);
-	buf.insert((const uchar*)imei_size.data(), imei_size.length());
+	auto val = byte2string(iImei.length(), 4);
+	buf.insert((const uchar*) val.data(), val.length());
+
 	// imei
 	buf.insert((const uchar*) iImei.data(), iImei.length());
 
 	// 4 zero-bytes
-	auto zeros = getStringHex(0, 4);
-	buf.insert((const uchar*) zeros.data(), zeros.length());
+	val = byte2string(0, 4*2);
+	buf.insert((const uchar*) val.data(), val.length());
 
-	return RES_OK;
-}
+	parser::Buf payload;
+	if ((res = getPayload(cmd, payload)) != RES_OK) {
+		return res;
+	}
 
-inline std::string CommandFactory::getStringHex(int val, int width)
-{
-	std::stringstream ss;
-	ss << std::setw(width) << std::setfill('0') << std::hex << (val);
-	std::string res(ss.str());
+	// CRC
+	common::CRC16 crc;
+	std::string payload_hex((const char*) payload.cdata(), payload.size());
 
-	std::transform(res.begin(), res.end(), res.begin(),
-		[](char c) { return std::toupper(c); });
+	auto payload_str = tc::hex2string(payload_hex);
+	auto sum = crc.calc(payload_str.data(), payload_str.size());
+
+	// 3 zero-bytes
+	val = byte2string(0, 3*2);
+	buf.insert((const uchar*) val.data(), val.length());
+
+	// payload length
+	val = byte2string(payload.size() / 2);
+	buf.insert((const uchar*) val.data(), val.length());
+
+	// insert payload
+	buf.insert(payload.begin(), payload.end());
+
+	// command end symbol
+	val = cr ? byte2string(0x0D0A) : byte2string(0);
+	buf.insert((const uchar*) val.data(), val.length());
+
+	// CRC
+	val = byte2string(sum, 3*2);
+	buf.insert((const uchar*) val.data(), val.length());
 
 	return res;
 }
 
+result_t CommandFactory::getPayload(const std::string &cmd, parser::Buf &buf)
+{
+	// codec
+	auto val = byte2string(CODEC_12);
+	buf.insert(val.data(), val.length());
+
+	// 0x1
+	val= byte2string(1);
+	buf.insert(val.data(), val.length());
+
+	// type command
+	val = byte2string(TYPE_PACKET_COMMAND);
+	buf.insert(val.data(), val.length());
+
+	// 3 zero-bytes
+	val = byte2string(0, 3*2);
+	buf.insert(val.data(), val.length());
+
+	// command length
+	val = byte2string(CommandFactory::cmdToString(cmd).length());
+	buf.insert(val.data(), val.length());
+
+	// command
+	const auto command = CommandFactory::cmdToString(cmd);
+	if (command.empty() == true) {
+		return RES_INVARG;
+	}
+	val = tc::tohex(command);
+	buf.insert(val.data(), val.length());
+
+	// 0x1
+	val = byte2string(1);
+	buf.insert(val.data(), val.size());
+
+	return RES_OK;
+}
 
 } // namespace tc::client::tcp
 
 
 /*
 
+	// CRC
+	common::CRC16 crc;
+	std::string tocalc = "0C01050000000C73636C6F636B6374726C203001";
+	auto strhex = hex2string(tocalc);
+
 	for (auto &s : _sessions) {
 		const char* data = "00000000000000140C01050000000C73636C6F636B6374726C2030010000D2AE";
+
 		// "00000000000000130C01050000000B73637365746D6F646520320100001F93"
 		//const char* data = "00000000000000180C01050000001073637365746C656473776974636820300100004966"; // scsetledswitch off
 		// "00000000000000130C01050000000B73636C65646374726C20310100003205"; // scledctrl turn ON
-		// "00000000000000160C01050000000E7363656E67696E656374726C2031010000A39E" engine on
+		//  00000000000000130C01050000000B73636c65646374726c2030010000A204 // scledctrl off
+		// "00000000000000160C01050000000E7363656E67696E656374726C2031010000A39E" engine on BAD?
+			  00000000000000160C01050000000E7363656e67696e656374726c2031010000E39C // engine on
 		// "00000000000000140C01050000000C73636C6F636B6374726C2030010000D2AE" sclockctrl lock off
 				00000000000000140C01050000000C73636C6F636B6374726C203001000042C4
 
@@ -131,7 +162,7 @@ inline std::string CommandFactory::getStringHex(int val, int width)
 
 
 		char *out = new char[32];
-		tc::hex2bin(data, out);
+		tc::hexToBin(data, out);
 
 		// auto str = hex_to_string_t(data);
 		//"00000000000000140C01050000000773636C6F636B6374726C203001000019a4";

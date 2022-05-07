@@ -1,12 +1,8 @@
-#include <string>
-#include <sstream>
-#include <iomanip>
-#include <iostream>
-#include <vector>
+#include <tc/common/Convert.h>
 
 namespace tc {
 
-int hex_value(unsigned char hex_digit)
+unsigned int char2hex(const unsigned char c)
 {
     static const signed char hex_values[256] = {
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -26,82 +22,31 @@ int hex_value(unsigned char hex_digit)
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     };
-    int value = hex_values[hex_digit];
-    return value;
+    return hex_values[c];
 }
 
-std::string unsigned_char_to_string(const unsigned char* data, uint32_t length)
+unsigned int hex2int(const unsigned char* c)
 {
+	unsigned int ret;
 	std::stringstream ss;
-	ss << std::hex;
-
-	for (uint32_t i = 0; i < length; ++i) {
-		ss << std::setw(2) << std::setfill('0') << static_cast< int >(data[i]);
-	}
-	return ss.str();
+	ss << std::hex << c;
+	ss >> ret;
+	return ret;
 }
 
-const unsigned char *string2unsigned_char(const std::string &s, size_t &size)
+unsigned int char2int(char c)
 {
-	std::vector<unsigned char> uchars;
-	transform(std::begin(s), std::end(s), std::back_inserter(uchars),
-			[](char c) { return static_cast<unsigned char>(c); });
-	size = uchars.size();
-	return uchars.data();
+	if(c >= '0' && c <= '9')
+		return c - '0';
+	if(c >= 'A' && c <= 'F')
+		return c - 'A' + 10;
+	if(c >= 'a' && c <= 'f')
+		return c - 'a' + 10;
+
+    return 0;
 }
 
-int char2int(char input)
-{
-	if(input >= '0' && input <= '9')
-		return input - '0';
-	if(input >= 'A' && input <= 'F')
-		return input - 'A' + 10;
-	if(input >= 'a' && input <= 'f')
-		return input - 'a' + 10;
-	throw std::invalid_argument("Invalid input string");
-}
-
-void hex2bin(const char* src, char* target)
-{
-	while(*src && src[1])
-	{
-		*(target++) = char2int(*src)*16 + char2int(src[1]);
-		src += 2;
-	}
-}
-
-
-std::string hex2string(const std::string& input)
-{
-    const auto len = input.length();
-    if (len & 1) return "";
-
-    std::string output;
-    output.reserve(len / 2);
-    for (auto it = input.begin(); it != input.end(); )
-    {
-        int hi = hex_value(*it++);
-        int lo = hex_value(*it++);
-        output.push_back(hi << 4 | lo);
-    }
-    return output;
-}
-
-std::string string2hex(const std::string& input)
-{
-    static const char hex_digits[] = "0123456789ABCDEF";
-
-    std::string output;
-    output.reserve(input.length() * 2);
-    for (unsigned char c : input)
-    {
-        output.push_back(hex_digits[c >> 4]);
-        output.push_back(hex_digits[c & 15]);
-    }
-    return output;
-}
-
-std::string tohex(const std::string &s, bool upper = false)
+std::string tohex(const std::string &s, bool upper)
 {
 	std::ostringstream ret;
 
@@ -115,13 +60,66 @@ std::string tohex(const std::string &s, bool upper = false)
 	return ret.str();
 }
 
-unsigned int hex2int(const unsigned char* data)
+std::string string2hex(const std::string &s)
 {
-	unsigned int x;
+    static const char hex_digits[] = "0123456789ABCDEF";
+
+    std::string ret;
+    ret.reserve(s.length() * 2);
+    for (unsigned char c : s)
+    {
+        ret.push_back(hex_digits[c >> 4]);
+        ret.push_back(hex_digits[c & 15]);
+    }
+    return ret;
+}
+
+std::string hex2string(const std::string &s)
+{
+    const auto len = s.length();
+    if (len & 1) return "";
+
+    std::string ret;
+    ret.reserve(len / 2);
+    for (auto it = s.begin(); it != s.end();)
+    {
+        int hi = char2hex(*it++);
+        int lo = char2hex(*it++);
+        ret.push_back(hi << 4 | lo);
+    }
+    return ret;
+}
+
+std::string uchar2string(const unsigned char *c, uint32_t length)
+{
 	std::stringstream ss;
-	ss << std::hex << data;
-	ss >> x;
-	return x;
+	ss << std::hex;
+
+	for (uint32_t i = 0; i < length; ++i) {
+		ss << std::setw(2) << std::setfill('0') << static_cast< int >(c[i]);
+	}
+	return ss.str();
+}
+
+std::string byte2string(int val, int width)
+{
+	std::stringstream ss;
+	ss << std::setw(width) << std::setfill('0') << std::hex << (val);
+	std::string ret(ss.str());
+
+	std::transform(ret.begin(), ret.end(), ret.begin(),
+		[](char c) { return std::toupper(c); });
+
+	return ret;
+}
+
+void hex2bin(const char* src, char* target)
+{
+	while(*src && src[1])
+	{
+		*(target++) = char2int(*src)*16 + char2int(src[1]);
+		src += 2;
+	}
 }
 
 } // namespace tc

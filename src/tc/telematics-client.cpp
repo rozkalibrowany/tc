@@ -1,6 +1,6 @@
 #include <tc/client/tcp/TelematicsClient.h>
-#include <tc/asio/AsioService.h>
 #include <tc/client/tcp/CommandFactory.h>
+#include <tc/asio/AsioService.h>
 #include <args-parser/all.hpp>
 // core dumps may be disallowed by parent of this process; change that
 
@@ -20,7 +20,7 @@ int main(int argc, char** argv)
 				.addArgWithFlagAndName('i', "imei", true, true, "IoT device IMEI",
 																"", "", "arg")
 				.addArgWithFlagAndName('c', "cmd", true, true, "IoT command",
-																"", "", "lock|unlock|engine_on|engine_off")
+																"", "", "lock | unlock | engine_on | engine_off | led_on | led_off")
 				.addHelp(true, argv[0], "Telematics Connector TCP Command Client.");
 
 		cmd.parse();
@@ -63,15 +63,15 @@ int main(int argc, char** argv)
 	tc::parser::Buf buf;
 
 	factory.create(command, buf);
-	LG_NFO(log.logger(), "imei: {}", tc::unsigned_char_to_string((uchar*) imei.data(), imei.size()));
-	LG_NFO(log.logger(), "create: {}", tc::unsigned_char_to_string((uchar*) buf.iBuf.data(), buf.iBuf.size()));
+	LG_NFO(log.logger(), "imei: {}", tc::uchar2string((uchar*) imei.data(), imei.size()));
+	LG_NFO(log.logger(), "create: {}", tc::uchar2string((uchar*) buf.iBuf.data(), buf.iBuf.size()));
 
 
 	/*std::string str_packet = factory.create(command);
 	std::vector<char> buf(str_packet.size() / 2);
 	std::transform(str_packet.begin(), str_packet.end(), str_packet.begin(), ::toupper);
 
-	tc::hex2bin((const char*) str_packet.data(), buf.data());
+	tc::hexToBin((const char*) str_packet.data(), buf.data());
 
 	//auto str_hex = tc::string2hex(str_packet);
 	LG_NFO(log.logger(), "str_packet: {}", str_packet);*/

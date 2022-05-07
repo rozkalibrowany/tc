@@ -3,6 +3,7 @@
 
 #include <tc/common/Common.h>
 #include <tc/parser/Buf.h>
+#include <tc/parser/packet/Packet.h>
 #include <map>
 
 namespace tc::client::tcp {
@@ -25,17 +26,17 @@ public:
 	static const std::string cmd_engine_on;
 	static const std::string cmd_engine_off;
 
-	static const std::string getCommandType(const std::string &cmd);
+	static const std::string cmd_get_info;
+
+	static const std::string cmdToString(const std::string &cmd);
 
 	CommandFactory(const std::string& imei);
 	virtual ~CommandFactory() = default;
 
-	result_t create(const std::string &cmd, parser::Buf &buf);
-
-	//std::string create(const std::string &cmd, bool cr = false);
+	result_t create(const std::string &cmd, parser::Buf &buf, bool cr = false);
 
 private:
-	inline std::string getStringHex(int val, int width = 2);
+	result_t getPayload(const std::string &cmd, parser::Buf &buf);
 
 	Type iType;
 	std::string iImei;
