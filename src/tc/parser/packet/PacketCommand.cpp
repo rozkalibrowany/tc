@@ -25,7 +25,7 @@ result_t PacketCommand::parse(const uchar* cbuf, size_t size)
 	result_t res = RES_OK;
 
 	if((res = parseImei(cbuf, size)) != RES_OK) {
-		LG_NFO(this->logger(), "Error parsing command: {}", tc::unsigned_char_to_string(cbuf, size));
+		LG_NFO(this->logger(), "Error parsing command: {}", tc::uchar2string(cbuf, size));
 		return res;
 	}
 
@@ -43,7 +43,7 @@ result_t PacketCommand::parseImei(const uchar* cbuf, size_t size)
 	}
 
 	auto buf = cbuf + 2;
-	auto hex_str = tc::unsigned_char_to_string(buf, size - 2);
+	auto hex_str = tc::uchar2string(buf, size - 2);
 
 	std::string imei;
 	for (std::string::size_type i = 0; i < imei_len; i++)

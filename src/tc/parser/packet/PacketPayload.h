@@ -5,7 +5,6 @@
 #include <tc/parser/packet/Packet.h>
 #include <tc/parser/Reader.h>
 #include <tc/parser/Buf.h>
-#include <tc/common/Common.h>
 
 namespace tc::parser {
 

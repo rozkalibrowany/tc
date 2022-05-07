@@ -125,7 +125,7 @@ result_t PacketPayload::parseImei(const uchar* cbuf, size_t size)
 	}
 
 	auto buf = cbuf + 2;
-	auto hex_str = tc::unsigned_char_to_string(buf, len);
+	auto hex_str = tc::uchar2string(buf, len);
 
 	std::string imei;
 	for (std::string::size_type i = 1; i < hex_str.size(); i += 2)

@@ -5,6 +5,9 @@
 #include <tc/common/Common.h>
 #include <tc/parser/Reader.h>
 
+#define TYPE_PACKET_COMMAND			0x5
+#define TYPE_PACKET_RESPONSE		0x6
+
 namespace tc::parser {
 
 class Packet : public tc::LogI

@@ -1,5 +1,4 @@
 #include <tc/parser/Reader.h>
-#include <tc/common/Common.h>
 #include <iostream>
 #include <array>
 #include <algorithm>
@@ -12,15 +11,6 @@ Reader::Reader(std::shared_ptr<Buf> buf, int offset)
 {
   // nothing to do
 }
-
-/*Reader &Reader::operator=(const Reader &reader)
-{
-	if (this == &reader) return *this;
-	iBuf.reset();
-	iBuf = std::move(reader.iBuf);
-	iOffset = reader.iOffset;
-	return *this;
-}*/
 
 std::shared_ptr<Buf> Reader::buf()
 {
