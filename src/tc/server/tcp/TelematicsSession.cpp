@@ -15,7 +15,7 @@ std::shared_ptr<TelematicsServer> TelematicsSession::tcServer()
 void TelematicsSession::onReceived(const void *buffer, size_t size)
 {
 
-	LG_NFO(this->logger(), "Session[{}] received buffer[{}] [{}]", id().string(), size, unsigned_char_to_string((unsigned char*) buffer, size));
+	LG_NFO(this->logger(), "Session[{}] received buffer[{}] [{}]", id().string(), size, uchar2string((unsigned char*) buffer, size));
 
 	Action action;
 	if (action.parse(buffer, size) != RES_OK)
@@ -110,7 +110,7 @@ result_t TelematicsSession::handlePayload(const uchar *buffer, size_t size, bool
 			return res;
 		}
 		tcServer()->packetsCommand().clear();
-		LG_NFO(this->logger(), "Sent command: {}", tc::unsigned_char_to_string(packet->command(), packet->size()));
+		LG_NFO(this->logger(), "Sent command: {}", tc::uchar2string(packet->command(), packet->size()));
 	}
 
 	if (iImei.empty()) { //  && iServer->has(iImei) == true
@@ -154,7 +154,7 @@ result_t TelematicsSession::handlePayload(const uchar *buffer, size_t size, bool
 
 result_t TelematicsSession::handleCommand(const uchar *buffer, size_t size)
 {
-	LG_NFO(this->logger(), "Session[{}] received command[{}] [{}]", id().string(), size, unsigned_char_to_string((unsigned char*) buffer, size));
+	LG_NFO(this->logger(), "Session[{}] received command[{}] [{}]", id().string(), size, uchar2string((unsigned char*) buffer, size));
 	/*auto packetCommand = std::make_shared< parser::PacketCommand >();
 
 	auto res = packetCommand->parse(buffer, size);
@@ -166,9 +166,9 @@ result_t TelematicsSession::handleCommand(const uchar *buffer, size_t size)
 	std::vector<char> buf(cmd.size() / 2);
 	//std::transform(cmd.begin(), cmd.end(), str_packet.begin(), ::toupper);
 
-	tc::hex2bin((const char*) cmd.data(), buf.data());
+	//tc::hexToBin((const char*) cmd.data(), buf.data());
 
-	//LG_NFO(this->logger(), "before send command: {}", tc::unsigned_char_to_string(cmd.data(), 32));
+	//LG_NFO(this->logger(), "before send command: {}", tc::uchar2string(cmd.data(), 32));
 
 	auto res = SendAsync((const void*) buf.data(), 32) == false ? RES_ERROR : RES_OK;
 
@@ -207,7 +207,7 @@ result_t TelematicsSession::checkCrc(std::shared_ptr< parser::Buf > buf, size_t 
 	auto reader_crc = reader->read(4, size - 4);
 
 	parser::Buf subBuf(parser::Buf::ByteArray{buf->begin() + 8, buf->begin() + size - 4});
-	auto calc = crc.calc((const uchar*) subBuf.iBuf.data(), subBuf.size());
+	auto calc = crc.calc((char*) subBuf.iBuf.data(), subBuf.size());
 
 	crc_ok = calc == (int)reader_crc ? true : false;
 

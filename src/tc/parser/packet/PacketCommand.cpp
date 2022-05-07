@@ -46,7 +46,7 @@ result_t PacketCommand::parseImei(const uchar* cbuf, size_t size)
 	auto hex_str = tc::uchar2string(buf, size - 2);
 
 	std::string imei;
-	for (std::string::size_type i = 0; i < imei_len; i++)
+	for (std::string::size_type i = 0; i < (std::string::size_type) imei_len; i++)
 	{
 		char c = hex_str[i];
 		imei.push_back(c);

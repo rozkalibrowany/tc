@@ -62,21 +62,10 @@ int main(int argc, char** argv)
 	tc::client::tcp::CommandFactory factory(imei);
 	tc::parser::Buf buf;
 
-	factory.create(command, buf);
-	LG_NFO(log.logger(), "imei: {}", tc::uchar2string((uchar*) imei.data(), imei.size()));
-	LG_NFO(log.logger(), "create: {}", tc::uchar2string((uchar*) buf.iBuf.data(), buf.iBuf.size()));
-
-
-	/*std::string str_packet = factory.create(command);
-	std::vector<char> buf(str_packet.size() / 2);
-	std::transform(str_packet.begin(), str_packet.end(), str_packet.begin(), ::toupper);
-
-	tc::hexToBin((const char*) str_packet.data(), buf.data());
-
-	//auto str_hex = tc::string2hex(str_packet);
-	LG_NFO(log.logger(), "str_packet: {}", str_packet);*/
-
-	//std::copy(buf.begin(), buf.end(), std::back_inserter(ubuf));
+	if (factory.create(command, buf) != tc::RES_OK) {
+		LG_ERR(log.logger(), "Unable to create command packet.");
+		return 1;
+	}
 
 	// Create a new Asio service
 	auto service = std::make_shared<tc::asio::AsioService>();
@@ -104,9 +93,9 @@ int main(int argc, char** argv)
 		if (client->IsConnected() == false) {
 			client->ConnectAsync();
 		}
-		//if (client->SendAsync(buf.data(), buf.size())) {
+		if (client->SendAsync(buf.cdata(), buf.size())) {
 			break;
-		//}
+		}
 		CppCommon::Thread::Sleep(2000);
 	}
 
