@@ -44,6 +44,14 @@
 		"system_error": "cpp",
 		"type_traits": "cpp",
 		"tuple": "cpp",
-		"typeinfo": "cpp"
+		"typeinfo": "cpp",
+		"atomic": "cpp",
+		"chrono": "cpp",
+		"condition_variable": "cpp",
+		"list": "cpp",
+		"mutex": "cpp",
+		"ratio": "cpp",
+		"stop_token": "cpp",
+		"thread": "cpp"
 	}
 }

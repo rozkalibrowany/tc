@@ -12,9 +12,11 @@ class Buf {
 public:
 
   using ByteArray = std::vector < uchar >;
+	using iterator = Buf::ByteArray::iterator;
+	using const_iterator = Buf::ByteArray::const_iterator;
 
-  Buf(const size_t size = 0);
-  Buf(const uchar *rhs, size_t size);
+	Buf(const size_t size = 0);
+	Buf(const uchar *rhs, size_t size);
   Buf(const ByteArray &rhs);
 	Buf(ByteArray::iterator begin, ByteArray::iterator end);
 
@@ -32,15 +34,19 @@ public:
   int64_t toInt64(int offset);
 
 	const size_t size();
+	const uchar *cdata();
+	uchar *data();
 
-  result_t insert(const uchar* buf, size_t length);
-  result_t insert(const char* buf, size_t length);
+	void push_back(const uchar val);
+	result_t insert(iterator begin, iterator end);
+	result_t insert(const uchar *buf, size_t length);
+	result_t insert(const char* buf, size_t length);
 
-  Buf::ByteArray::iterator begin();
-	Buf::ByteArray::iterator end();
+  iterator begin();
+	iterator end();
 
-  Buf::ByteArray::const_iterator cbegin() const;
-	Buf::ByteArray::const_iterator cend() const;
+  const_iterator cbegin() const;
+	const_iterator cend() const;
 
   ByteArray iBuf;
 };

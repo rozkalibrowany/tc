@@ -64,6 +64,31 @@ const uchar &Buf::operator[](uint idx) const
 	return iBuf[idx];
 }
 
+const uchar *Buf::cdata()
+{
+	return iBuf.data();
+}
+
+uchar *Buf::data()
+{
+	return iBuf.data();
+}
+
+void Buf::push_back(const uchar val)
+{
+	iBuf.push_back(val);
+}
+
+result_t Buf::insert(iterator begin, iterator end)
+{
+	if (begin == end) {
+		return RES_NOENT;
+	}
+
+	iBuf.insert(this->end(), begin, end);
+	return RES_OK;
+}
+
 result_t Buf::insert(const char* buf, size_t length)
 {
 	return insert((const uchar*) buf, length);
