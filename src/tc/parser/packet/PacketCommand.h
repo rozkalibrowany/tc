@@ -25,6 +25,8 @@ public:
 	const size_t size() override;
 	const uchar* command();
 
+	virtual uchar* command();
+
 private:
 	uchar* iCommand;
 	size_t iSize;

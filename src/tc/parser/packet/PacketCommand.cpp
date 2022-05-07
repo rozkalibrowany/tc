@@ -32,7 +32,6 @@ result_t PacketCommand::parse(const uchar* cbuf, size_t size)
 	auto offset = imei().size() % 2 != 0 ? (imei().size() / 2) + 1 : imei().size() / 2;
 	iCommand = (uchar*) cbuf + offset + 2;
 	iSize = size - offset - 2;
-
 	return RES_OK;
 }
 
