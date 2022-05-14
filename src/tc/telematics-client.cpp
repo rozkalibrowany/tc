@@ -2,7 +2,14 @@
 #include <tc/client/tcp/CommandFactory.h>
 #include <tc/asio/AsioService.h>
 #include <args-parser/all.hpp>
-// core dumps may be disallowed by parent of this process; change that
+/* core dumps may be disallowed by parent of this process; change that
+
+NOTE: output buffer can be sent as uchar*, but in serwer it has to be translated in binary format
+for example (command unlock):
+
+	uchar string:				"30303030303030303030303030303134306330313035303030303030306337333633366336663633366236333734373236633230333030313030303064326165"
+	binary (hex2int):		"_______________sclockctrl_0___--"
+*/
 
 int main(int argc, char** argv)
 {
@@ -67,6 +74,12 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	LG_NFO(log.logger(), "Sent command: {}", tc::uchar2string(buf.data(), buf.size()));
+
+	size_t len = buf.size() / 2;
+	auto out = new char[len];
+	tc::hex2bin((char*) buf.data(), out);
+
 	// Create a new Asio service
 	auto service = std::make_shared<tc::asio::AsioService>();
 
@@ -93,11 +106,13 @@ int main(int argc, char** argv)
 		if (client->IsConnected() == false) {
 			client->ConnectAsync();
 		}
-		if (client->SendAsync(buf.cdata(), buf.size())) {
+		if (client->SendAsync((const void*) out, len)) {
 			break;
 		}
 		CppCommon::Thread::Sleep(2000);
 	}
+
+	delete out;
 
 	// Disconnect the client
 	LG_NFO(log.logger(), "Client disconnecting...");

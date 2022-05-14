@@ -18,8 +18,7 @@ public:
 	virtual ~PacketCommand() = default;
   static bool hasCommand(const uchar* cbuf, size_t size);
 
-	result_t parse(const uchar* cbuf, size_t size) override;
-	result_t parseImei(const uchar* cbuf, size_t size) override;
+	result_t parse(uchar* cbuf, size_t size) override;
 
 	const std::string imei() const override;
 	const size_t size() override;

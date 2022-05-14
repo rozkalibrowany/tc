@@ -49,7 +49,7 @@ int PacketPayload::getIdx(const uchar* cbuf, size_t size, const uchar c) {
 	return -1;
 }
 
-result_t PacketPayload::parse(const uchar* cbuf, size_t size)
+result_t PacketPayload::parse(uchar* cbuf, size_t size)
 {
 	if (size < PacketPayload::IMEI_MIN_SIZE) {
 		return RES_NOENT;
@@ -109,34 +109,6 @@ std::shared_ptr< Reader > PacketPayload::reader()
 AVLRecords &PacketPayload::records()
 {
 	return iAVLRecords;
-}
-
-result_t PacketPayload::parseImei(const uchar* cbuf, size_t size)
-{
-	if (size <= 2 || size > 17) {
-		LG_NFO(this->logger(), "Wrong imei size: {}", (int) size);
-		return RES_INVARG;
-	}
-
-	auto len = ((cbuf[0]) << 8) | ((cbuf[1]) << 0);
-	if (len < 15) {
-		LG_NFO(this->logger(), "Insufficient data to parse IMEI");
-		return RES_INVARG;
-	}
-
-	auto buf = cbuf + 2;
-	auto hex_str = tc::uchar2string(buf, len);
-
-	std::string imei;
-	for (std::string::size_type i = 1; i < hex_str.size(); i += 2)
-	{
-		char c = hex_str[i];
-		imei.push_back(c);
-	}
-
-	LG_NFO(this->logger(), "Got IMEI: {} len: {}", imei, len);
-	iImei = imei;
-	return RES_OK;
 }
 
 } // namespace tc::parser

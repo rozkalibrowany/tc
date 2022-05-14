@@ -3,7 +3,7 @@
 
 namespace tc::parser {
 
-size_t PacketCommand::DATA_SIZE = 42;
+size_t PacketCommand::DATA_SIZE = 49; // to FIX - fixed size
 
 PacketCommand::PacketCommand(const std::string imei)
 	: Packet(imei)
@@ -17,10 +17,11 @@ bool PacketCommand::hasCommand(const uchar* cbuf, size_t size)
 		return false;
 	}
 
-	return (((cbuf[0]) << 8) | (((cbuf[1]) << 0) > 0)) > 0 ? true : false;
+	auto val = (((cbuf[0]) << 8) | ((cbuf[1]) << 0));
+	return val > 0 ? true : false;
 }
 
-result_t PacketCommand::parse(const uchar* cbuf, size_t size)
+result_t PacketCommand::parse(uchar* cbuf, size_t size)
 {
 	result_t res = RES_OK;
 
@@ -29,32 +30,13 @@ result_t PacketCommand::parse(const uchar* cbuf, size_t size)
 		return res;
 	}
 
-	auto offset = imei().size() % 2 != 0 ? (imei().size() / 2) + 1 : imei().size() / 2;
-	iCommand = (uchar*) cbuf + offset + 2;
-	iSize = size - offset - 2;
-	return RES_OK;
-}
+	auto offset = imei().length() + 2;
+	LG_NFO(this->logger(), "PacketCommand offset: {}", offset);
+	iCommand = (uchar *)cbuf + offset;
+	iSize = size - offset;
 
-result_t PacketCommand::parseImei(const uchar* cbuf, size_t size)
-{
-	auto imei_len = cbuf[1] << 0;
-	if (imei_len <= 0) {
-		return RES_NOENT;
-	}
+	LG_NFO(this->logger(), "command: {}", tc::uchar2string(iCommand, iSize));
 
-	auto buf = cbuf + 2;
-	auto hex_str = tc::uchar2string(buf, size - 2);
-
-	std::string imei;
-	for (std::string::size_type i = 0; i < (std::string::size_type) imei_len; i++)
-	{
-		char c = hex_str[i];
-		imei.push_back(c);
-	}
-
-	LG_NFO(this->logger(), "Got IMEI: {} len: {}", imei, imei_len);
-
-	iImei = imei;
 	return RES_OK;
 }
 

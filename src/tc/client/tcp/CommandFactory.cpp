@@ -53,16 +53,21 @@ result_t CommandFactory::create(const std::string &cmd, parser::Buf &buf, bool c
 {
 	result_t res = RES_OK;
 
+	// 4 zero-bytes
+	auto val = byte2string(0);
+	buf.insert(val.data(), val.length());
+
 	// imei length
-	auto val = byte2string(iImei.length(), 4);
-	buf.insert((const uchar*) val.data(), val.length());
+	val = byte2string(iImei.length());
+	buf.insert(val.data(), val.length());
 
 	// imei
-	buf.insert((const uchar*) iImei.data(), iImei.length());
+	val = tc::tohex(iImei);
+	buf.insert(val.data(), val.length());
 
 	// 4 zero-bytes
 	val = byte2string(0, 4*2);
-	buf.insert((const uchar*) val.data(), val.length());
+	buf.insert(val.data(), val.length());
 
 	parser::Buf payload;
 	if ((res = getPayload(cmd, payload)) != RES_OK) {
@@ -78,22 +83,22 @@ result_t CommandFactory::create(const std::string &cmd, parser::Buf &buf, bool c
 
 	// 3 zero-bytes
 	val = byte2string(0, 3*2);
-	buf.insert((const uchar*) val.data(), val.length());
+	buf.insert(val.data(), val.length());
 
 	// payload length
 	val = byte2string(payload.size() / 2);
-	buf.insert((const uchar*) val.data(), val.length());
+	buf.insert(val.data(), val.length());
 
 	// insert payload
 	buf.insert(payload.begin(), payload.end());
 
 	// command end symbol
 	val = cr ? byte2string(0x0D0A) : byte2string(0);
-	buf.insert((const uchar*) val.data(), val.length());
+	buf.insert(val.data(), val.length());
 
 	// CRC
 	val = byte2string(sum, 3*2);
-	buf.insert((const uchar*) val.data(), val.length());
+	buf.insert(val.data(), val.length());
 
 	return res;
 }
@@ -141,12 +146,6 @@ result_t CommandFactory::getPayload(const std::string &cmd, parser::Buf &buf)
 /*
 
 	// CRC
-	common::CRC16 crc;
-	std::string tocalc = "0C01050000000C73636C6F636B6374726C203001";
-	auto strhex = hex2string(tocalc);
-
-	for (auto &s : _sessions) {
-		const char* data = "00000000000000140C01050000000C73636C6F636B6374726C2030010000D2AE";
 
 		// "00000000000000130C01050000000B73637365746D6F646520320100001F93"
 		//const char* data = "00000000000000180C01050000001073637365746C656473776974636820300100004966"; // scsetledswitch off
@@ -159,23 +158,7 @@ result_t CommandFactory::getPayload(const std::string &cmd, parser::Buf &buf)
 
 		// "00000000000000140C01050000000C73636C6F636B6374726C203101000042AF" sclockctrl lock on
 
-
-
-		char *out = new char[32];
-		tc::hexToBin(data, out);
-
-		// auto str = hex_to_string_t(data);
-		//"00000000000000140C01050000000773636C6F636B6374726C203001000019a4";
-		//  auto out = ToHex(str, false);
-
-		// auto out = string_to_hex_t(str);
-		//  auto out = hex_to_string_t(str);
-		// SPDLOG_LOGGER_INFO(this->logger(), "{}: {}", "ON SEND CMD", str);
-		s.second->Send((void*) out, 32);
-	}
-
-
-	}*/
+*/
 
 	/* CRC od C (pierwszego z lewej) do 01
 	0C 010500000007676574696E666F 01

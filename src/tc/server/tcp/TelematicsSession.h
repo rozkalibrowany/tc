@@ -29,7 +29,8 @@ private:
 
 	result_t checkCrc(std::shared_ptr< parser::Buf > buf, size_t size, bool &crc_ok);
 
-	result_t send(void *buffer, size_t size, const bool async = false);
+	result_t send(const char* buffer, size_t size, const bool async = false);
+	result_t send(const void *buffer, size_t size, const bool async = false);
 	result_t send(int buffer, const bool async = false);
 
 	SysTime iTimestamp;

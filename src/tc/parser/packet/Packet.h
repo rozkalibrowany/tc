@@ -33,17 +33,20 @@ public:
 	virtual bool operator>=(const Packet &rhs) const;
 	virtual bool operator==(const Packet &rhs) const;
 
-	virtual result_t parse(const uchar *cbuf, size_t size) = 0;
-	virtual result_t parseImei(const uchar *cbuf, size_t size) = 0;
+	virtual result_t parse(uchar *cbuf, size_t size) = 0;
+	virtual result_t parseImei(uchar *cbuf, size_t size);
 
 	virtual const std::string imei() const = 0;
 	virtual const size_t size() = 0;
+
 	virtual void setImei(const std::string imei);
 
 	virtual int codec() const;
 	virtual const ID &id() const;
 
 protected:
+	virtual const std::string toImei(const uchar *cbuf, int len);
+
 	ID iID;
 	std::string iImei;
 	int iCodec;

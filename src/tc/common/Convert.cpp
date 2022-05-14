@@ -96,9 +96,16 @@ std::string uchar2string(const unsigned char *c, uint32_t length)
 	ss << std::hex;
 
 	for (uint32_t i = 0; i < length; ++i) {
-		ss << std::setw(2) << std::setfill('0') << static_cast< int >(c[i]);
+		ss << std::setw(2) << std::setfill('0') << static_cast< unsigned int >(c[i]);
 	}
 	return ss.str();
+}
+
+std::string uchar2string2(const unsigned char *c, uint32_t length)
+{
+	std::string s(*c, length);
+
+	return s;
 }
 
 std::string byte2string(int val, int width)
@@ -107,8 +114,8 @@ std::string byte2string(int val, int width)
 	ss << std::setw(width) << std::setfill('0') << std::hex << (val);
 	std::string ret(ss.str());
 
-	std::transform(ret.begin(), ret.end(), ret.begin(),
-		[](char c) { return std::toupper(c); });
+	//std::transform(ret.begin(), ret.end(), ret.begin(),
+	//	[](char c) { return std::toupper(c); });
 
 	return ret;
 }
