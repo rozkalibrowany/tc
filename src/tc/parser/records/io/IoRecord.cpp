@@ -164,6 +164,17 @@ std::string IoRecord::toString()
   return s;
 }
 
+result_t IoRecord::toJsonImpl(Json::Value &rhs, bool root) const
+{
+	auto &el = rhs["IoRecords"] = Json::arrayValue;
+	for (auto &r : iRecordsMap) {
+		Json::Value val;
+		r.second.front()->toJson(val);
+		el.append(val);
+	}
+	return RES_OK;
+}
+
 } // namespace tc::parser::records::io
 
 

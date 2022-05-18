@@ -2,10 +2,11 @@
 #define D1B17E6F_7E12_4F90_8A8B_53760F4A7BE7
 
 #include <server/http/https_server.h>
+#include <tc/common/Common.h>
 
 namespace tc::server::http {
 
-class HTTPSCacheSession : public CppServer::HTTP::HTTPSSession
+class HTTPSCacheSession : public CppServer::HTTP::HTTPSSession, public tc::LogI
 {
 public:
     using CppServer::HTTP::HTTPSSession::HTTPSSession;

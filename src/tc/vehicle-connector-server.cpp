@@ -24,11 +24,8 @@ int main(int argc, char** argv)
 	if (argc > 2)
 			www = argv[2];*/
 
-	//std::cout << "HTTPS server port: " << port << std::endl;
-	//std::cout << "HTTPS server static content path: " << www << std::endl;
-	// std::cout << "HTTPS server website: " << "https://localhost:" << port << "/api/index.html" << std::endl;
 
-	// std::cout << std::endl;
+	LG_NFO(log.logger(), "HTTPS server port: {}", 8443);
 
 	// Create a new Asio service
 	auto service = std::make_shared<tc::asio::AsioService>();
@@ -40,10 +37,10 @@ int main(int argc, char** argv)
 
 	// Create and prepare a new SSL server context
 	auto context = std::make_shared<CppServer::Asio::SSLContext>(asio::ssl::context::tlsv12);
-	//context->set_password_callback([](size_t max_length, asio::ssl::context::password_purpose purpose) -> std::string { return "qwerty"; });
-	//context->use_certificate_chain_file("../tools/certificates/server.pem");
-	//context->use_private_key_file("../tools/certificates/server.pem", asio::ssl::context::pem);
-	//context->use_tmp_dh_file("../tools/certificates/dh4096.pem");
+	context->set_password_callback([](size_t max_length, asio::ssl::context::password_purpose purpose) -> std::string { return "qwerty"; });
+	context->use_certificate_chain_file("../tools/certificates/server.pem");
+	context->use_private_key_file("../tools/certificates/server.pem", asio::ssl::context::pem);
+	context->use_tmp_dh_file("../tools/certificates/dh4096.pem");
 
 	// Create a new HTTPS server
 	auto server = std::make_shared<tc::server::http::HTTPSCacheServer>(service, context, port);

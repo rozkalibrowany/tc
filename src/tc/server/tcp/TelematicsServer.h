@@ -17,21 +17,21 @@ public:
 	using CppServer::Asio::TCPServer::TCPServer;
 
 	using Packets = std::vector< std::shared_ptr< parser::PacketPayload > >;
-	using PayloadPackets = std::map< Action::Imei, Packets >;
-	using VerifiedSessions = std::map< CppCommon::UUID, Action::Imei >;
+	using PayloadPackets = std::map< Imei, Packets >;
+	using VerifiedSessions = std::map< CppCommon::UUID, Imei >;
 
 	int sessionsSize();
 	PayloadPackets &payloadPackets();
 
 	virtual bool has(const CppCommon::UUID &uuid);
-	virtual bool has(const Action::Imei &imei);
-	virtual result_t get(const CppCommon::UUID uuid, Action::Imei &imei);
-	virtual result_t get(const Action::Imei &imei, parser::PacketPayload &packet);
-	virtual result_t add(const CppCommon::UUID uuid, const Action::Imei &imei);
-	virtual result_t add(const Action::Imei &imei, const std::shared_ptr<parser::PacketPayload> &packet);
+	virtual bool has(const Imei &imei);
+	virtual result_t get(const CppCommon::UUID uuid, Imei &imei);
+	virtual result_t get(const Imei &imei, parser::PacketPayload &packet);
+	virtual result_t add(const CppCommon::UUID uuid, const Imei &imei);
+	virtual result_t add(const Imei &imei, const std::shared_ptr<parser::PacketPayload> &packet);
 	virtual result_t rm(const CppCommon::UUID uuid);
 
-	virtual result_t sendCommand(const Action::Imei &imei, std::shared_ptr<parser::PacketCommand> &command);
+	virtual result_t sendCommand(const Imei &imei, std::shared_ptr<parser::PacketCommand> &command);
 
 protected:
 	std::shared_ptr< CppServer::Asio::TCPSession > CreateSession(const std::shared_ptr<TCPServer> &server) override;

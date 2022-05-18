@@ -81,6 +81,12 @@ tc_conan_build_package(NAME cppserver
 	UBUNTU
 )
 
+tc_conan_build_package(NAME jsoncpp
+	VERSION 1.9.4
+	DEPENDS conan-profiles conan-tc-build
+	UBUNTU
+)
+
 tc_conan_build_package(NAME spdlog
 	VERSION 1.9.2
 	DEPENDS conan-profiles conan-tc-build

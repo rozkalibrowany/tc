@@ -22,19 +22,27 @@ public:
   int iID;
   int64_t iValue;
 	std::string iData;
+
+protected:
+	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
+};
+
+class McanIo : public parser::JsonI {
+public:
+	McanIo(int _id, int64_t _val, int _size);
+	McanIo &operator=(const McanIo &rhs) = default;
+	auto operator<=>(const McanIo &rhs) const = default;
+
+	int id;
+	int64_t value;
+	int size;
+
+protected:
+	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
 };
 
 class IoMcanProperty : public IoRecordProperty {
 public:
-	struct McanIo {
-		McanIo(int _id, int64_t _val, int _size) : id(_id), value(_val), size(_size){};
-		McanIo &operator=(const McanIo &rhs) = default;
-		auto operator<=>(const McanIo &rhs) const = default;
-
-		int id;
-		int64_t value;
-		int size;
-	};
 
 	IoMcanProperty(int id = 0);
 	virtual ~IoMcanProperty() = default;
@@ -46,6 +54,8 @@ public:
 	std::string toString() override;
 
 protected:
+	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
+
 	std::list< McanIo > iIoElements;
 };
 

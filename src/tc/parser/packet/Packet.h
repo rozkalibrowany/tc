@@ -28,6 +28,10 @@ public:
 	Packet(const std::string imei = "");
 	virtual ~Packet() = default;
 
+	static bool hasImei(const uchar *cbuf, size_t size);
+	static result_t parseImei(const uchar *cbuf, size_t size, Imei &imei);
+	static const std::string toImei(const uchar *cbuf, int len);
+
 	virtual bool operator<(const Packet &rhs) const;
 	virtual bool operator<=(const Packet &rhs) const;
 	virtual bool operator>(const Packet &rhs) const;

@@ -55,10 +55,10 @@ result_t TelematicsSession::handleImei(const uchar *buffer, size_t size)
 	LG_NFO(this->logger(), "Session: handle payload imei [{}]: {}", size, tc::uchar2string(buffer, size));
 
 	result_t res = RES_OK;
-	Action::Imei imei;
+	Imei imei;
 	int response = 0;
 
-	res |= Action::parseImei(buffer, size, imei);
+	res |= Packet::parseImei(buffer, size, imei);
 	if (res != RES_OK) {
 		LG_ERR(this->logger(), "Parse imei.");
 		send(response);
@@ -82,7 +82,7 @@ result_t TelematicsSession::handlePayload(const uchar *buffer, size_t size, bool
 
 	result_t res = RES_OK;
 	int response = 0;
-	Action::Imei imei;
+	Imei imei;
 
 	if (tcServer()->has(this->id()) == false) {
 		LG_ERR(this->logger(), "Unknown imei.");
@@ -137,9 +137,9 @@ result_t TelematicsSession::handleCommand(const uchar *buffer, size_t size)
 	LG_NFO(this->logger(), "Session: received command[{}]: [{}]", size, uchar2string((unsigned char *)buffer, size));
 	
 	int response = 0;
-	Action::Imei imei;
+	Imei imei;
 
-	result_t res = Action::parseImei(buffer, size, imei);
+	result_t res = parser::Packet::parseImei(buffer, size, imei);
 	if (res != RES_OK) {
 		LG_ERR(this->logger(), "Parse imei.");
 		send(response);

@@ -41,7 +41,7 @@ void TelematicsServer::onError(int error, const std::string& category, const std
 	LG_ERR(this->logger(), "Telematics Server caught an error[{}][{}]: {}", error, category, message);
 }
 
-result_t TelematicsServer::get(const CppCommon::UUID uuid, Action::Imei &imei)
+result_t TelematicsServer::get(const CppCommon::UUID uuid, Imei &imei)
 {
 	auto it = iVerifiedSessions.find(uuid);
 	if (it == iVerifiedSessions.end()) {
@@ -51,7 +51,7 @@ result_t TelematicsServer::get(const CppCommon::UUID uuid, Action::Imei &imei)
 	return RES_OK;
 }
 
-result_t TelematicsServer::get(const Action::Imei &imei, parser::PacketPayload &packet)
+result_t TelematicsServer::get(const Imei &imei, parser::PacketPayload &packet)
 {
 	auto it = iPayloadPackets.find(imei);
 	if (it == iPayloadPackets.end()) {
@@ -61,7 +61,7 @@ result_t TelematicsServer::get(const Action::Imei &imei, parser::PacketPayload &
 	return RES_OK;
 }
 
-result_t TelematicsServer::add(const Action::Imei &imei, const std::shared_ptr< parser::PacketPayload > &packet)
+result_t TelematicsServer::add(const Imei &imei, const std::shared_ptr< parser::PacketPayload > &packet)
 {
 	if (iPayloadPackets.find(imei) != iPayloadPackets.end()) {
 		auto &packets = iPayloadPackets.at(imei);
@@ -75,7 +75,7 @@ result_t TelematicsServer::add(const Action::Imei &imei, const std::shared_ptr< 
 	return RES_OK;
 }
 
-result_t TelematicsServer::add(const CppCommon::UUID uuid, const Action::Imei &imei)
+result_t TelematicsServer::add(const CppCommon::UUID uuid, const Imei &imei)
 {
 	if (iVerifiedSessions.find(uuid) != iVerifiedSessions.end()) {
 		return RES_INVARG;
@@ -91,7 +91,7 @@ bool TelematicsServer::has(const CppCommon::UUID &uuid)
 }
 
 
-bool TelematicsServer::has(const Action::Imei &imei)
+bool TelematicsServer::has(const Imei &imei)
 {
 	return iPayloadPackets.find(imei) != iPayloadPackets.end();
 }
@@ -107,7 +107,7 @@ result_t TelematicsServer::rm(const CppCommon::UUID uuid)
 	return RES_NOENT;
 }
 
-result_t TelematicsServer::sendCommand(const Action::Imei &imei, std::shared_ptr<parser::PacketCommand> &command)
+result_t TelematicsServer::sendCommand(const Imei &imei, std::shared_ptr<parser::PacketCommand> &command)
 {
 	for (const auto& [key, value] : iVerifiedSessions) {
 		if (value == imei) {

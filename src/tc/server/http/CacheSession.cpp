@@ -7,11 +7,13 @@ namespace tc::server::http {
 void HTTPSCacheSession::onReceivedRequest(const CppServer::HTTP::HTTPRequest& request)
 {
 	// Show HTTP request content
-	//LG_NFO(this->logger(), "request: {}", request.string());
+	LG_NFO(this->logger(), "request: {}", request.string());
 
 	// Process HTTP request methods
-	if (request.method() == "HEAD")
-			SendResponseAsync(response().MakeHeadResponse());
+	if (request.method() == "HEAD") {
+		SendResponseAsync(response().MakeHeadResponse());
+		LG_NFO(this->logger(), "request.method() == HEAD");
+	}
 	else if (request.method() == "GET")
 	{
 			std::string key(request.url());

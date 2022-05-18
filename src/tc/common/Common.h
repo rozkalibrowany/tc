@@ -12,5 +12,6 @@
 #endif
 
 using uchar = unsigned char;
+using Imei = std::string;
 
 #endif /* CF85BD92_7E22_45A2_ABC3_BF3EC33AE7C6 */

@@ -16,6 +16,7 @@ TcAddLibrary(
 	SOURCE "${src}/parser/*.cpp"
 	INCLUDE "${TcIncludeDir}"
 	LIBRARIES
+		jsoncpp
 		tc-common
 	VERSION ${TcVersion}
 )

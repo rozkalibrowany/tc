@@ -4,8 +4,7 @@
 #include <fmt/ostream.h>
 #include <tc/parser/records/RecordI.h>
 #include <tc/server/tcp/LockGuard.h>
-#include <list>
-#include <map>
+#include <json/json.h>
 
 namespace tc::parser::records::io {
 
@@ -36,6 +35,9 @@ public:
 	result_t parse(const std::shared_ptr< Reader > &reader) override;
 
 	std::string toString() override;
+
+protected:
+	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
 
 private:
 	result_t parseFixedSize(const std::shared_ptr< Reader > &reader, int ioIdSize, int byteSize);

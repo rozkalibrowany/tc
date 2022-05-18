@@ -47,6 +47,28 @@ std::string IoRecordProperty::toString()
 	return s;
 }
 
+result_t IoRecordProperty::toJsonImpl(Json::Value &rhs, bool root) const
+{
+	rhs["ID"] = iID;
+	rhs["value"] = iValue;
+
+	return RES_OK;
+}
+
+McanIo::McanIo(int _id, int64_t _val, int _size)
+ : id(_id), value(_val), size(_size)
+{
+	// nothing to do
+}
+
+result_t McanIo::toJsonImpl(Json::Value &rhs, bool root) const
+{
+	rhs["ID"] = id;
+	rhs["value"] = value;
+	rhs["size"] = size;
+
+	return RES_OK;
+}
 
 IoMcanProperty::IoMcanProperty(int id)
  : IoRecordProperty(id)
@@ -79,7 +101,7 @@ result_t IoMcanProperty::parse(const std::shared_ptr< Reader > &reader, int id_s
 			auto id = reader->read(4);
 			auto size = byte_sizes[i];
 			auto value = reader->read(size);
-			iIoElements.emplace_back(McanIo{id, size, value});
+			iIoElements.emplace_back(McanIo{id, value, size});
 		}
 	}
 
@@ -100,5 +122,17 @@ std::string IoMcanProperty::toString()
 
 	return s;
 }
+
+result_t IoMcanProperty::toJsonImpl(Json::Value &rhs, bool root) const
+{
+	auto &el = rhs["IoMcanProperty"] = Json::arrayValue;
+	for (auto &e : iIoElements) {
+		Json::Value val;
+		e.toJson(val);
+		el.append(val);
+	}
+	return RES_OK;
+}
+
 
 } // namespace tc::parser::records::io

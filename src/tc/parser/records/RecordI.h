@@ -3,10 +3,11 @@
 
 #include <tc/parser/Reader.h>
 #include <tc/common/Common.h>
+#include <tc/parser/Json.h>
 
 namespace tc::parser::records {
 
-class RecordI : public tc::LogI {
+class RecordI : public tc::LogI, public JsonI {
 public:
   RecordI() : tc::LogI("console") {}
   virtual ~RecordI() = default;
