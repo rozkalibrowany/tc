@@ -9,23 +9,23 @@ namespace tc::server::tcp {
 class Action {
 public:
 
+	using Imei = std::string;
+
 	enum Type {
 		unknown = 0,
 		payload,
-		payload_imei,
+		imei,
 		command,
-		incomplete_payload
+		incomplete_payload,
+		standby
 	};
 
-	Action(Type type = Type::unknown);
-	~Action();
+	static Type get(const uchar* buffer, size_t size);
 
-	const Type type() const;
+	static bool hasImei(const uchar *cbuf, size_t size);
+	static result_t parseImei(const uchar *cbuf, size_t size, Imei &imei);
+	static const Imei toImei(const uchar *cbuf, int len);
 
-	result_t parse(const void* buffer, size_t size);
-
-private:
-	Type iType;
 };
 
 } // namespace tc::server::tcp

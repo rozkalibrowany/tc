@@ -26,7 +26,7 @@ public:
 	static const std::string cmd_engine_on;
 	static const std::string cmd_engine_off;
 
-	static const std::string cmd_get_info;
+	static const std::string cmd_restart;
 
 	static const std::string cmdToString(const std::string &cmd);
 

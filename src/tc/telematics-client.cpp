@@ -16,7 +16,7 @@ int main(int argc, char** argv)
 	using namespace Args;
 
 	std::string command, imei, address;
-	std::string address_full = "127.0.0.1:8883";
+	std::string address_full = "127.0.0.1:8881";
 	int port;
 
 	try {
@@ -27,7 +27,7 @@ int main(int argc, char** argv)
 				.addArgWithFlagAndName('i', "imei", true, true, "IoT device IMEI",
 																"", "", "arg")
 				.addArgWithFlagAndName('c', "cmd", true, true, "IoT command",
-																"", "", "lock | unlock | engine_on | engine_off | led_on | led_off")
+																"", "", "lock | unlock | engine_on | engine_off | led_on | led_off | restart")
 				.addHelp(true, argv[0], "Telematics Connector TCP Command Client.");
 
 		cmd.parse();

@@ -49,7 +49,7 @@ int PacketPayload::getIdx(const uchar* cbuf, size_t size, const uchar c) {
 	return -1;
 }
 
-result_t PacketPayload::parse(uchar* cbuf, size_t size)
+result_t PacketPayload::parse(uchar* cbuf, size_t size, size_t /* offset */)
 {
 	if (size < PacketPayload::IMEI_MIN_SIZE) {
 		return RES_NOENT;
@@ -94,11 +94,6 @@ result_t PacketPayload::parse(uchar* cbuf, size_t size)
 const size_t PacketPayload::size()
 {
 	return iRecords;
-}
-
-const std::string PacketPayload::imei() const
-{
-	return iImei;
 }
 
 std::shared_ptr< Reader > PacketPayload::reader()

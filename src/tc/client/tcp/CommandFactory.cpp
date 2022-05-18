@@ -23,6 +23,8 @@ const std::string CommandFactory::cmd_led_off = "scledctrl 0";
 const std::string CommandFactory::cmd_engine_on = "scenginectrl 1";
 const std::string CommandFactory::cmd_engine_off = "scenginectrl 0";
 
+const std::string CommandFactory::cmd_restart = "screbootsys";
+
 const std::string CommandFactory::cmdToString(const std::string &cmd)
 {
 	if (cmd.compare("unlock") == 0) {
@@ -37,6 +39,8 @@ const std::string CommandFactory::cmdToString(const std::string &cmd)
 		return CommandFactory::cmd_led_on;
 	} else if (cmd.compare("led_off") == 0) {
 		return CommandFactory::cmd_led_off;
+	} else if (cmd.compare("restart") == 0) {
+		return CommandFactory::cmd_restart;
 	}
 
 	return std::string();
@@ -53,7 +57,7 @@ result_t CommandFactory::create(const std::string &cmd, parser::Buf &buf, bool c
 {
 	result_t res = RES_OK;
 
-	// 4 zero-bytes
+	// 1 zero-byte
 	auto val = byte2string(0);
 	buf.insert(val.data(), val.length());
 

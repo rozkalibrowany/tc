@@ -22,9 +22,8 @@ public:
 	static bool contains(const uchar* buf, size_t size, uchar c);
 	static int getIdx(const uchar* cbuf, size_t size, const uchar c);
 
-	result_t parse(uchar* cbuf, size_t size) override;
+	result_t parse(uchar* cbuf, size_t size, size_t offset = 0) override;
 
-	const std::string imei() const override;
 	const size_t size() override;
 	std::shared_ptr< Reader > reader();
 

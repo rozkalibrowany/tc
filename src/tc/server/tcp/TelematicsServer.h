@@ -8,29 +8,30 @@
 
 namespace tc::server::tcp {
 
+using namespace parser;
+class TelematicsSession;
+
 class TelematicsServer : public CppServer::Asio::TCPServer, public tc::LogI
 {
 public:
 	using CppServer::Asio::TCPServer::TCPServer;
 
-	using Imei = std::string;
 	using Packets = std::vector< std::shared_ptr< parser::PacketPayload > >;
-	using PayloadPackets = std::map< Imei, Packets >;
-	using PacketsCommand = std::map< Imei, std::shared_ptr< parser::PacketCommand > >;
-	using ActiveSessions = std::map< Imei, std::shared_ptr< TelematicsSession > >;
+	using PayloadPackets = std::map< Action::Imei, Packets >;
+	using VerifiedSessions = std::map< CppCommon::UUID, Action::Imei >;
 
 	int sessionsSize();
 	PayloadPackets &payloadPackets();
-	PacketsCommand &packetsCommand();
 
-	virtual bool has(const Imei &imei);
-	virtual result_t get(const Imei &imei, parser::PacketPayload &packet);
-	virtual result_t get(const Imei &imei, std::shared_ptr< parser::PacketCommand > &packet);
-	virtual result_t add(const Imei &imei, std::shared_ptr<TelematicsSession> &session);
-	virtual result_t add(const Imei &imei, const std::shared_ptr<parser::PacketPayload> &packet);
-	virtual result_t add(const Imei &imei, const std::shared_ptr<parser::PacketCommand> &packet);
+	virtual bool has(const CppCommon::UUID &uuid);
+	virtual bool has(const Action::Imei &imei);
+	virtual result_t get(const CppCommon::UUID uuid, Action::Imei &imei);
+	virtual result_t get(const Action::Imei &imei, parser::PacketPayload &packet);
+	virtual result_t add(const CppCommon::UUID uuid, const Action::Imei &imei);
+	virtual result_t add(const Action::Imei &imei, const std::shared_ptr<parser::PacketPayload> &packet);
+	virtual result_t rm(const CppCommon::UUID uuid);
 
-	virtual bool hasQueuedCommands(const Imei &imei);
+	virtual result_t sendCommand(const Action::Imei &imei, std::shared_ptr<parser::PacketCommand> &command);
 
 protected:
 	std::shared_ptr< CppServer::Asio::TCPSession > CreateSession(const std::shared_ptr<TCPServer> &server) override;
@@ -43,9 +44,8 @@ private:
 	// void onConnected(std::shared_ptr< TelematicsSession > &session);
 	// void onDisconnected(std::shared_ptr< TelematicsSession > &session);
 	SysMutex iMutex;
-	ActiveSessions iActiveSessions;
+	VerifiedSessions iVerifiedSessions;
 	PayloadPackets iPayloadPackets;
-	PacketsCommand iPacketsCommand;
 };
 
 } // namespace tc::server::tcp

@@ -10,17 +10,13 @@ class PacketCommand : public Packet
 {
 public:
 
-	static size_t DATA_SIZE;
-	static size_t IMEI_MIN_SIZE;
-
 	PacketCommand(const std::string imei = "");
 
 	virtual ~PacketCommand() = default;
   static bool hasCommand(const uchar* cbuf, size_t size);
 
-	result_t parse(uchar* cbuf, size_t size) override;
+	result_t parse(uchar* cbuf, size_t size, size_t offset = 0) override;
 
-	const std::string imei() const override;
 	const size_t size() override;
 	const uchar* command();
 
