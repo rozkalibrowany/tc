@@ -113,7 +113,7 @@ TcOptMsg("TC_SYSTEM_VERSION"          RG_SYSTEM_VERSION)
 message(STATUS "")
 
 tc_find_package_status(NAME cppserver REQUIRED)
-tc_find_package_status(NAME fmt REQUIRED)
+#tc_find_package_status(NAME cppcommon REQUIRED)
 tc_find_package_status(NAME spdlog REQUIRED)
 
 add_subdirectory("src/tc")

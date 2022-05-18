@@ -6,6 +6,8 @@ TcAddLibrary(
 	TARGET tc-common
 	SOURCE "${src}/common/*.cpp"
 	INCLUDE "${TcIncludeDir}"
+	LIBRARIES
+		fmt
 	VERSION ${TcVersion}
 )
 
@@ -14,7 +16,6 @@ TcAddLibrary(
 	SOURCE "${src}/parser/*.cpp"
 	INCLUDE "${TcIncludeDir}"
 	LIBRARIES
-		fmt
 		tc-common
 	VERSION ${TcVersion}
 )
@@ -59,4 +60,21 @@ TcAddLibrary(
 
 
 TcAddExecutable(tc-telematics-client "${src}/telematics-client.cpp" tc-client
+	LINK_FLAGS "-Wl,--no-as-needed")
+
+
+TcAddLibrary(
+	TARGET tc-vehicle-connector
+	SOURCE "${src}/server/http/*.cpp"
+	INCLUDE "${TcIncludeDir}"
+	LIBRARIES
+		tc-asio
+		cppserver
+		cppcommon
+		tc-parser
+		spdlog
+	VERSION ${TcVersion}
+)
+
+TcAddExecutable(tc-vehicle-connector-server "${src}/vehicle-connector-server.cpp" tc-vehicle-connector
 	LINK_FLAGS "-Wl,--no-as-needed")

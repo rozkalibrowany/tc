@@ -1,5 +1,4 @@
 #include <tc/parser/Reader.h>
-#include <iostream>
 #include <array>
 #include <algorithm>
 

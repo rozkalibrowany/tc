@@ -1,6 +1,6 @@
+#include <tc/common/Common.h>
 #include <tc/server/tcp/TelematicsServer.h>
 #include <tc/asio/AsioService.h>
-#include <tc/common/Common.h>
 
 // core dumps may be disallowed by parent of this process; change that
 

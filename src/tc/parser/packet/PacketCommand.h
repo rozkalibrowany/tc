@@ -1,7 +1,6 @@
 #ifndef D43AB83E_8F58_407E_A5C3_3BD76E9F3EF7
 #define D43AB83E_8F58_407E_A5C3_3BD76E9F3EF7
 
-#include <tc/common/Common.h>
 #include <tc/parser/packet/Packet.h>
 
 namespace tc::parser {

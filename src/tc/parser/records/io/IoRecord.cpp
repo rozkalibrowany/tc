@@ -2,7 +2,6 @@
 #define F25D9B53_659E_4A24_B5BB_B848D1096187
 #include <tc/parser/records/io/IoRecord.h>
 #include <tc/parser/records/io/IoRecordProperty.h>
-#include <fmt/format.h>
 #include <iterator>
 
 namespace tc::parser::records::io {

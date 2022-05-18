@@ -1,5 +1,4 @@
 #include <tc/parser/records/io/IoRecordProperty.h>
-#include <fmt/format.h>
 
 namespace tc::parser::records::io {
 

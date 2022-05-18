@@ -75,20 +75,8 @@ tc_conan_build_package(NAME args-parser
 	UBUNTU
 )
 
-tc_conan_build_package(NAME asio
-	VERSION 1.22.1
-	DEPENDS conan-profiles conan-tc-build
-	UBUNTU
-)
-
 tc_conan_build_package(NAME cppserver
 	VERSION master
-	DEPENDS conan-profiles conan-tc-build
-	UBUNTU
-)
-
-tc_conan_build_package(NAME fmt
-	VERSION 8.1.0
 	DEPENDS conan-profiles conan-tc-build
 	UBUNTU
 )

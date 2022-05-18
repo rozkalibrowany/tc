@@ -1,6 +1,7 @@
 #ifndef EADCF7E8_6DE0_41F5_9945_A81AEEE0442E
 #define EADCF7E8_6DE0_41F5_9945_A81AEEE0442E
 
+#include <fmt/ostream.h>
 #include <server/asio/tcp_client.h>
 #include <tc/common/Common.h>
 

@@ -3,7 +3,6 @@
 
 #include <tc/parser/Reader.h>
 #include <tc/parser/records/RecordI.h>
-#include <tc/common/Common.h>
 #include <list>
 
 namespace tc::parser::records::io {

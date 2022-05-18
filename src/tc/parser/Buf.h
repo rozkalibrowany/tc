@@ -1,10 +1,9 @@
 #ifndef DA60B58C_59CB_4A50_9994_E86447621129
 #define DA60B58C_59CB_4A50_9994_E86447621129
 
-#include <tc/common/Common.h>
 #include <vector>
-#include <iostream>
 #include <iterator>
+#include <tc/common/Common.h>
 
 namespace tc::parser {
 
