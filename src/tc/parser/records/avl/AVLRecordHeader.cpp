@@ -48,7 +48,7 @@ result_t AVLRecordHeader::parse(const std::shared_ptr< Reader > &reader)
 
 result_t AVLRecordHeader::parse(const std::shared_ptr< Reader > &reader, int codec)
 {
-  return parse(reader);
+  return RES_NOIMPL;
 }
 
 std::string AVLRecordHeader::toString()
@@ -56,5 +56,14 @@ std::string AVLRecordHeader::toString()
   return !empty() ? fmt::format("************ Header Record ************\
   	\n\tTimestamp: {}\n\tPriority: {}\n\t", std::to_string(iTimestamp), std::to_string(iPriority)) : fmt::format("************ Header Record EMPTY ************\n");
 }
+
+result_t AVLRecordHeader::toJsonImpl(Json::Value &rhs, bool root) const
+{
+	rhs["Timestamp"] = iTimestamp;
+	rhs["Priority"] = iPriority;
+
+	return RES_OK;
+}
+
 
 } // namespace tc::parser::records::avl

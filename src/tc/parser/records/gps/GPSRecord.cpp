@@ -2,7 +2,7 @@
 #include <fmt/format.h>
 namespace tc::parser::records::gps {
 
-GPSRecord::GPSRecord(const GPSData &data)
+GPSRecord::GPSRecord(const Data &data)
  : iData(data)
 {
   // nothing to do
@@ -10,7 +10,7 @@ GPSRecord::GPSRecord(const GPSData &data)
 
 
 GPSRecord::GPSRecord()
- : GPSRecord(GPSData{})
+ : GPSRecord(Data{})
 {
   // nothing to do
 }
@@ -31,19 +31,19 @@ bool GPSRecord::empty() const
 	return iData.empty();
 }
 
-GPSData &GPSRecord::data()
+GPSRecord::Data &GPSRecord::data()
 {
   return iData;
 }
 
-const GPSData &GPSRecord::cdata() const
+const GPSRecord::Data &GPSRecord::cdata() const
 {
   return iData;
 }
 
 result_t GPSRecord::parse(const std::shared_ptr< Reader > &reader, int codec)
 {
-  return RES_OK;
+  return RES_NOIMPL;
 }
 
 result_t GPSRecord::parse(const std::shared_ptr< Reader > &reader)
@@ -67,6 +67,18 @@ std::string GPSRecord::toString()
 	return !empty() ? fmt::format("**************** GPS Record *****************\
   \n\tLongitude: {}\n\tLatitude: {}\n\tAltitude: {}\n\tAngle: {}\n\tSatellites: {}\n\n",
 	iData.iLongitude, iData.iLatitude, iData.iAltitude, iData.iAngle, iData.iSatellites) : fmt::format("************* GPS Record EMPTY *************\n");
+}
+
+result_t GPSRecord::toJsonImpl(Json::Value &rhs, bool root) const
+{
+	rhs["Longitude"] = iData.iLongitude;
+	rhs["Latitude"] = iData.iLatitude;
+  rhs["Altitude"] = iData.iAltitude;
+  rhs["Angle"] = iData.iAngle;
+  rhs["Satellites"] = iData.iSatellites;
+  rhs["Speed"] = iData.iSpeed;
+
+	return RES_OK;
 }
 
 } // namespace tc::parser::records::gps

@@ -22,6 +22,9 @@ public:
 	std::string toString() override;
 
 protected:
+	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
+
+private:
 	int64_t iTimestamp;
 	int iPriority;
 };

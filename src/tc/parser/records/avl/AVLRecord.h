@@ -12,22 +12,25 @@ class AVLRecord;
 using AVLRecordSPtr = std::shared_ptr< AVLRecord >;
 using AVLRecordList = std::vector< AVLRecordSPtr >;
 
-class AVLRecord : public tc::LogI {
+class AVLRecord : public tc::LogI, public parser::JsonI {
 public:
 	AVLRecord(int codec = 142);
-
-	//AVLRecord &operator=(AVLRecord &&rhs);
 
 	virtual ~AVLRecord() = default;
 
 	result_t read(const std::shared_ptr< Reader > &reader);
 	result_t set(const int codec);
 
+protected:
+	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
+
+private:
 	int iCodec;
 	AVLRecordHeader iRecordHeader;
 	gps::GPSRecord iGPSRecord;
 	io::IoRecord iRecordIo;
 };
+
 class AVLRecords {
 public:
 	~AVLRecords() = default;

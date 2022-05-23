@@ -9,22 +9,6 @@ AVLRecord::AVLRecord(int codec)
   // nothing to do
 }
 
-/*AVLRecord &AVLRecord::operator=(AVLRecord &&rhs)
-{
-	if (this == &rhs) return *this;
-
-	iCodec = rhs.iCodec;
-	//iRecordHeader = rhs.iRecordHeader;
-	//iGPSRecord = rhs.iGPSRecord;
-	//iRecordIo = rhs.iRecordIo;
-
-	rhs.iRecordHeader.clear();
-	rhs.iGPSRecord.clear();
-	rhs.iRecordIo.clear();
-
-	return *this;
-}*/
-
 result_t AVLRecord::read(const std::shared_ptr< Reader > &reader)
 {
 	if (reader == nullptr) {
@@ -50,6 +34,22 @@ result_t AVLRecord::set(const int codec)
   iCodec = codec;
   return RES_OK;
 }
+
+result_t AVLRecord::toJsonImpl(Json::Value &rhs, bool root) const
+{
+	auto &arr = rhs["AVLRecord"] = Json::arrayValue;
+
+  Json::Value val;
+	iRecordHeader.toJson(val);
+	arr.append(val);
+  iGPSRecord.toJson(val);
+  arr.append(val);
+  iRecordIo.toJson(val);
+  arr.append(val);
+
+	return RES_OK;
+}
+
 
 size_t AVLRecords::size() const
 {

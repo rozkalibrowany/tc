@@ -5,26 +5,25 @@
 
 namespace tc::parser::records::gps {
 
-
-struct GPSData {
-	GPSData &operator=(const GPSData &rhs) = default;
-	bool empty() const {
-		return !iLongitude && !iLatitude && !iAltitude && !iAngle && !iSatellites;
-	}
-
-	uint32_t iLongitude {0U};
-	uint32_t iLatitude {0U};
-	int iAltitude {0};
-	int iAngle {0};
-	int iSatellites {0};
-	int iSpeed {0};
-};
-
-
 class GPSRecord : public RecordI {
 public:
 
-	GPSRecord(const GPSData &data);
+	struct Data {
+		Data &operator=(const Data &rhs) = default;
+
+		bool empty() const {
+			return !iLongitude && !iLatitude && !iAltitude && !iAngle && !iSatellites;
+		}
+
+		uint32_t iLongitude {0U};
+		uint32_t iLatitude {0U};
+		int iAltitude {0};
+		int iAngle {0};
+		int iSatellites {0};
+		int iSpeed {0};
+	};
+
+	GPSRecord(const Data &data);
 	GPSRecord();
 	virtual ~GPSRecord() = default;
 
@@ -32,16 +31,19 @@ public:
 
 	void clear() override;
 	bool empty() const override;
-	GPSData &data();
-	const GPSData &cdata() const;
+	Data &data();
+	const Data &cdata() const;
 
   result_t parse(const std::shared_ptr< Reader > &reader) override;
 	result_t parse(const std::shared_ptr< Reader > &reader, int codec) override;
 
 	std::string toString() override;
 
+protected:
+	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
+
 private:
-	GPSData iData;
+	Data iData;
 };
 
 } // namespace tc::parser::records::avl
