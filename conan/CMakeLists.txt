@@ -82,7 +82,7 @@ tc_conan_build_package(NAME cppserver
 )
 
 tc_conan_build_package(NAME jsoncpp
-	VERSION 1.9.4
+	VERSION 1.9.5
 	DEPENDS conan-profiles conan-tc-build
 	UBUNTU
 )

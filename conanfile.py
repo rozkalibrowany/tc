@@ -43,7 +43,7 @@ class TcConan(ConanFile, Os):
         print(self.os_variant, self.os_version)
         self.requires("tc/0.3.0@tc/stable")
         self.requires("cppserver/master@tc/stable")
-        self.requires("jsoncpp/1.9.4@tc/stable")
+        self.requires("jsoncpp/1.9.5@tc/stable")
         self.requires("spdlog/1.9.2@tc/stable")
         self.requires("args-parser/6.2.0.1@tc/stable")
         self.requires("vscode/1.0.2@tc/stable")
