@@ -2,6 +2,7 @@
 #include <tc/server/http/Cache.h>
 #include <tc/server/http/CacheSession.h>
 #include <tc/server/http/CacheServer.h>
+#include <tc/client/tcp/TelematicsClient.h>
 #include <tc/common/Common.h>
 
 #include <map>
@@ -17,8 +18,9 @@ int main(int argc, char** argv)
 
 	// HTTPS server port
 	int port = 8443;
+	int port_tcp = 8883;
 	if (argc > 1)
-			port = std::atoi(argv[1]);
+		port = std::atoi(argv[1]);
 	// HTTPS server content path
 	/*std::string www = "../www/api";
 	if (argc > 2)
@@ -42,14 +44,23 @@ int main(int argc, char** argv)
 	context->use_private_key_file("../tools/certificates/server.pem", asio::ssl::context::pem);
 	context->use_tmp_dh_file("../tools/certificates/dh4096.pem");
 
+
+	std::string address = "127.0.0.1";
 	// Create a new HTTPS server
 	auto server = std::make_shared<tc::server::http::HTTPSCacheServer>(service, context, port);
+	auto client = std::make_shared< tc::client::tcp::TelematicsClient >(service, address, port_tcp);
 	//server->AddStaticContent(www, "/api");
 
 	// Start the server
 	LG_NFO(log.logger(), "Server starting...");
 	server->Start();
 	LG_NFO(log.logger(), "Done!");
+
+	LG_NFO(log.logger(), "Client connecting...");
+	if(!client->ConnectAsync()) {
+		LG_ERR(log.logger(), "Connect async");
+		return 1;
+	}
 
 	// Perform text input
 	std::string line;
@@ -74,7 +85,7 @@ int main(int argc, char** argv)
 	LG_NFO(log.logger(), "Server stopping...");
 	server->Stop();
 	LG_NFO(log.logger(), "Done!");
-	
+
 	// Stop the Asio service
 	LG_NFO(log.logger(), "Asio service stopping...");
 	service->Stop();

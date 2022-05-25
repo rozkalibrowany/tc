@@ -9,8 +9,6 @@ namespace tc::server::tcp {
 class Action {
 public:
 
-	using Imei = std::string;
-
 	enum Type {
 		unknown = 0,
 		payload,

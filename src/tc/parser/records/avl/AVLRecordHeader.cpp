@@ -54,7 +54,7 @@ result_t AVLRecordHeader::parse(const std::shared_ptr< Reader > &reader, int cod
 std::string AVLRecordHeader::toString()
 {
   return !empty() ? fmt::format("************ Header Record ************\
-  	\n\tTimestamp: {}\n\tPriority: {}\n\t", std::to_string(iTimestamp), std::to_string(iPriority)) : fmt::format("************ Header Record EMPTY ************\n");
+  	\n\tTimestamp: {}\n\tPriority: {}\n\t", iTimestamp, iPriority) : fmt::format("************ Header Record EMPTY ************\n");
 }
 
 result_t AVLRecordHeader::toJsonImpl(Json::Value &rhs, bool root) const

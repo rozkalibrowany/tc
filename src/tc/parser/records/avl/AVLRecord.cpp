@@ -25,7 +25,11 @@ result_t AVLRecord::read(const std::shared_ptr< Reader > &reader)
 		return res;
 	}
 
-	//LG_NFO(this->logger(), "\n{}{}{}", iRecordHeader.toString(), iGPSRecord.toString(), iRecordIo.toString());
+	//LG_NFO(this->logger(), "\nSTRING: {}{}{}", iRecordHeader.toString(), iGPSRecord.toString(), iRecordIo.toString());
+  Json::Value val;
+  toJsonImpl(val, true);
+  LG_NFO(this->logger(), "\n JSON: {}", val.toStyledString());
+
   return res;
 }
 
@@ -41,9 +45,7 @@ result_t AVLRecord::toJsonImpl(Json::Value &rhs, bool root) const
 
   Json::Value val;
 	iRecordHeader.toJson(val);
-	arr.append(val);
   iGPSRecord.toJson(val);
-  arr.append(val);
   iRecordIo.toJson(val);
   arr.append(val);
 

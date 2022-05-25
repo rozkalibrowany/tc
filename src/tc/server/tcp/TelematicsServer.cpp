@@ -2,23 +2,6 @@
 
 namespace tc::server::tcp {
 
-int TelematicsServer::sessionsSize()
-{
-//	LG_NFO(this->logger(), "________PACKET_MAP____________");
-	for (auto &s : iPayloadPackets) {
-		LG_NFO(this->logger(), "packet.imei: {}  packetSet.size: {}", s.first, (int) s.second.size());
-	}
-//	LG_NFO(this->logger(), "____________________________\n");
-
-	return _sessions.size();
-}
-
-
-TelematicsServer::PayloadPackets &TelematicsServer::payloadPackets()
-{
-	return iPayloadPackets;
-}
-
 std::shared_ptr< CppServer::Asio::TCPSession > TelematicsServer::CreateSession(const std::shared_ptr< TCPServer > &server)
 {
 	return std::make_shared< TelematicsSession >(server);
@@ -43,64 +26,62 @@ void TelematicsServer::onError(int error, const std::string& category, const std
 
 result_t TelematicsServer::get(const CppCommon::UUID uuid, Imei &imei)
 {
-	auto it = iVerifiedSessions.find(uuid);
-	if (it == iVerifiedSessions.end()) {
+	auto it = iActiveSessions.find(uuid);
+	if (it == iActiveSessions.end()) {
 		return RES_NOENT;
 	}
-	imei = iVerifiedSessions.at(uuid);
+	imei = iActiveSessions.at(uuid);
 	return RES_OK;
 }
 
-result_t TelematicsServer::get(const Imei &imei, parser::PacketPayload &packet)
+result_t TelematicsServer::add(const Imei &imei)
 {
-	auto it = iPayloadPackets.find(imei);
-	if (it == iPayloadPackets.end()) {
-		return RES_NOENT;
-	}
-	packet = *iPayloadPackets.at(imei).back();
-	return RES_OK;
+	return iCache.add(imei);
 }
 
 result_t TelematicsServer::add(const Imei &imei, const std::shared_ptr< parser::PacketPayload > &packet)
 {
-	if (iPayloadPackets.find(imei) != iPayloadPackets.end()) {
-		auto &packets = iPayloadPackets.at(imei);
-		packets.emplace_back(std::move(packet));
-	} else {
-		Packets packets;
-		packets.emplace_back(std::move(packet));
-		iPayloadPackets.insert(std::make_pair(imei, std::move(packets)));
-	}
-
-	return RES_OK;
+	return iCache.add(imei, std::move(packet));
 }
 
 result_t TelematicsServer::add(const CppCommon::UUID uuid, const Imei &imei)
 {
-	if (iVerifiedSessions.find(uuid) != iVerifiedSessions.end()) {
-		return RES_INVARG;
+	auto isActive = has(uuid);
+
+	if (isActive == true) {
+		return RES_NOENT;
 	}
 
-	iVerifiedSessions.insert(std::make_pair(uuid, imei));
+	iActiveSessions.insert(std::make_pair(uuid, imei));
+	if (iCache.add(imei) != RES_OK) {
+		LG_ERR(this->logger(), "Unable to add new device {}", imei);
+		return RES_NOENT;
+	}
+
 	return RES_OK;
+}
+
+bool TelematicsServer::has(const Imei &imei)
+{
+	for (auto& it : iActiveSessions) {
+		if (it.second.compare(imei) == 0) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 bool TelematicsServer::has(const CppCommon::UUID &uuid)
 {
-	return iVerifiedSessions.find(uuid) != iVerifiedSessions.end();
-}
-
-
-bool TelematicsServer::has(const Imei &imei)
-{
-	return iPayloadPackets.find(imei) != iPayloadPackets.end();
+	return iActiveSessions.find(uuid) != iActiveSessions.end();
 }
 
 result_t TelematicsServer::rm(const CppCommon::UUID uuid)
 {
-	auto pos = iVerifiedSessions.find(uuid);
-	if (pos != iVerifiedSessions.end()) {
-		iVerifiedSessions.erase(pos);
+	auto pos = iActiveSessions.find(uuid);
+	if (pos != iActiveSessions.end()) {
+		iActiveSessions.erase(pos);
 		return RES_OK;
 	}
 
@@ -109,7 +90,7 @@ result_t TelematicsServer::rm(const CppCommon::UUID uuid)
 
 result_t TelematicsServer::sendCommand(const Imei &imei, std::shared_ptr<parser::PacketCommand> &command)
 {
-	for (const auto& [key, value] : iVerifiedSessions) {
+	for (const auto& [key, value] : iActiveSessions) {
 		if (value == imei) {
 			auto elem = _sessions.find(key);
 			if (elem != _sessions.end()) {

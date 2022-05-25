@@ -70,6 +70,7 @@ TcAddLibrary(
 	INCLUDE "${TcIncludeDir}"
 	LIBRARIES
 		tc-asio
+		tc-client
 		cppserver
 		cppcommon
 		tc-parser
@@ -77,5 +78,5 @@ TcAddLibrary(
 	VERSION ${TcVersion}
 )
 
-TcAddExecutable(tc-vehicle-connector-server "${src}/vehicle-connector-server.cpp" tc-vehicle-connector
+TcAddExecutable(tc-vehicle-connector-server "${src}/vehicle-connector.cpp" tc-vehicle-connector
 	LINK_FLAGS "-Wl,--no-as-needed")

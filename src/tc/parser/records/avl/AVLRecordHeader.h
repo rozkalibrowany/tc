@@ -25,8 +25,8 @@ protected:
 	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
 
 private:
-	int64_t iTimestamp;
-	int iPriority;
+	int64_t iTimestamp {0};
+	int iPriority {0};
 };
 
 } // namespace tc::parser::records::avl

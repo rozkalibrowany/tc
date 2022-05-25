@@ -64,9 +64,12 @@ result_t GPSRecord::parse(const std::shared_ptr< Reader > &reader)
 
 std::string GPSRecord::toString()
 {
-	return !empty() ? fmt::format("**************** GPS Record *****************\
+	/*return !empty() ? fmt::format("**************** GPS Record *****************\
   \n\tLongitude: {}\n\tLatitude: {}\n\tAltitude: {}\n\tAngle: {}\n\tSatellites: {}\n\n",
-	iData.iLongitude, iData.iLatitude, iData.iAltitude, iData.iAngle, iData.iSatellites) : fmt::format("************* GPS Record EMPTY *************\n");
+	iData.iLongitude, iData.iLatitude, iData.iAltitude, iData.iAngle, iData.iSatellites) : fmt::format("************* GPS Record EMPTY *************\n");*/
+  return fmt::format("**************** GPS Record *****************\
+  \n\tLongitude: {}\n\tLatitude: {}\n\tAltitude: {}\n\tAngle: {}\n\tSatellites: {}\n\n",
+	iData.iLongitude, iData.iLatitude, iData.iAltitude, iData.iAngle, iData.iSatellites);
 }
 
 result_t GPSRecord::toJsonImpl(Json::Value &rhs, bool root) const
