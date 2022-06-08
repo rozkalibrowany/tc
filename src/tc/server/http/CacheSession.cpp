@@ -1,6 +1,7 @@
 #include <tc/server/http/CacheSession.h>
 #include <tc/server/http/Cache.h>
 #include <string/string_utils.h>
+#include <tc/server/http/RequestFactory.h>
 
 namespace tc::server::http {
 
@@ -16,27 +17,23 @@ void HTTPSCacheSession::onReceivedRequest(const CppServer::HTTP::HTTPRequest& re
 	}
 	else if (request.method() == "GET")
 	{
-			std::string key(request.url());
-			std::string value;
+		auto action = request.string();
+		action.erase(std::remove(action.begin(), action.end(), '/'), action.end());
+		if (action.empty()) {
+				// Response with all cache values
+				SendResponseAsync(response().MakeGetResponse(Cache::GetInstance().GetAllCache(), "application/json; charset=UTF-8"));
+		}
+		/*parser::Buf buf;
+		client::tcp::RequestFactory requestFactory(action);
+		if (requestFactory.create(action,buf) != RES_OK) {
+			LG_ERR(this->logger(), "Unable to handle request: {}", request.string());
+			return;
+		}
 
-			// Decode the key value
-			key = CppCommon::Encoding::URLDecode(key);
-			CppCommon::StringUtils::ReplaceFirst(key, "/api/cache", "");
-			CppCommon::StringUtils::ReplaceFirst(key, "?key=", "");
-
-			if (key.empty())
-			{
-					// Response with all cache values
-					SendResponseAsync(response().MakeGetResponse(Cache::GetInstance().GetAllCache(), "application/json; charset=UTF-8"));
-			}
-			// Get the cache value by the given key
-			else if (Cache::GetInstance().GetCacheValue(key, value))
-			{
-					// Response with the cache value
-					SendResponseAsync(response().MakeGetResponse(value));
-			}
-			else
-					SendResponseAsync(response().MakeErrorResponse(404, "Required cache value was not found for the key: " + key));
+		if (connectClient() != RES_OK) {
+			LG_ERR(this->logger(), "Unable to connect client: {}", request.string());
+			return;
+		}*/
 	}
 	else if ((request.method() == "POST") || (request.method() == "PUT"))
 	{

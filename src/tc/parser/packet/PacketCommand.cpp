@@ -22,13 +22,12 @@ result_t PacketCommand::parse(uchar* cbuf, size_t size, size_t offset)
 	result_t res = RES_OK;
 
 	auto begin = offset + 2;
-	LG_NFO(this->logger(), "PacketCommand offset: {}", offset);
 	iCommand = (uchar *)cbuf + begin;
 	iSize = size - begin;
 
 	LG_NFO(this->logger(), "command: {}", tc::uchar2string(iCommand, iSize));
 
-	return RES_OK;
+	return res;
 }
 
 const size_t PacketCommand::size()

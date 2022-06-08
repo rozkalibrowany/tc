@@ -3,7 +3,8 @@
 
 #include <tc/server/tcp/TelematicsSession.h>
 #include <tc/parser/packet/PacketCommand.h>
-#include <tc/server/tcp/cache/Cache.h>
+#include <tc/parser/packet/PacketRequest.h>
+#include <tc/server/iot/Devices.h>
 #include <server/asio/tcp_server.h>
 
 namespace tc::server::tcp {
@@ -27,8 +28,7 @@ public:
 
 	virtual result_t sendCommand(const Imei &imei, std::shared_ptr<parser::PacketCommand> &command);
 
-		Cache iCache;
-
+	iot::Devices iDevices;
 
 protected:
 	std::shared_ptr< CppServer::Asio::TCPSession > CreateSession(const std::shared_ptr<TCPServer> &server) override;

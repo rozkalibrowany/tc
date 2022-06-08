@@ -1,14 +1,15 @@
-#include <tc/server/tcp/cache/Cache.h>
 
-namespace tc::server::tcp {
+#include <tc/server/iot/Devices.h>
 
-Cache::Cache(uint32_t max_devices)
+namespace tc::server::iot {
+
+Devices::Devices(uint32_t max_devices)
  : iMaxDevices(max_devices)
 {
 	// nothing to do
 }
 
-result_t Cache::add(const Imei &imei)
+result_t Devices::add(const Imei &imei)
 {
 	if (has(imei) == true) {
 		LG_ERR(this->logger(), "Imei already exists: {}", imei);
@@ -19,7 +20,7 @@ result_t Cache::add(const Imei &imei)
 	return add(std::move(device), imei);
 }
 
-result_t Cache::add(std::shared_ptr < Device > device, const Imei &imei)
+result_t Devices::add(std::shared_ptr < Device > device, const Imei &imei)
 {
 	if (device == nullptr) {
 		return RES_NOENT;
@@ -34,7 +35,7 @@ result_t Cache::add(std::shared_ptr < Device > device, const Imei &imei)
 	return RES_OK;
 }
 
-result_t Cache::add(const Imei &imei, const std::shared_ptr<parser::PacketPayload> &packet)
+result_t Devices::add(const Imei &imei, const std::shared_ptr<parser::PacketPayload> &packet)
 {
 	if (has(imei) == false) {
 		return RES_INVARG;
@@ -50,19 +51,19 @@ result_t Cache::add(const Imei &imei, const std::shared_ptr<parser::PacketPayloa
 }
 
 
-void Cache::printJson()
+void Devices::printJson()
 {
 	Json::Value val;
 	toJsonImpl(val, true);
 	LG_NFO(this->logger(), "CACHE: {}", val.toStyledString());
 }
 
-bool Cache::has(const Imei &imei)
+bool Devices::has(const Imei &imei)
 {
 	return iDevices.find(imei) != iDevices.end();
 }
 
-result_t Cache::get(const Imei &imei, std::shared_ptr< Device > &device)
+result_t Devices::get(const Imei &imei, std::shared_ptr< Device > &device)
 {
 	if (has(imei) != true) {
 		return RES_NOENT;
@@ -74,7 +75,15 @@ result_t Cache::get(const Imei &imei, std::shared_ptr< Device > &device)
 	return RES_OK;
 }
 
-result_t Cache::toJsonImpl(Json::Value &rhs, bool root) const
+Json::Value Devices::toJson() const
+{
+ Json::Value list;
+ toJsonImpl(list, true);
+
+ return list;
+}
+
+result_t Devices::toJsonImpl(Json::Value &rhs, bool root) const
 {
 	auto &el = rhs["Devices"] = Json::arrayValue;
 	for (auto &d : iDevices) {
@@ -85,4 +94,4 @@ result_t Cache::toJsonImpl(Json::Value &rhs, bool root) const
 	return RES_OK;
 }
 
-} // namespace tc::server::tcp
+} // namespace tc::server::iot

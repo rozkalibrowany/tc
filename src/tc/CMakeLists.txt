@@ -22,6 +22,15 @@ TcAddLibrary(
 )
 
 TcAddLibrary(
+	TARGET tc-iot
+	SOURCE "${src}/server/iot/*.cpp"
+	INCLUDE "${TcIncludeDir}"
+	LIBRARIES
+	 tc-parser
+	VERSION ${TcVersion}
+)
+
+TcAddLibrary(
 	TARGET tc-asio
 	SOURCE "${src}/asio/*.cpp"
 	INCLUDE "${TcIncludeDir}"
@@ -38,7 +47,7 @@ TcAddLibrary(
 		tc-asio
 		cppserver
 		cppcommon
-		tc-parser
+		tc-iot
 		spdlog
 	VERSION ${TcVersion}
 )
@@ -55,6 +64,7 @@ TcAddLibrary(
 		cppserver
 		cppcommon
 		tc-parser
+		tc-common
 		spdlog
 	VERSION ${TcVersion}
 )
@@ -69,14 +79,13 @@ TcAddLibrary(
 	SOURCE "${src}/server/http/*.cpp"
 	INCLUDE "${TcIncludeDir}"
 	LIBRARIES
-		tc-asio
-		tc-client
-		cppserver
-		cppcommon
-		tc-parser
-		spdlog
+	tc-asio
+	cppserver
+	cppcommon
+	tc-iot
+	spdlog
 	VERSION ${TcVersion}
 )
 
-TcAddExecutable(tc-vehicle-connector-server "${src}/vehicle-connector.cpp" tc-vehicle-connector
+TcAddExecutable(tc-vehicle-connector-server "${src}/vehicle-connector-server.cpp" tc-vehicle-connector
 	LINK_FLAGS "-Wl,--no-as-needed")

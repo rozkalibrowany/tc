@@ -1,6 +1,6 @@
-#include <tc/server/tcp/cache/Device.h>
+#include <tc/server/iot/Device.h>
 
-namespace tc::server::tcp {
+namespace tc::server::iot {
 
 Device::Device(const Imei &imei, const std::string id)
  : iImei(imei)

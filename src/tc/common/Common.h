@@ -6,6 +6,10 @@
 #include <tc/common/Result.h>
 #include <tc/common/SysTime.h>
 #include <tc/common/Codec.h>
+#include <string>
+#include <cstddef>
+#include <vector>
+#include <map>
 
 #ifdef unix
 #	undef unix

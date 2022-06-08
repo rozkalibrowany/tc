@@ -2,6 +2,7 @@
 #include <tc/server/tcp/TelematicsServer.h>
 #include <tc/parser/packet/PacketPayload.h>
 #include <tc/parser/packet/PacketCommand.h>
+#include <tc/parser/packet/PacketRequest.h>
 #include <tc/common/CRC16.h>
 
 namespace tc::server::tcp {
@@ -36,7 +37,11 @@ void TelematicsSession::handleDataBuffer(const void* buffer, size_t size, Action
 		res = handleCommand((const uchar*) buffer, size);
 	}
 
-		if (type == Action::standby) {
+	if (type == Action::request) {
+		res = handleRequest((const uchar*) buffer, size);
+	}
+
+	if (type == Action::standby) {
 		res = handleStandby((const uchar*) buffer, size);
 	}
 
@@ -78,7 +83,7 @@ result_t TelematicsSession::handleImei(const uchar *buffer, size_t size)
 
 result_t TelematicsSession::handlePayload(const uchar *buffer, size_t size, bool &crc_ok)
 {
-	LG_NFO(this->logger(), "Session[{}] handle payload [{}]", id().string(), size);
+	LG_NFO(this->logger(), "Handle payload [{}]", size);
 
 	result_t res = RES_OK;
 	int response = 0;
@@ -134,8 +139,8 @@ result_t TelematicsSession::handlePayload(const uchar *buffer, size_t size, bool
 
 result_t TelematicsSession::handleCommand(const uchar *buffer, size_t size)
 {
-	LG_NFO(this->logger(), "Session: received command[{}]: [{}]", size, uchar2string((unsigned char *)buffer, size));
-	
+	LG_NFO(this->logger(), "Handle command[{}]", size);
+
 	int response = 0;
 	Imei imei;
 
@@ -187,6 +192,44 @@ result_t TelematicsSession::handleStandby(const uchar *buffer, size_t size)
 	return send(1);
 }
 
+result_t TelematicsSession::handleRequest(const uchar *buffer, size_t size)
+{
+	int response = 0;
+
+	auto request = std::make_shared< parser::PacketRequest >();
+	result_t res = request->parse((uchar*) buffer, size);
+	if (res != RES_OK) {
+		LG_ERR(this->logger(), "Parse request.");
+		send(response);
+		return res;
+	}
+
+	return dispatchRequest(request);
+}
+
+
+result_t TelematicsSession::dispatchRequest(std::shared_ptr< parser::PacketRequest > &request)
+{
+	using namespace parser;
+
+	result_t res = RES_OK;
+	auto type = request->iType;
+	auto method = request->iMethod;
+
+	if (type == PacketRequest::Devices && method == PacketRequest::GET) {
+		auto json = tcServer()->iDevices.toJson();
+		auto hexJson = tc::tohex(json.toStyledString());
+
+		if ((res = send((const uchar*) hexJson.data(), hexJson.size(), true)) != RES_OK) {
+			LG_ERR(this->logger(), "Send hex json");
+		}
+	}
+
+
+	return res;
+}
+
+
 result_t TelematicsSession::checkCrc(std::shared_ptr< parser::Buf > buf, size_t size, bool &crc_ok)
 {
 	if (buf == nullptr) {
@@ -211,19 +254,13 @@ result_t TelematicsSession::checkCrc(std::shared_ptr< parser::Buf > buf, size_t 
 	return RES_OK;
 }
 
-result_t TelematicsSession::send(const uchar* buffer, size_t size, const bool async) {
-
-	LG_NFO(this->logger(), "Sending uchar[{}]: {}", size, tc::uchar2string(buffer, size));
-
+result_t TelematicsSession::send(const uchar* buffer, size_t size, const bool async)
+{
 	auto buf_str = tc::uchar2string(buffer, size);
 	auto out = new char[size];
 	tc::hex2bin(buf_str.data(), out);
 
-	for (int i = 0; i < size; i++) {
-		LG_NFO(this->logger(), "out[{}] = {}", i, out[i]);
-	}
-
-		return send((const void *)out, size, async);
+	return send((const void *)out, size, async);
 }
 
 result_t TelematicsSession::send(int buffer, const bool async)
@@ -259,8 +296,7 @@ result_t TelematicsSession::send(const void *buffer, size_t size, const bool asy
 	for (int i = 0; i < 32; i++) {
 		LG_ERR(this->logger(), "out[{}] = {}", i, out[i]);
 	}
-
 	SendAsync((void*) out, 32);
 	WORKS TO SEND COMMAND */
 
-} // namespace tc::server::tcp
+} // namespace tc::tcServer::tcp

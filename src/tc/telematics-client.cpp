@@ -74,8 +74,6 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	LG_NFO(log.logger(), "Sent command: {}", tc::uchar2string(buf.data(), buf.size()));
-
 	size_t len = buf.size() / 2;
 	auto out = new char[len];
 	tc::hex2bin((char*) buf.data(), out);

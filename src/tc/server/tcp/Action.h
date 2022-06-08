@@ -14,6 +14,7 @@ public:
 		payload,
 		imei,
 		command,
+		request,
 		incomplete_payload,
 		standby
 	};
@@ -23,7 +24,6 @@ public:
 	static bool hasImei(const uchar *cbuf, size_t size);
 	static result_t parseImei(const uchar *cbuf, size_t size, Imei &imei);
 	static const Imei toImei(const uchar *cbuf, int len);
-
 };
 
 } // namespace tc::server::tcp

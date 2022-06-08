@@ -36,12 +36,12 @@ result_t TelematicsServer::get(const CppCommon::UUID uuid, Imei &imei)
 
 result_t TelematicsServer::add(const Imei &imei)
 {
-	return iCache.add(imei);
+	return iDevices.add(imei);
 }
 
 result_t TelematicsServer::add(const Imei &imei, const std::shared_ptr< parser::PacketPayload > &packet)
 {
-	return iCache.add(imei, std::move(packet));
+	return iDevices.add(imei, std::move(packet));
 }
 
 result_t TelematicsServer::add(const CppCommon::UUID uuid, const Imei &imei)
@@ -53,7 +53,7 @@ result_t TelematicsServer::add(const CppCommon::UUID uuid, const Imei &imei)
 	}
 
 	iActiveSessions.insert(std::make_pair(uuid, imei));
-	if (iCache.add(imei) != RES_OK) {
+	if (iDevices.add(imei) != RES_OK) {
 		LG_ERR(this->logger(), "Unable to add new device {}", imei);
 		return RES_NOENT;
 	}

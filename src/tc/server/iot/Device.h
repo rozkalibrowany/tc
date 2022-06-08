@@ -5,7 +5,7 @@
 #include <tc/parser/packet/PacketPayload.h>
 #include <tc/common/SysTime.h>
 
-namespace tc::server::tcp {
+namespace tc::server::iot {
 
 class Device : public tc::LogI, public parser::JsonI
 {
@@ -35,7 +35,7 @@ private:
   PayloadPackets iPayloadPackets;
 };
 
-} // namespace tc::server::tcp
+} // namespace tc::server::iot
 
 
 #endif /* C57632A5_1AB3_4509_93A8_7BA96D45B603 */

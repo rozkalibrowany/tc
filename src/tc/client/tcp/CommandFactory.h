@@ -11,12 +11,6 @@ namespace tc::client::tcp {
 class CommandFactory : public tc::LogI
 {
 public:
-	enum Type
-	{
-		Unlock = 0,
-		Lock
-	};
-
 	static const std::string cmd_unlock;
 	static const std::string cmd_lock;
 
@@ -38,7 +32,6 @@ public:
 private:
 	result_t getPayload(const std::string &cmd, parser::Buf &buf);
 
-	Type iType;
 	std::string iImei;
 };
 

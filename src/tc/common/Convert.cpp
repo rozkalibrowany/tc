@@ -101,12 +101,6 @@ std::string uchar2string(const unsigned char *c, uint32_t length)
 	return ss.str();
 }
 
-std::string uchar2string2(const unsigned char *c, uint32_t length)
-{
-	std::string s(*c, length);
-
-	return s;
-}
 
 std::string byte2string(int val, int width)
 {

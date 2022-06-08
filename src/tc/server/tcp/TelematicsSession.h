@@ -1,9 +1,13 @@
+
+  
 #ifndef DEFE5823_FB5C_4F70_9A29_B3E2AE5E66D1
 #define DEFE5823_FB5C_4F70_9A29_B3E2AE5E66D1
 
 #include <server/asio/tcp_session.h>
 #include <tc/server/tcp/Action.h>
 #include <tc/server/tcp/LockGuard.h>
+#include <tc/parser/packet/PacketRequest.h>
+
 
 namespace tc::server::tcp {
 
@@ -32,7 +36,10 @@ private:
 	result_t handlePayload(const uchar *buffer, size_t size, bool &crc_ok);
 	result_t handleCommand(const uchar *buffer, size_t size);
 	result_t handleStandby(const uchar *buffer, size_t size);
-	
+	result_t handleRequest(const uchar *buffer, size_t size);
+
+  result_t dispatchRequest(std::shared_ptr< PacketRequest > &request);
+
 	result_t checkCrc(std::shared_ptr< parser::Buf > buf, size_t size, bool &crc_ok);
 
 	SysTime iTimestamp;

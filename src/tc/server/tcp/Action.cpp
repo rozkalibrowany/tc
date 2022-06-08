@@ -1,7 +1,7 @@
 #include <tc/server/tcp/Action.h>
 #include <tc/parser/packet/PacketPayload.h>
 #include <tc/parser/packet/PacketCommand.h>
-
+#include <tc/parser/packet/PacketRequest.h>
 namespace tc::server::tcp {
 
 Action::Type Action::get(const uchar* buffer, size_t size)
@@ -12,8 +12,12 @@ Action::Type Action::get(const uchar* buffer, size_t size)
 		return Type::standby;
 	}
 
-	if (!has_imei && parser::PacketPayload::hasPayload(buffer, size)) {
+	if (parser::PacketPayload::hasPayload(buffer, size)) {
 		return Type::payload;
+	}
+
+	if (!has_imei && parser::PacketRequest::hasRequest(buffer, size)) {
+		return Type::request;
 	}
 
 	if (has_imei && size == 17) {

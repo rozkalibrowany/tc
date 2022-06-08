@@ -66,7 +66,7 @@ result_t CommandFactory::create(const std::string &cmd, parser::Buf &buf, bool c
 	buf.insert(val.data(), val.length());
 
 	// imei
-	val = tc::tohex(iImei);
+	val = tc::tohex(iImei, cr);
 	buf.insert(val.data(), val.length());
 
 	// 4 zero-bytes
