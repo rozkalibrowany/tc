@@ -1,5 +1,6 @@
 
 #include <tc/server/iot/Devices.h>
+#include <tc/parser/Util.h>
 
 namespace tc::server::iot {
 
@@ -18,6 +19,17 @@ result_t Devices::add(const Imei &imei)
 
 	auto device = std::make_shared< Device >(imei);
 	return add(std::move(device), imei);
+}
+
+result_t Devices::add(const std::shared_ptr<Device> &device)
+{
+	if (device->imei().empty() == true) {
+		LG_ERR(this->logger(), "Imei missing in device");
+		return RES_NOENT;
+	}
+
+	auto imei = device->imei();
+	return add(device, imei);
 }
 
 result_t Devices::add(std::shared_ptr < Device > device, const Imei &imei)
@@ -83,9 +95,42 @@ Json::Value Devices::toJson() const
  return list;
 }
 
+result_t Devices::fromJsonImpl(const Json::Value &rhs, bool root)
+{
+	std::string iD, imei, idd;
+	result_t res = parser::get(rhs, "devices", iD, {"default"});
+	LG_ERR(this->logger(), "Unable to parse string: res: {}", res);
+	res = parser::get(rhs, "Imei", imei, {"default"});
+	LG_ERR(this->logger(), "Unable to parse string: res: {}", res);
+	res = parser::get(rhs, "ID", idd, {"default"});
+	LG_ERR(this->logger(), "Unable to parse string: res: {}", res);
+	//auto hasDevices = rhs.isMember("devices");
+
+	//if (hasDevices == false) {
+	//	return RES_NOENT;
+	//}
+	LG_ERR(this->logger(), "Unable to parse string4");
+
+	//auto &devices = rhs["devices"];
+	if (rhs.isArray() == true) {
+		for (const auto &d : rhs) {
+			auto device = std::make_shared < iot::Device >();
+			result_t r = device->fromJson(d, false);
+			if (r == RES_OK) {
+				add(device);
+			}
+			res |= r;
+		}
+	} else {
+		res |= RES_INVARG;
+	}
+
+	return res;
+}
+
 result_t Devices::toJsonImpl(Json::Value &rhs, bool root) const
 {
-	auto &el = rhs["Devices"] = Json::arrayValue;
+	auto &el = rhs["devices"] = Json::arrayValue;
 	for (auto &d : iDevices) {
 		Json::Value val;
 		d.second->toJson(val);

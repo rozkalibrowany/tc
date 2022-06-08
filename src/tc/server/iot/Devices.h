@@ -21,6 +21,7 @@ public:
 
 	virtual bool has(const Imei &imei);
 	virtual result_t add(const Imei &imei);
+	virtual result_t add(const std::shared_ptr<Device> &device);
 	virtual result_t add(std::shared_ptr<Device> device, const Imei &imei);
 	virtual result_t add(const Imei &imei, const std::shared_ptr<parser::PacketPayload> &packet);
 	virtual result_t get(const Imei &imei, std::shared_ptr< Device > &device);
@@ -28,6 +29,7 @@ public:
 	Json::Value toJson() const;
 
 protected:
+	result_t fromJsonImpl(const Json::Value &rhs, bool root) override;
 	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
 
 	uint32_t iMaxDevices;

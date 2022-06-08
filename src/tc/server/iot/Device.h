@@ -12,6 +12,7 @@ class Device : public tc::LogI, public parser::JsonI
 public:
   using PayloadPackets = std::vector< std::shared_ptr< parser::PacketPayload > >;
 
+	Device() = default;
   Device(const Imei &imei, const std::string id = "");
 	virtual ~Device() = default;
 

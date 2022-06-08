@@ -48,6 +48,7 @@ TcAddLibrary(
 		cppserver
 		cppcommon
 		tc-iot
+		tc-parser
 		spdlog
 	VERSION ${TcVersion}
 )
@@ -60,15 +61,13 @@ TcAddLibrary(
 	SOURCE "${src}/client/tcp/*.cpp"
 	INCLUDE "${TcIncludeDir}"
 	LIBRARIES
-		tc-asio
-		cppserver
-		cppcommon
-		tc-parser
-		tc-common
-		spdlog
+	tc-asio
+	cppserver
+	cppcommon
+	tc-iot
+	spdlog
 	VERSION ${TcVersion}
 )
-
 
 TcAddExecutable(tc-telematics-client "${src}/telematics-client.cpp" tc-client
 	LINK_FLAGS "-Wl,--no-as-needed")

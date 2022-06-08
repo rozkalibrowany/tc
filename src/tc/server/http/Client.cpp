@@ -2,6 +2,11 @@
 
 namespace tc::server::http {
 
+void Client::setCache(const std::shared_ptr< Cache > &cache)
+{
+	iCache = std::move(cache);
+}
+
 result_t Client::handle(const Action &action)
 {
 	result_t res;
@@ -24,7 +29,9 @@ result_t Client::handle(const Action &action)
 
 void Client::onReceived(const void *buffer, size_t size)
 {
-	LG_NFO(this->logger(), "Incoming: {}", std::string((const char*)buffer, size));
+	if (iCache != nullptr) {
+		return iCache->onReceived(buffer, size);
+	}
 }
 
 } // namespace tc::server::http

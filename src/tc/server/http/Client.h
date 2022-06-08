@@ -4,6 +4,7 @@
 #include <server/asio/tcp_client.h>
 #include <tc/server/http/Action.h>
 #include <tc/server/http/RequestFactory.h>
+#include <tc/server/http/Cache.h>
 #include <tc/parser/Buf.h>
 
 namespace tc::server::http {
@@ -12,7 +13,8 @@ class Client : public CppServer::Asio::TCPClient, public tc::LogI
 {
 public:
 	using CppServer::Asio::TCPClient::TCPClient;
-	
+
+	void setCache(const std::shared_ptr< Cache > &cache);
 	result_t handle(const Action &action);
 
 protected:
@@ -20,6 +22,7 @@ protected:
 
 private:
 	std::atomic<bool> _stop{false};
+	std::shared_ptr< Cache > iCache {nullptr};
 };
 
 } // tc::client::tcp

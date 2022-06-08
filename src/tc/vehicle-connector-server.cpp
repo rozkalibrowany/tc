@@ -53,8 +53,12 @@ int main(int argc, char** argv)
 	server->Start();
 	LG_NFO(log.logger(), "Done!");
 
+	// Create Cache for data
+	auto cache = std::make_shared<tc::server::http::Cache>();
+
 	// Create a new TCP client
 	auto client = std::make_shared< tc::server::http::Client >(service, address, tcp_port);
+	client->setCache(cache);
 
 	// Connect the client
 	LG_NFO(log.logger(), "Client connecting...");
@@ -81,7 +85,7 @@ int main(int argc, char** argv)
 			client->DisconnectAsync();
 
 
-		CppCommon::Thread::Sleep(5000);
+		CppCommon::Thread::Sleep(15000);
 	}
 	// Stop the server
 

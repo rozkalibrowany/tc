@@ -3,7 +3,6 @@
 
 #include <tc/server/tcp/TelematicsSession.h>
 #include <tc/parser/packet/PacketCommand.h>
-#include <tc/parser/packet/PacketRequest.h>
 #include <tc/server/iot/Devices.h>
 #include <server/asio/tcp_server.h>
 
