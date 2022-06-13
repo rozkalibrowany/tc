@@ -70,7 +70,9 @@ result_t TelematicsSession::handleImei(const uchar *buffer, size_t size)
 	}
 
 	LG_NFO(this->logger(), "Handle payload imei OK: {}", imei);
-	if (tcServer()->has(this->id()) == false)
+
+	/* if IMEI does not exists - add it */
+	if (tcServer()->has(imei) == false)
 		tcServer()->add(this->id(), imei);
 
 	res |= send(eOK, true);
@@ -199,7 +201,6 @@ result_t TelematicsSession::handleRequest(const uchar *buffer, size_t size)
 	return dispatchRequest(request);
 }
 
-
 result_t TelematicsSession::dispatchRequest(std::shared_ptr< parser::PacketRequest > &request)
 {
 	using namespace parser;
@@ -217,10 +218,8 @@ result_t TelematicsSession::dispatchRequest(std::shared_ptr< parser::PacketReque
 		}
 	}
 
-
 	return res;
 }
-
 
 result_t TelematicsSession::checkCrc(std::shared_ptr< parser::Buf > buf, size_t size, bool &crc_ok)
 {
@@ -257,14 +256,14 @@ result_t TelematicsSession::send(const uchar* buffer, size_t size, const bool as
 
 result_t TelematicsSession::send(int buffer, const bool async)
 {
-	LG_NFO(this->logger(), "Sents: {}", buffer);
-
 	return send(static_cast< void *>(&buffer), sizeof(buffer), async);
 }
 
 result_t TelematicsSession::send(const void *buffer, size_t size, const bool async)
 {
 	auto res = RES_NOENT;
+	LG_NFO(this->logger(), "Sending: {}", tc::uchar2string((const uchar*) buffer, size));
+
 
 	if (async == false) {
 		auto sent = Send(buffer, size);
