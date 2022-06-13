@@ -10,6 +10,11 @@ Devices::Devices(uint32_t max_devices)
 	// nothing to do
 }
 
+bool Devices::has(const Imei &imei)
+{
+	return iDevices.find(imei) != iDevices.end();
+}
+
 result_t Devices::add(const Imei &imei)
 {
 	if (has(imei) == true) {
@@ -68,11 +73,6 @@ void Devices::printJson()
 	Json::Value val;
 	toJsonImpl(val, true);
 	LG_NFO(this->logger(), "CACHE: {}", val.toStyledString());
-}
-
-bool Devices::has(const Imei &imei)
-{
-	return iDevices.find(imei) != iDevices.end();
 }
 
 result_t Devices::get(const Imei &imei, std::shared_ptr< Device > &device)

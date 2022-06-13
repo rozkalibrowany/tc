@@ -12,7 +12,7 @@ Action::Type Action::get(const uchar* buffer, size_t size)
 		return Type::standby;
 	}
 
-	if (parser::PacketPayload::hasPayload(buffer, size)) {
+	if (!has_imei && parser::PacketPayload::hasPayload(buffer, size)) {
 		return Type::payload;
 	}
 

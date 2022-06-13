@@ -9,12 +9,12 @@ std::shared_ptr< CppServer::Asio::TCPSession > TelematicsServer::CreateSession(c
 
 void TelematicsServer::onConnected(std::shared_ptr< CppServer::Asio::TCPSession > &session)
 {
-	LG_NFO(this->logger(), "TCP session connected, UUID: {} session: {}", session->id().string(), fmt::ptr(session.get()));
+	LG_NFO(this->logger(), "TCP session connected, UUID: {}", session->id().string());
 }
 
 void TelematicsServer::onDisconnected(std::shared_ptr<CppServer::Asio::TCPSession> &session)
 {
-	LG_NFO(this->logger(), "TCP session disconnected, ID: {} session {}", session->id().string(), fmt::ptr(session.get()));
+	LG_NFO(this->logger(), "TCP session disconnected, UUID: {}", session->id().string());
 
 	rm(session->id());
 }
@@ -54,7 +54,7 @@ result_t TelematicsServer::add(const CppCommon::UUID uuid, const Imei &imei)
 
 	iActiveSessions.insert(std::make_pair(uuid, imei));
 	if (iDevices.add(imei) != RES_OK) {
-		LG_ERR(this->logger(), "Unable to add new device {}", imei);
+		LG_ERR(this->logger(), "Unable to add new device with imei: {}", imei);
 		return RES_NOENT;
 	}
 

@@ -18,6 +18,11 @@ class TelematicsSession : public CppServer::Asio::TCPSession, public tc::LogI
 {
 
 public:
+	enum Response {
+		eInvalid = 0,
+		eOK = 1
+	};
+
 	using CppServer::Asio::TCPSession::TCPSession;
 
 	virtual std::shared_ptr<TelematicsServer> tcServer();
