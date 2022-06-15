@@ -1,2 +1,2 @@
 # tc
-IoT Telematics Connector
+Telematics Connector Server for IoT devices
