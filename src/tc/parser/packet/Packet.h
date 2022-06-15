@@ -29,9 +29,10 @@ public:
 	Packet(const std::string imei = "");
 	virtual ~Packet() = default;
 
-	static bool hasImei(const uchar *cbuf, size_t size);
 	static result_t parseImei(const uchar *cbuf, size_t size, Imei &imei);
 	static const std::string toImei(const uchar *cbuf, int len);
+
+	static bool hasImei(const uchar *cbuf, size_t size);
 
 	virtual bool operator<(const Packet &rhs) const;
 	virtual bool operator<=(const Packet &rhs) const;
@@ -46,6 +47,8 @@ public:
 	virtual const ID &id() const;
 
 protected:
+	bool crcOk(const std::shared_ptr< Buf > buf, size_t size);
+
 	ID iID;
 	int iCodec;
 };

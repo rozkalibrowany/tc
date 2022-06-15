@@ -3,7 +3,6 @@
 #include <tc/parser/packet/PacketPayload.h>
 #include <tc/parser/packet/PacketCommand.h>
 #include <tc/parser/packet/PacketRequest.h>
-#include <tc/common/CRC16.h>
 
 namespace tc::server::tcp {
 
@@ -17,37 +16,37 @@ void TelematicsSession::onReceived(const void *buffer, size_t size)
 {
 	LG_NFO(this->logger(), "Session: received buffer[{}]", size);
 
-	return handleDataBuffer(buffer, size, Action::get((const uchar*) buffer, size));
+	return handleDataBuffer((const uchar*) buffer, size, Action::get((const uchar*) buffer, size));
 }
 
-void TelematicsSession::handleDataBuffer(const void* buffer, size_t size, Action::Type type)
+void TelematicsSession::handleDataBuffer(const uchar* buffer, size_t size, Action::Type type)
 {
 	result_t res = RES_OK;
 	bool crc_ok = true;
 
 	if (type == Action::payload) {
-		res = handlePayload((const uchar*) buffer, size, crc_ok);
+		res = handlePayload(buffer, size, crc_ok);
 	}
 
 	if (type == Action::imei) {
-		res = handleImei((const uchar *)buffer, size);
+		res = handleImei(buffer, size);
 	}
 
 	if (type == Action::command) {
-		res = handleCommand((const uchar*) buffer, size);
+		res = handleCommand(buffer, size);
 	}
 
 	if (type == Action::request) {
-		res = handleRequest((const uchar*) buffer, size);
+		res = handleRequest(buffer, size);
 	}
 
 	if (type == Action::standby) {
-		res = handleStandby((const uchar*) buffer, size);
+		res = handleStandby(buffer, size);
 	}
 
 	auto chunked_data = (crc_ok == false && iBufferIncomplete != nullptr && iBufferIncomplete->size() != size);
 	if (chunked_data || type == Action::incomplete_payload) {
-		res = handleIncomplete((const uchar*) buffer, size, crc_ok);
+		res = handleIncomplete(buffer, size, crc_ok);
 	}
 
 	if (res != RES_OK) {
@@ -57,7 +56,7 @@ void TelematicsSession::handleDataBuffer(const void* buffer, size_t size, Action
 
 result_t TelematicsSession::handleImei(const uchar *buffer, size_t size)
 {
-	LG_NFO(this->logger(), "Handle payload imei[{}]", size);
+	LG_NFO(this->logger(), "Handle imei[{}]", size);
 
 	result_t res = RES_OK;
 	Imei imei;
@@ -69,11 +68,13 @@ result_t TelematicsSession::handleImei(const uchar *buffer, size_t size)
 		return res;
 	}
 
-	LG_NFO(this->logger(), "Handle payload imei OK: {}", imei);
+	LG_NFO(this->logger(), "Handle imei OK: {}", imei);
+
+	iDevice = std::make_unique<iot::Device>(imei);
 
 	/* if IMEI does not exists - add it */
-	if (tcServer()->has(imei) == false)
-		tcServer()->add(this->id(), imei);
+	/*if (tcServer()->has(imei) == false)
+		tcServer()->add(this->id(), imei); */
 
 	res |= send(eOK, true);
 
@@ -86,51 +87,18 @@ result_t TelematicsSession::handlePayload(const uchar *buffer, size_t size, bool
 
 	result_t res = RES_OK;
 
-	if (tcServer()->has(this->id()) == false) {
-		LG_ERR(this->logger(), "Unknown session uuid.");
-		send(eInvalid);
+	if ((res = iDevice->add(buffer, size)) != RES_OK) {
+		LG_ERR(this->logger(), "Unable to add packet, imei[{}]", iDevice->imei());
 		return res;
 	}
 
-	Imei imei;
-	if ((res = tcServer()->get(this->id(), imei)) != RES_OK) {
-		LG_ERR(this->logger(), "Error getting imei.");
-		send(eInvalid);
-		return res;
-	}
-
-	auto buf = std::make_shared< parser::Buf >(buffer, size);
-
-	res = checkCrc(buf, size, crc_ok);
-	if (res != RES_OK) {
-		send(eInvalid);
-		return res;
-	}
-
-	if (crc_ok == false) {
-		LG_WRN(this->logger(), "Incorrect CRC checksum.");
-		iBufferIncomplete = buf;
-		return RES_NOENT;
-	}
-
-	auto packet = std::make_shared<parser::PacketPayload>();
-	if ((res = packet->parse((uchar*) buffer, size)) != RES_OK) {
-		LG_ERR(this->logger(), "Parse payload packet");
-		return res;
-	}
-
-	auto response = (int) packet->size();
+	auto records = (int) iDevice->lastRecords();
 	iBufferIncomplete.reset();
-	iBufferIncomplete = nullptr;
+	//iBufferIncomplete = nullptr;
 
-	LG_NFO(this->logger(), "Handle payload succesfull. Imei: {} total records: {} ", imei, packet->size());
+	LG_NFO(this->logger(), "Handle payload succesfull. Device imei: {} records: {} ", iDevice->imei(), records);
 
-	if ((res = tcServer()->add(imei, std::move(packet))) != RES_OK) {
-		LG_ERR(this->logger(), "Add packet.");
-		return res;
-	}
-
-	send(response);
+	send(records);
 	return res;
 }
 
@@ -219,30 +187,6 @@ result_t TelematicsSession::dispatchRequest(std::shared_ptr< parser::PacketReque
 	}
 
 	return res;
-}
-
-result_t TelematicsSession::checkCrc(std::shared_ptr< parser::Buf > buf, size_t size, bool &crc_ok)
-{
-	if (buf == nullptr) {
-		return RES_NOENT;
-	}
-
-	common::CRC16 crc;
-	auto reader = std::make_shared< parser::Reader >(buf, size);
-	auto reader_crc = reader->read(4, size - 4);
-
-	parser::Buf subBuf(parser::Buf::ByteArray{buf->begin() + 8, buf->begin() + size - 4});
-	auto calc = crc.calc((char*) subBuf.iBuf.data(), subBuf.size());
-
-	crc_ok = calc == (int)reader_crc ? true : false;
-
-	if (crc_ok) {
-		LG_NFO(this->logger(), "CRC ok.");
-	} else {
-		LG_WRN(this->logger(), "CRC incorrect.");
-	}
-
-	return RES_OK;
 }
 
 result_t TelematicsSession::send(const uchar* buffer, size_t size, const bool async)

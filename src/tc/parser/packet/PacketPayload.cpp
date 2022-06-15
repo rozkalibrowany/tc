@@ -64,9 +64,14 @@ result_t PacketPayload::parse(uchar* cbuf, size_t size, size_t /* offset */)
 			offset = getIdx(cbuf, size, '8');
 		}
 		auto buf = std::make_shared<Buf>(cbuf, size);
+
+		if (crcOk(buf, size) != true) {
+			LG_WRN(this->logger(), "Incorrect CRC sum");
+			return RES_INVARG;
+		}
+
 		auto reader = std::make_shared<Reader>(std::move(buf), offset);
 		auto codec = reader->readU(1);
-		LG_NFO(this->logger(), "Packet Payload parse. Codec: int {} char {} offset {} size{}", (int)codec, std::to_string(codec), offset, size);
 		auto records_total = reader->readU(1);
 
 		for (uint i = 0; i < records_total; i++) {
@@ -77,9 +82,11 @@ result_t PacketPayload::parse(uchar* cbuf, size_t size, size_t /* offset */)
 		}
 
 		if (static_cast< size_t >(records_total) != iAVLRecords.size()) {
-			LG_NFO(this->logger(), "AVL records[{}] size not equal read value[{}]", iAVLRecords.size(), records_total);
+			LG_WRN(this->logger(), "AVL records[{}] size not equal to read value[{}]", iAVLRecords.size(), records_total);
 			return RES_NOENT;
 		}
+
+		LG_DBG(this->logger(), "Packet Payload parse. Codec: int {} char {} offset {} size{}", (int)codec, std::to_string(codec), offset, size);
 
 		iRecords = records_total;
 		iCodec = codec;

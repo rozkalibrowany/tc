@@ -42,8 +42,8 @@ int main(int argc, char** argv)
 
 	while (true) {
 		CppCommon::Thread::Sleep(5000);
-		LG_NFO(log.logger(), "Alive! server address: {} connected sessions: {} threads: {} IsPolling: {} IsStarted: {}",
-		server->address(), (int) server->connected_sessions(), (int) service->threads(), (int) service->IsPolling(), (int) service->IsStarted());
+		LG_NFO(log.logger(), "Alive! connected sessions: {} threads: {} IsPolling: {} IsStarted: {}",
+		(int) server->connected_sessions(), (int) service->threads(), (int) service->IsPolling(), (int) service->IsStarted());
 	}
 
 	// Stop the server

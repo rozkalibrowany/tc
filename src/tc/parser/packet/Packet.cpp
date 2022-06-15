@@ -1,5 +1,6 @@
 #include <tc/parser/packet/Packet.h>
 #include <algorithm>
+#include <tc/common/CRC16.h>
 
 namespace tc::parser {
 
@@ -16,7 +17,7 @@ bool Packet::hasImei(const uchar *cbuf, size_t size)
 		return false;
 	}
 
-	return ((cbuf[0]) << 8) | ((cbuf[1]) << 0) == 15 ? true : false;
+	return ((cbuf[0] << 8) | ((cbuf[1]) << 0 == 15)) ? true : false;
 }
 
 result_t Packet::parseImei(const uchar* cbuf, size_t size, Imei &imei)
@@ -44,6 +45,22 @@ const Imei Packet::toImei(const uchar* cbuf, int len)
 	}
 
 	return imei;
+}
+
+bool Packet::crcOk(const std::shared_ptr< Buf > buf, size_t size)
+{
+	if (buf == nullptr) {
+		return false;
+	}
+
+	common::CRC16 crc;
+	auto reader = std::make_shared< parser::Reader >(buf, size);
+	auto reader_crc = reader->read(4, size - 4);
+
+	parser::Buf subBuf(parser::Buf::ByteArray{buf->begin() + 8, buf->begin() + size - 4});
+	auto calc = crc.calc((char*) subBuf.iBuf.data(), subBuf.size());
+
+	return calc == (int)reader_crc ? true : false;
 }
 
 int Packet::codec() const
