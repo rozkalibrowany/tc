@@ -17,27 +17,27 @@ public:
 	virtual ~Device() = default;
 
 	bool operator==(const Device &rhs) const;
+	bool operator!=(const Device &rhs) const;
   Device &operator=(const Device &rhs);
-
-	Imei imei() const;
-	std::string id() const;
-	std::string type() const;
-	int64_t timestamp() const;
-	size_t lastRecords() const;
 
 	result_t add(const uchar* buffer, size_t size);
 	result_t add(const std::shared_ptr< parser::PacketPayload > &packet);
-
 	bool has(const std::shared_ptr< parser::PacketPayload > &packet);
+	size_t lastRecords() const;
 
-protected:
-	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
 
-private:
 	Imei iImei;
 	std::string iID;
+	std::string iType;
 	SysTime iTimestamp;
-  PayloadPackets iPayloadPackets;
+	int64_t iPacketsCounter;
+
+protected:
+	result_t fromJsonImpl(const Json::Value &rhs, bool root) override;
+	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
+
+	PayloadPackets iPayloadPackets;
+
 };
 
 } // namespace tc::server::iot

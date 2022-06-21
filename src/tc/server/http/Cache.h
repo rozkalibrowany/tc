@@ -10,23 +10,15 @@ namespace tc::server::http {
 class Cache : public CppCommon::Singleton<Cache>, public tc::LogI
 {
    friend CppCommon::Singleton<Cache>;
-
 public:
-
-	void onReceived(const void *buffer, size_t size);
-
-	std::string GetAllCache();
-
-	bool GetCacheValue(std::string_view key, std::string &value);
-	void PutCacheValue(std::string_view key, std::string_view value);
-	bool DeleteCacheValue(std::string_view key, std::string &value);
+	virtual Json::Value getDevices();
+	virtual void onReceived(const void *buffer, size_t size);
 
 private:
-	result_t decodeString(const std::string &data);
+	result_t decodeJson(const std::string &data);
 
 	iot::Devices iDevices;
 	std::mutex _cache_lock;
-	std::map<std::string, std::string, std::less<>> _cache;
 };
 
 } // namespace tc::server::http

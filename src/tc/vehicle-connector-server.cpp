@@ -45,16 +45,16 @@ int main(int argc, char** argv)
 	context->use_private_key_file("../tools/certificates/server.pem", asio::ssl::context::pem);
 	context->use_tmp_dh_file("../tools/certificates/dh4096.pem");
 
+	// Create Cache for data
+	auto cache = std::make_shared<tc::server::http::Cache>();
+
 	// Create a new HTTPS server
 	auto server = std::make_shared<tc::server::http::HTTPSCacheServer>(service, context, port);
-
+	server->setCache(cache);
 	// Start the server
 	LG_NFO(log.logger(), "Server starting...");
 	server->Start();
 	LG_NFO(log.logger(), "Done!");
-
-	// Create Cache for data
-	auto cache = std::make_shared<tc::server::http::Cache>();
 
 	// Create a new TCP client
 	auto client = std::make_shared< tc::server::http::Client >(service, address, tcp_port);
@@ -75,17 +75,17 @@ int main(int argc, char** argv)
 
 		tc::server::http::Action action;
 		if (action.parse(PacketRequest::Devices, PacketRequest::GET) != tc::RES_OK) {
-			LG_NFO(log.logger(), "Unable to parse action");
+			LG_WRN(log.logger(), "Unable to get devices from Telematics Connector");
 			continue;
 		}
 		if (client->handle(action) != tc::RES_OK) {
-			LG_NFO(log.logger(), "Unable to handle action");
-			continue;
-		}
+			LG_DBG(log.logger(), "Unable to handle action");
 			client->DisconnectAsync();
+		}
 
+		LG_NFO(log.logger(), "CACHE: {}", cache->getDevices().toStyledString());
 
-		CppCommon::Thread::Sleep(15000);
+		CppCommon::Thread::Sleep(5000);
 	}
 	// Stop the server
 

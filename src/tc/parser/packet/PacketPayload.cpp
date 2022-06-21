@@ -66,8 +66,8 @@ result_t PacketPayload::parse(uchar* cbuf, size_t size, size_t /* offset */)
 		auto buf = std::make_shared<Buf>(cbuf, size);
 
 		if (crcOk(buf, size) != true) {
-			LG_WRN(this->logger(), "Incorrect CRC sum");
-			return RES_INVARG;
+			LG_DBG(this->logger(), "Incorrect CRC sum");
+			return RES_INVCRC;
 		}
 
 		auto reader = std::make_shared<Reader>(std::move(buf), offset);

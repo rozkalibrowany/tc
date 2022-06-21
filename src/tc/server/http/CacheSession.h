@@ -4,6 +4,7 @@
 #include <server/http/https_session.h>
 #include <tc/common/Common.h>
 #include <tc/asio/AsioService.h>
+#include <tc/server/http/Cache.h>
 
 namespace tc::server::http {
 
@@ -12,6 +13,8 @@ class HTTPSCacheSession : public CppServer::HTTP::HTTPSSession, public tc::LogI
 public:
 	using CppServer::HTTP::HTTPSSession::HTTPSSession;
 
+	virtual void setCache(const std::shared_ptr<Cache> &cache);
+
 protected:
 	void onReceivedRequest(const CppServer::HTTP::HTTPRequest &request) override;
 	void onReceivedRequestError(const CppServer::HTTP::HTTPRequest &request, const std::string &error) override;
@@ -19,6 +22,7 @@ protected:
 
 private:
 	std::shared_ptr< tc::asio::AsioService > iService;
+	std::shared_ptr< Cache > iCache {nullptr};
 	int iPort {8443};
 	std::string iAddress {"127.0.0.1"};
 

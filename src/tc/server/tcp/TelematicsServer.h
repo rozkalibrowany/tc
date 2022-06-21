@@ -15,19 +15,10 @@ class TelematicsServer : public CppServer::Asio::TCPServer, public tc::LogI
 {
 public:
 	using CppServer::Asio::TCPServer::TCPServer;
-	using ActiveSessions = std::map< CppCommon::UUID, Imei >;
 
-	virtual bool has(const CppCommon::UUID &uuid);
-	virtual bool has(const Imei &imei);
-	virtual result_t add(const Imei &imei);
-	virtual result_t add(const Imei &imei, const std::shared_ptr< parser::PacketPayload > &packet);
-	virtual result_t add(const CppCommon::UUID uuid, const Imei &imei);
-	virtual result_t get(const CppCommon::UUID uuid, Imei &imei);
-	virtual result_t rm(const CppCommon::UUID uuid);
-
-	virtual result_t sendCommand(const Imei &imei, std::shared_ptr<parser::PacketCommand> &command);
-
-	iot::Devices iDevices;
+	result_t handleCommand(const uchar *buffer, size_t size);
+  result_t dispatchRequest(std::shared_ptr< PacketRequest > &request, const CppCommon::UUID id);
+	result_t handleRequest(const uchar *buffer, size_t size, const CppCommon::UUID id);
 
 protected:
 	std::shared_ptr< CppServer::Asio::TCPSession > CreateSession(const std::shared_ptr<TCPServer> &server) override;
@@ -37,8 +28,9 @@ protected:
 	void onError(int error, const std::string &category, const std::string &message) override;
 
 private:
-	SysMutex iMutex;
-	ActiveSessions iActiveSessions;
+	result_t sendCommand(const Imei &imei, std::shared_ptr<parser::PacketCommand> &command);
+
+	iot::Devices iDevices;
 };
 
 } // namespace tc::server::tcp

@@ -28,10 +28,6 @@ Action::Type Action::get(const uchar* buffer, size_t size)
 		return Type::command;
 	}
 
-	if (size < 5) {
-		return Type::incomplete_payload;
-	}
-
 	return Type::unknown;
 }
 

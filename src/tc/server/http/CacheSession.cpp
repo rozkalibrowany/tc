@@ -5,11 +5,18 @@
 
 namespace tc::server::http {
 
+void HTTPSCacheSession::setCache(const std::shared_ptr< Cache > &cache)
+{
+	iCache = std::move(cache);
+}
+
 void HTTPSCacheSession::onReceivedRequest(const CppServer::HTTP::HTTPRequest& request)
 {
 	// Show HTTP request content
 	LG_NFO(this->logger(), "request: {}", request.string());
-
+	if (iCache == nullptr) {
+		return;
+	}
 	// Process HTTP request methods
 	if (request.method() == "HEAD") {
 		SendResponseAsync(response().MakeHeadResponse());
@@ -21,8 +28,9 @@ void HTTPSCacheSession::onReceivedRequest(const CppServer::HTTP::HTTPRequest& re
 		action.erase(std::remove(action.begin(), action.end(), '/'), action.end());
 		if (action.empty()) {
 				// Response with all cache values
-				SendResponseAsync(response().MakeGetResponse(Cache::GetInstance().GetAllCache(), "application/json; charset=UTF-8"));
+			//	SendResponseAsync(response().MakeGetResponse(Cache::GetInstance().GetAllCache(), "application/json; charset=UTF-8"));
 		}
+		SendResponseAsync(response().MakeGetResponse(iCache->getDevices().toStyledString(), "application/json; charset=UTF-8"));
 		/*parser::Buf buf;
 		client::tcp::RequestFactory requestFactory(action);
 		if (requestFactory.create(action,buf) != RES_OK) {
@@ -46,7 +54,7 @@ void HTTPSCacheSession::onReceivedRequest(const CppServer::HTTP::HTTPRequest& re
 			CppCommon::StringUtils::ReplaceFirst(key, "?key=", "");
 
 			// Put the cache value
-			Cache::GetInstance().PutCacheValue(key, value);
+			//Cache::GetInstance().PutCacheValue(key, value);
 
 			// Response with the cache value
 			SendResponseAsync(response().MakeOKResponse());
@@ -61,14 +69,6 @@ void HTTPSCacheSession::onReceivedRequest(const CppServer::HTTP::HTTPRequest& re
 			CppCommon::StringUtils::ReplaceFirst(key, "/api/cache", "");
 			CppCommon::StringUtils::ReplaceFirst(key, "?key=", "");
 
-			// Delete the cache value
-			if (Cache::GetInstance().DeleteCacheValue(key, value))
-			{
-					// Response with the cache value
-					SendResponseAsync(response().MakeGetResponse(value));
-			}
-			else
-					SendResponseAsync(response().MakeErrorResponse(404, "Deleted cache value was not found for the key: " + key));
 	}
 	else if (request.method() == "OPTIONS")
 			SendResponseAsync(response().MakeOptionsResponse());

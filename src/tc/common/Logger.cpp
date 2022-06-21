@@ -12,7 +12,7 @@ LogI::LogI(SpdLogSptr rhs, const std::string name)
 	: m_log(rhs)
 	, m_name(name)
 {
-	m_log->set_pattern("[%Y-%m-%d %H:%M:%S.%e][%!:%#][%^%l%$] %v");
+	m_log->set_pattern("[%Y-%m-%d %H:%M:%S.%e][%s][%!:%#][%^%l%$] %v");
 }
 
 LogI::LogI(Log &rhs, const std::string name)

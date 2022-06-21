@@ -7,10 +7,10 @@
 int main(int argc, char** argv)
 {
 	auto logger = spdlog::stdout_color_mt("console");
+	logger->set_level(spdlog::level::debug);
 
 	tc::LogI log(logger);
 	spdlog::set_default_logger(log.logger());
-
 	// TCP server port
 	int port = 8883;
 
@@ -30,7 +30,6 @@ int main(int argc, char** argv)
 	// Create a new TCP server
 	auto server = std::make_shared< tc::server::tcp::TelematicsServer >(service, port);
 	server->SetupReusePort(true);
-	server->SetupNoDelay(true);
 	// Start the server
 	LG_NFO(log.logger(), "TCP Server starting...");
 	if (server->Start() != true) {
@@ -41,7 +40,7 @@ int main(int argc, char** argv)
 
 
 	while (true) {
-		CppCommon::Thread::Sleep(5000);
+		CppCommon::Thread::Sleep(15000);
 		LG_NFO(log.logger(), "Alive! connected sessions: {} threads: {} IsPolling: {} IsStarted: {}",
 		(int) server->connected_sessions(), (int) service->threads(), (int) service->IsPolling(), (int) service->IsStarted());
 	}

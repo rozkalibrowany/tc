@@ -13,7 +13,7 @@ namespace tc::server::tcp {
 class TelematicsServer;
 using namespace parser;
 
-class TelematicsSession : public CppServer::Asio::TCPSession, public tc::LogI
+class TelematicsSession : public CppServer::Asio::TCPSession, public tc::LogI, public parser::JsonI
 {
 
 public:
@@ -24,28 +24,30 @@ public:
 
 	using CppServer::Asio::TCPSession::TCPSession;
 
-	virtual std::shared_ptr<TelematicsServer> tcServer();
-
+	bool hasImei(const Imei imei) const;
+	Action::Type type() const;
+	
+	result_t send(int buffer, const bool async = false);
 	result_t send(const uchar* buffer, size_t size, const bool async = false);
 	result_t send(const void *buffer, size_t size, const bool async = false);
-	result_t send(int buffer, const bool async = false);
 
 protected:
+	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
 	void onReceived(const void *buffer, size_t size) override;
 
 private:
 	void handleDataBuffer(const uchar* buffer, size_t size, Action::Type type);
-	result_t handleImei(const uchar *buffer, size_t size);
-	result_t handleIncomplete(const uchar *buffer, size_t size, bool &crc_ok);
-	result_t handlePayload(const uchar *buffer, size_t size, bool &crc_ok);
-	result_t handleCommand(const uchar *buffer, size_t size);
-	result_t handleStandby(const uchar *buffer, size_t size);
-	result_t handleRequest(const uchar *buffer, size_t size);
 
-  result_t dispatchRequest(std::shared_ptr< PacketRequest > &request);
+	result_t handleImei(const uchar *buffer, size_t size);
+	result_t handleIncomplete(const uchar *buffer, size_t size);
+	result_t handlePayload(const uchar *buffer, size_t size);
+	result_t handleStandby(const uchar *buffer, size_t size);
+
+
+	std::shared_ptr<TelematicsServer> telematicsServer();
 
 	SysTime iTimestamp;
-	SysMutex iMutex;
+	Action::Type iType{Action::unknown};
 	std::unique_ptr<iot::Device> iDevice{nullptr};
 	std::shared_ptr<parser::Buf> iBufferIncomplete{nullptr};
 };
