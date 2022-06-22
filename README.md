@@ -22,6 +22,7 @@ Configure tc-vehicle-connector-server as localhost
 ```bask
 * GET
 curl -X GET -kvH "Accept: application/json" https://127.0.0.1:8443/devices
+curl -X GET -kvH "Accept: application/json" https://127.0.0.1:8443/device/<IMEI/ID>
 ```
 
 ```bash
