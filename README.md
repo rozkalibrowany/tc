@@ -16,3 +16,19 @@
 * tc-telematics-client
 * tc-telematics-server
 * tc-vehicle-connector-server
+
+# Example requests
+Configure tc-vehicle-connector-server as localhost
+* GET
+curl -X GET -kvH "Accept: application/json" https://127.0.0.1:8443/devices
+
+* POST
+curl -X POST --cacert <cert> https://127.0.0.1:8443/device/<IMEI/ID>/unlock
+curl -X POST --cacert <cert> https://127.0.0.1:8443/device/<IMEI/ID>/lock
+curl -X POST --cacert <cert> https://127.0.0.1:8443/device/<IMEI/ID>/led_off
+curl -X POST --cacert <cert> https://127.0.0.1:8443/device/<IMEI/ID>/led_on
+curl -X POST --cacert <cert> https://127.0.0.1:8443/device/<IMEI/ID>/engine_off
+curl -X POST --cacert <cert> https://127.0.0.1:8443/device/<IMEI/ID>/engine_on
+
+* DELETE
+curl -X DELETE --cacert <cert> https://127.0.0.1:8443/device/<IMEI/ID>
