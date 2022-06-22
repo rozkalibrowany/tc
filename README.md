@@ -1,5 +1,5 @@
 # Telematics Connector - service for IoT Devices Connectivity
-![alt text](https://ibb.co/vcKB5KK)
+![alt text]([https://ibb.co/vcKB5KK](https://i.ibb.co/hgtM5tt/Screenshot-from-2022-06-22-20-52-34.png))
 
 # Stack
  - C++17 
