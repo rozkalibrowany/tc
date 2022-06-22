@@ -20,7 +20,7 @@
 # Example requests
 Configure tc-vehicle-connector-server as localhost
 ```bask
-GET
+* GET
 curl -X GET -kvH "Accept: application/json" https://127.0.0.1:8443/devices
 ```
 
