@@ -4,6 +4,7 @@
 # Stack
  - C++17 
  - Tools (Python, Ansible, Conan)
+ - Asio (Cppserver wrapper)
  - CMake + GNU/GCC
 
 # Bulding (Linux)
