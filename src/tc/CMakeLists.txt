@@ -78,6 +78,7 @@ TcAddLibrary(
 	SOURCE "${src}/server/http/*.cpp"
 	INCLUDE "${TcIncludeDir}"
 	LIBRARIES
+	tc-client
 	tc-asio
 	cppserver
 	cppcommon

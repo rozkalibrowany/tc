@@ -21,6 +21,7 @@ std::string uchar2string(const unsigned char *c, uint32_t length);
 
 void hex2bin(const char* src, char* target);
 
+
 } // namespace tc
 
 #endif /* BFF772B8_549C_4D5D_AFDC_BCC7C72ACE9C */

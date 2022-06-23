@@ -6,6 +6,7 @@
 #include <tc/common/Result.h>
 #include <tc/common/SysTime.h>
 #include <tc/common/Codec.h>
+#include <tc/common/Regex.h>
 #include <string>
 #include <cstddef>
 #include <vector>

@@ -2,6 +2,7 @@
 #include <tc/server/http/Cache.h>
 #include <string/string_utils.h>
 #include <tc/server/http/RequestFactory.h>
+#include <regex>
 
 namespace tc::server::http {
 
@@ -22,39 +23,33 @@ void HTTPSCacheSession::onReceivedRequest(const CppServer::HTTP::HTTPRequest& re
 		SendResponseAsync(response().MakeHeadResponse());
 		LG_NFO(this->logger(), "request.method() == HEAD");
 	}
-	else if (request.method() == "GET")
-	{
+	else if (request.method() == "GET") {
 		auto action = request.string();
 		action.erase(std::remove(action.begin(), action.end(), '/'), action.end());
-		if (action.empty()) {
-				// Response with all cache values
-			//	SendResponseAsync(response().MakeGetResponse(Cache::GetInstance().GetAllCache(), "application/json; charset=UTF-8"));
-		}
 		SendResponseAsync(response().MakeGetResponse(iCache->getDevices().toStyledString(), "application/json; charset=UTF-8"));
-		/*parser::Buf buf;
-		client::tcp::RequestFactory requestFactory(action);
-		if (requestFactory.create(action,buf) != RES_OK) {
-			LG_ERR(this->logger(), "Unable to handle request: {}", request.string());
-			return;
-		}
 
-		if (connectClient() != RES_OK) {
-			LG_ERR(this->logger(), "Unable to connect client: {}", request.string());
-			return;
-		}*/
 	}
-	else if ((request.method() == "POST") || (request.method() == "PUT"))
-	{
-			std::string key(request.url());
-			std::string value(request.body());
+	else if ((request.method() == "POST") || (request.method() == "PUT")) {
+			const std::regex action("\\/(.*?)\\/");
+			const std::regex id("\\/([0-9]+)\\/");
+			const std::regex cmd("([^\/]+$)");
 
-			// Decode the key value
-			key = CppCommon::Encoding::URLDecode(key);
-			CppCommon::StringUtils::ReplaceFirst(key, "/api/cache", "");
-			CppCommon::StringUtils::ReplaceFirst(key, "?key=", "");
+			std::string url(request.url());
 
-			// Put the cache value
-			//Cache::GetInstance().PutCacheValue(key, value);
+			auto str_action = tc::regex(action, url);
+			auto str_id = tc::regex(id, url);
+			auto str_cmd = tc::regex(cmd, url);
+
+			if (str_action.empty() || str_id.empty() || str_cmd.empty()) {
+				LG_ERR(this->logger(), "Bad POST request: {}", url);
+				return;
+			}
+
+			if (str_cmd == "set") {
+
+			} /*else {
+				iCache->addCommand(str_id, str_cmd);
+			}*/
 
 			// Response with the cache value
 			SendResponseAsync(response().MakeOKResponse());
@@ -78,12 +73,12 @@ void HTTPSCacheSession::onReceivedRequest(const CppServer::HTTP::HTTPRequest& re
 			SendResponseAsync(response().MakeErrorResponse("Unsupported HTTP method: " + std::string(request.method())));
 }
 
-void HTTPSCacheSession::onReceivedRequestError(const CppServer::HTTP::HTTPRequest &request, const std::string &error) 
+void HTTPSCacheSession::onReceivedRequestError(const CppServer::HTTP::HTTPRequest &request, const std::string &error)
 {
 	// cout << "Request error: " << error << std::endl;
 }
 
-void HTTPSCacheSession::onError(int error, const std::string& category, const std::string& message) 
+void HTTPSCacheSession::onError(int error, const std::string& category, const std::string& message)
 {
 	// cout << "HTTPS session caught an error with code " << error << " and category '" << category << "': " << message << std::endl;
 }

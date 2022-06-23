@@ -1,9 +1,20 @@
 #include <tc/server/http/Cache.h>
+#include <tc/client/tcp/CommandFactory.h>
 #include <json/json.h>
 #include <tc/parser/Util.h>
 #include <sstream>
 
 namespace tc::server::http {
+
+/*bool Cache::hasCommands() const
+{
+	return !iCommands.empty();
+}
+
+std::shared_ptr< parser::Buf > Cache::getCommand()
+{
+	return std::make_shared<parser::Buf>(iCommands.back());
+}*/
 
 Json::Value Cache::getDevices()
 {
@@ -29,7 +40,7 @@ void Cache::onReceived(const void *buffer, size_t size)
 }
 
 result_t Cache::decodeJson(const std::string &data)
-{	
+{
 	Json::Value root;
 	Json::Reader reader;
 	bool parsing_ok = reader.parse(data, root, false);
@@ -40,5 +51,21 @@ result_t Cache::decodeJson(const std::string &data)
 
 	return iDevices.fromJson(root);
 }
+
+/*result_t Cache::addCommand(const Imei imei, const std::string cmd)
+{
+	result_t res = RES_OK;
+	auto command = client::tcp::CommandFactory::cmdToString(cmd);
+	client::tcp::CommandFactory factory(imei);
+
+	tc::parser::Buf cmdBuf;
+	if ((res = factory.create(command, cmdBuf)) != RES_OK) {
+		LG_ERR(this->logger(), "Unable to create command");
+		return res;
+	}
+
+	iCommands.push_back(std::move(cmdBuf));
+	return res;
+}*/
 
 } // namespace tc::server::http

@@ -1,8 +1,8 @@
-#include <tc/server/http/Client.h>
 #include <tc/asio/AsioService.h>
 #include <tc/server/http/Cache.h>
 #include <tc/server/http/CacheSession.h>
 #include <tc/server/http/CacheServer.h>
+#include <tc/client/tcp/TelematicsClient.h>
 #include <tc/common/Common.h>
 
 #include <map>
@@ -11,7 +11,6 @@
 
 int main(int argc, char** argv)
 {
-	using PacketRequest = tc::parser::PacketRequest;
 	auto logger = spdlog::stdout_color_mt("console");
 
 	tc::LogI log(logger);
@@ -19,13 +18,13 @@ int main(int argc, char** argv)
 
 	// HTTPS server port
 	int port = 8443;
-
-	// TCP server port
-	int tcp_port = 8883;
-
+	int port_tcp = 8883;
 	if (argc > 1)
-			port = std::atoi(argv[1]);
-	std::string address = "127.0.0.1";
+		port = std::atoi(argv[1]);
+	// HTTPS server content path
+	/*std::string www = "../www/api";
+	if (argc > 2)
+			www = argv[2];*/
 
 
 	LG_NFO(log.logger(), "HTTPS server port: {}", 8443);
@@ -41,59 +40,49 @@ int main(int argc, char** argv)
 	// Create and prepare a new SSL server context
 	auto context = std::make_shared<CppServer::Asio::SSLContext>(asio::ssl::context::tlsv12);
 	context->set_password_callback([](size_t max_length, asio::ssl::context::password_purpose purpose) -> std::string { return "qwerty"; });
-	context->use_certificate_chain_file("../tools/certificates/snakeoil.pem");
-	context->use_private_key_file("../tools/certificates/snakeoil.pem", asio::ssl::context::pem);
-	//context->use_tmp_dh_file("../tools/certificates/dh4096.pem");
+	context->use_certificate_chain_file("../tools/certificates/server.pem");
+	context->use_private_key_file("../tools/certificates/server.pem", asio::ssl::context::pem);
+	context->use_tmp_dh_file("../tools/certificates/dh4096.pem");
 
-	// Create Cache for data
-	auto cache = std::make_shared<tc::server::http::Cache>();
 
+	std::string address = "127.0.0.1";
 	// Create a new HTTPS server
 	auto server = std::make_shared<tc::server::http::HTTPSCacheServer>(service, context, port);
-	server->setCache(cache);
+	auto client = std::make_shared< tc::client::tcp::TelematicsClient >(service, address, port_tcp);
+	//server->AddStaticContent(www, "/api");
+
 	// Start the server
 	LG_NFO(log.logger(), "Server starting...");
 	server->Start();
 	LG_NFO(log.logger(), "Done!");
 
-	// Create a new TCP client
-	auto client = std::make_shared< tc::server::http::Client >(service, address, tcp_port);
-	client->setCache(cache);
-
-	// Connect the client
 	LG_NFO(log.logger(), "Client connecting...");
 	if(!client->ConnectAsync()) {
 		LG_ERR(log.logger(), "Connect async");
 		return 1;
 	}
 
-	while (true) {
-		if (client->IsConnected() == false) {
-			client->ConnectAsync();
-			continue;
-		}
+	// Perform text input
+	std::string line;
+	while (getline(std::cin, line))
+	{
+			if (line.empty())
+					break;
 
-		/*if (cache->hasCommands() == true) {
-			auto buf = cache->getCommand();
-			client->handle(buf);
-		}*/
+			// Restart the server
+			if (line == "!")
+			{
+					LG_NFO(log.logger(), "Server restarting...");
 
-		tc::server::http::Action action;
-		if (action.parse(PacketRequest::Devices, PacketRequest::GET) != tc::RES_OK) {
-			LG_WRN(log.logger(), "Unable to get devices from Telematics Connector");
-			continue;
-		}
-		if (client->handle(action) != tc::RES_OK) {
-			LG_DBG(log.logger(), "Unable to handle action");
-			client->DisconnectAsync();
-		}
-
-		LG_NFO(log.logger(), "Cached: {}", cache->getDevices().toStyledString());
-
-		CppCommon::Thread::Sleep(5000);
+					//std::cout << "";
+					server->Restart();
+					//std::cout << "Done!" << std::endl;
+					continue;
+			}
 	}
-	// Stop the server
 
+	// Stop the server
+	LG_NFO(log.logger(), "Server stopping...");
 	server->Stop();
 	LG_NFO(log.logger(), "Done!");
 

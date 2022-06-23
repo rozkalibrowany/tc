@@ -122,5 +122,6 @@ int main(int argc, char** argv)
 	service->Stop();
 	LG_NFO(log.logger(), "Done!");
 
+	delete out;
 	return 0;
 }

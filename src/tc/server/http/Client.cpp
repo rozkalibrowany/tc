@@ -27,6 +27,21 @@ result_t Client::handle(const Action &action)
 	return SendAsync(out, len) != true ? RES_ERROR : RES_OK;
 }
 
+result_t Client::handle(std::shared_ptr< parser::Buf > command)
+{
+	if (command == nullptr) {
+		return RES_INVARG;
+	}
+
+	size_t len = command->size() / 2;
+	auto out = new char[len];
+	tc::hex2bin((char*) command->data(), out);
+
+	auto ok = SendAsync(out, len);
+	delete out;
+	return ok == true ? RES_OK : RES_ERROR;
+}
+
 void Client::onReceived(const void *buffer, size_t size)
 {
 	if (iCache != nullptr) {
