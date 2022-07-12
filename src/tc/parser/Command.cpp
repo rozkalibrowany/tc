@@ -21,7 +21,7 @@ const std::string Command::engine_off = "scenginectrl 0";
 
 const std::string Command::restart = "screbootsys";
 
-const std::string Command::cmdToString(const std::string &cmd)
+const std::string Command::toString(const std::string &cmd)
 {
 	if (cmd.compare("unlock") == 0) {
 		return Command::unlock;
@@ -131,11 +131,11 @@ result_t Command::getPayload(const std::string &cmd, parser::Buf &buf)
 	buf.insert(val.data(), val.length());
 
 	// command length
-	val = byte2string(Command::cmdToString(cmd).length());
+	val = byte2string(Command::toString(cmd).length());
 	buf.insert(val.data(), val.length());
 
 	// command
-	const auto command = Command::cmdToString(cmd);
+	const auto command = Command::toString(cmd);
 	if (command.empty() == true) {
 		return RES_INVARG;
 	}

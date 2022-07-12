@@ -44,15 +44,11 @@ void HTTPSCacheSession::onReceivedRequest(const CppServer::HTTP::HTTPRequest& re
 
 			if (str_action.empty() || str_id.empty() || str_cmd.empty()) {
 				LG_ERR(this->logger(), "Bad POST request: {}", request.url());
+				SendResponseAsync(response().MakeErrorResponse(400, "Bad request"));
 				return;
 			}
 
-			if (str_cmd == "set") {
-
-			} /*else {
-				iCache->addCommand(str_id, str_cmd);
-			}*/
-
+			iCache->addCommand(str_id, str_cmd);
 			// Response with the cache value
 			SendResponseAsync(response().MakeOKResponse());
 	}

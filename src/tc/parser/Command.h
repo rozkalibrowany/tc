@@ -16,7 +16,7 @@ public:
 	static const std::string engine_off;
 	static const std::string restart;
 
-	static const std::string cmdToString(const std::string &cmd);
+	static const std::string toString(const std::string &cmd);
 
 	Command(const std::string& imei);
 	virtual ~Command() = default;
