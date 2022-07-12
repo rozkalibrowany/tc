@@ -1,17 +1,11 @@
 #include <tc/server/http/Cache.h>
-#include <tc/parser/Command.h>
 #include <json/json.h>
 #include <tc/parser/Util.h>
 #include <sstream>
 
 namespace tc::server::http {
 
-/*bool Cache::hasCommands() const
-{
-	return !iCommands.empty();
-}
-
-std::shared_ptr< parser::Buf > Cache::getCommand()
+/*std::shared_ptr< parser::Buf > Cache::getCommand()
 {
 	return std::make_shared<parser::Buf>(iCommands.back());
 }*/
@@ -52,20 +46,24 @@ result_t Cache::decodeJson(const std::string &data)
 	return iDevices.fromJson(root);
 }
 
-/*result_t Cache::addCommand(const Imei imei, const std::string cmd)
+bool Cache::hasCommands() const
+{
+	return !iCommands.empty();
+}
+
+result_t Cache::addCommand(const Imei imei, const std::string cmd)
 {
 	result_t res = RES_OK;
-	auto command = client::tcp::CommandFactory::cmdToString(cmd);
-	client::tcp::CommandFactory factory(imei);
+	auto str_command = tc::parser::Command::toString(cmd);
+	auto command = std::make_shared<parser::Command>(imei);
 
-	tc::parser::Buf cmdBuf;
-	if ((res = factory.create(command, cmdBuf)) != RES_OK) {
+	if ((res = command->create(str_command)) != RES_OK) {
 		LG_ERR(this->logger(), "Unable to create command");
 		return res;
 	}
 
-	iCommands.push_back(std::move(cmdBuf));
+	iCommands.push(std::move(command));
 	return res;
-}*/
+}
 
 } // namespace tc::server::http

@@ -70,15 +70,11 @@ int main(int argc, char** argv)
 	tc::parser::Command cmd(imei);
 
 	if (cmd.create(command) != tc::RES_OK) {
-		LG_ERR(log.logger(), "Unable to create command packet.");
+		LG_ERR(log.logger(), "Unable to create command.");
 		return 1;
 	}
 
 	auto bin_cmd = cmd.asBin();
-
-	/*size_t len = buf.size() / 2;
-	auto out = new char[len];
-	tc::hex2bin((char*) buf.data(), out); */
 
 	// Create a new Asio service
 	auto service = std::make_shared<tc::asio::AsioService>();
@@ -112,8 +108,6 @@ int main(int argc, char** argv)
 		CppCommon::Thread::Sleep(2000);
 	}
 
-	// delete out;
-
 	// Disconnect the client
 	LG_NFO(log.logger(), "Client disconnecting...");
 	client->disconnectAndStop();
@@ -124,6 +118,5 @@ int main(int argc, char** argv)
 	service->Stop();
 	LG_NFO(log.logger(), "Done!");
 
-	// delete out;
 	return 0;
 }
