@@ -64,6 +64,11 @@ const uchar &Buf::operator[](uint idx) const
 	return iBuf[idx];
 }
 
+void Buf::clear()
+{
+	iBuf.clear();
+}
+
 const uchar *Buf::cdata()
 {
 	return iBuf.data();
@@ -131,6 +136,11 @@ int64_t Buf::toInt64(int offset)
                 | ((int64_t) (iBuf[offset + 3] & 0xff) << 24)
                 | ((int64_t) (iBuf[offset + 2] & 0xff) << 16)
                 | ((int64_t) (iBuf[offset + 1] & 0xff) << 8) | (iBuf[offset] & 0xff));
+}
+
+const bool Buf::empty()
+{
+	return iBuf.empty();
 }
 
 const size_t Buf::size()

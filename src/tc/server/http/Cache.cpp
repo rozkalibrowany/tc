@@ -1,5 +1,5 @@
 #include <tc/server/http/Cache.h>
-#include <tc/client/tcp/CommandFactory.h>
+#include <tc/parser/Command.h>
 #include <json/json.h>
 #include <tc/parser/Util.h>
 #include <sstream>

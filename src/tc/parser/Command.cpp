@@ -4,74 +4,72 @@
 4 bytes	4 bytes	1 byte	1 byte	1 byte	4 bytes	X bytes	0D0A	1 byte	4 bytes
 
 */
-#include <tc/client/tcp/CommandFactory.h>
+#include <tc/parser/Command.h>
+#include <tc/parser/packet/Packet.h>
 #include <tc/common/CRC16.h>
-#include <iostream>
-#include <algorithm>
-#include <sstream>
-#include <iomanip>
-#include <bitset>
 
-namespace tc::client::tcp {
+namespace tc::parser {
 
-const std::string CommandFactory::cmd_unlock = "sclockctrl 0";
-const std::string CommandFactory::cmd_lock = "sclockctrl 1";
+const std::string Command::unlock = "sclockctrl 0";
+const std::string Command::lock = "sclockctrl 1";
 
-const std::string CommandFactory::cmd_led_on = "scledctrl 1";
-const std::string CommandFactory::cmd_led_off = "scledctrl 0";
+const std::string Command::led_on = "scledctrl 1";
+const std::string Command::led_off = "scledctrl 0";
 
-const std::string CommandFactory::cmd_engine_on = "scenginectrl 1";
-const std::string CommandFactory::cmd_engine_off = "scenginectrl 0";
+const std::string Command::engine_on = "scenginectrl 1";
+const std::string Command::engine_off = "scenginectrl 0";
 
-const std::string CommandFactory::cmd_restart = "screbootsys";
+const std::string Command::restart = "screbootsys";
 
-const std::string CommandFactory::cmdToString(const std::string &cmd)
+const std::string Command::cmdToString(const std::string &cmd)
 {
 	if (cmd.compare("unlock") == 0) {
-		return CommandFactory::cmd_unlock;
+		return Command::unlock;
 	} else if (cmd.compare("lock") == 0) {
-		return CommandFactory::cmd_lock;
+		return Command::lock;
 	} else if (cmd.compare("engine_on") == 0) {
-		return CommandFactory::cmd_engine_on;
+		return Command::engine_on;
 	} else if (cmd.compare("engine_off") == 0) {
-		return CommandFactory::cmd_engine_off;
+		return Command::engine_off;
 	} else if (cmd.compare("led_on") == 0) {
-		return CommandFactory::cmd_led_on;
+		return Command::led_on;
 	} else if (cmd.compare("led_off") == 0) {
-		return CommandFactory::cmd_led_off;
+		return Command::led_off;
 	} else if (cmd.compare("restart") == 0) {
-		return CommandFactory::cmd_restart;
+		return Command::restart;
 	}
 
 	return std::string();
 }
 
-CommandFactory::CommandFactory(const std::string &imei)
+Command::Command(const std::string &imei)
 	: tc::LogI("console")
 	, iImei(imei)
 {
 		// nothing to do
 }
 
-result_t CommandFactory::create(const std::string &cmd, parser::Buf &buf, bool cr)
+result_t Command::create(const std::string &cmd, bool cr)
 {
 	result_t res = RES_OK;
 
+	if (!iBuf.empty()) iBuf.clear();
+
 	// 1 zero-byte
 	auto val = byte2string(0);
-	buf.insert(val.data(), val.length());
+	iBuf.insert(val.data(), val.length());
 
 	// imei length
 	val = byte2string(iImei.length());
-	buf.insert(val.data(), val.length());
+	iBuf.insert(val.data(), val.length());
 
 	// imei
 	val = tc::tohex(iImei, cr);
-	buf.insert(val.data(), val.length());
+	iBuf.insert(val.data(), val.length());
 
 	// 4 zero-bytes
 	val = byte2string(0, 4*2);
-	buf.insert(val.data(), val.length());
+	iBuf.insert(val.data(), val.length());
 
 	parser::Buf payload;
 	if ((res = getPayload(cmd, payload)) != RES_OK) {
@@ -87,27 +85,34 @@ result_t CommandFactory::create(const std::string &cmd, parser::Buf &buf, bool c
 
 	// 3 zero-bytes
 	val = byte2string(0, 3*2);
-	buf.insert(val.data(), val.length());
+	iBuf.insert(val.data(), val.length());
 
 	// payload length
 	val = byte2string(payload.size() / 2);
-	buf.insert(val.data(), val.length());
+	iBuf.insert(val.data(), val.length());
 
 	// insert payload
-	buf.insert(payload.begin(), payload.end());
+	iBuf.insert(payload.begin(), payload.end());
 
 	// command end symbol
 	val = cr ? byte2string(0x0D0A) : byte2string(0);
-	buf.insert(val.data(), val.length());
+	iBuf.insert(val.data(), val.length());
 
 	// CRC
 	val = byte2string(sum, 3*2);
-	buf.insert(val.data(), val.length());
+	iBuf.insert(val.data(), val.length());
 
 	return res;
 }
 
-result_t CommandFactory::getPayload(const std::string &cmd, parser::Buf &buf)
+std::vector<char> Command::asBin()
+{
+	std::vector<char> bin(iBuf.size() / 2);
+	tc::hex2bin((char*) iBuf.data(), (char*) bin.data());
+	return bin;
+}
+
+result_t Command::getPayload(const std::string &cmd, parser::Buf &buf)
 {
 	// codec
 	auto val = byte2string(CODEC_12);
@@ -126,11 +131,11 @@ result_t CommandFactory::getPayload(const std::string &cmd, parser::Buf &buf)
 	buf.insert(val.data(), val.length());
 
 	// command length
-	val = byte2string(CommandFactory::cmdToString(cmd).length());
+	val = byte2string(Command::cmdToString(cmd).length());
 	buf.insert(val.data(), val.length());
 
 	// command
-	const auto command = CommandFactory::cmdToString(cmd);
+	const auto command = Command::cmdToString(cmd);
 	if (command.empty() == true) {
 		return RES_INVARG;
 	}
@@ -148,7 +153,6 @@ result_t CommandFactory::getPayload(const std::string &cmd, parser::Buf &buf)
 
 
 /*
-
 	// CRC
 
 		// "00000000000000130C01050000000B73637365746D6F646520320100001F93"

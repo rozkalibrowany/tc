@@ -30,18 +30,20 @@ void HTTPSCacheSession::onReceivedRequest(const CppServer::HTTP::HTTPRequest& re
 
 	}
 	else if ((request.method() == "POST") || (request.method() == "PUT")) {
+			LG_NFO(this->logger(), "request.method() == POST");
+
 			const std::regex action("\\/(.*?)\\/");
 			const std::regex id("\\/([0-9]+)\\/");
 			const std::regex cmd("([^\/]+$)");
 
-			std::string url(request.url());
+			auto str_action = tc::regex(action, request.url());
+			auto str_id = tc::regex(id, request.url());
+			auto str_cmd = tc::regex(cmd, request.url());
 
-			auto str_action = tc::regex(action, url);
-			auto str_id = tc::regex(id, url);
-			auto str_cmd = tc::regex(cmd, url);
+			LG_NFO(this->logger(), "str_action: {}, str_id: {}, str_cmd: {}", str_action, str_id, str_cmd);
 
 			if (str_action.empty() || str_id.empty() || str_cmd.empty()) {
-				LG_ERR(this->logger(), "Bad POST request: {}", url);
+				LG_ERR(this->logger(), "Bad POST request: {}", request.url());
 				return;
 			}
 

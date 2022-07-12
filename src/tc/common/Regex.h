@@ -6,6 +6,7 @@
 namespace tc {
 
 const std::string regex(const std::regex &reg, const std::string str);
+const std::string regex(const std::regex &reg, const std::string_view str);
 
 } // namespace tc
 
