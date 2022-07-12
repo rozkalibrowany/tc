@@ -54,10 +54,9 @@ bool Cache::hasCommands() const
 result_t Cache::addCommand(const Imei imei, const std::string cmd)
 {
 	result_t res = RES_OK;
-	auto str_command = tc::parser::Command::toString(cmd);
-	auto command = std::make_shared<parser::Command>(imei);
 
-	if ((res = command->create(str_command)) != RES_OK) {
+	auto command = std::make_shared<parser::Command>(imei);
+	if ((res = command->create(cmd)) != RES_OK) {
 		LG_ERR(this->logger(), "Unable to create command");
 		return res;
 	}
