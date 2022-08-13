@@ -78,11 +78,10 @@ result_t Cache::set(const Imei imei, pair< const string, const string > val)
 	auto &devices = iDevices.devices();
 	auto it = devices.find(imei);
 	if (it != devices.end()) {
-		LG_ERR(this->logger(), "val.first: {}, val.second: {} device: {}", val.first, val.second, fmt::ptr((*it).second));
 		if (!val.first.compare("ID") || !val.first.compare("id")) {
 			(*it).second->iID = val.second;
-		} else if (!val.first.compare("Imei")) {
-			(*it).second->iImei = val.second;
+		} else {
+			return RES_INVARG;
 		}
 	}
 

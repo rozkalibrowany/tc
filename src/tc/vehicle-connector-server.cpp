@@ -5,14 +5,12 @@
 #include <tc/server/http/CacheServer.h>
 #include <tc/common/Common.h>
 #include <tc/parser/ReqType.h>
-
 #include <map>
 #include <mutex>
 
 
 int main(int argc, char** argv)
 {
-	using PacketRequest = tc::parser::PacketRequest;
 	auto logger = spdlog::stdout_color_mt("console");
 
 	tc::LogI log(logger);

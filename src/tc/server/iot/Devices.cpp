@@ -59,6 +59,9 @@ result_t Devices::fromJsonImpl(const Json::Value &rhs, bool root)
 				continue;
 			}
 			add(std::move(device));
+		} else {
+			auto &device = iDevices.at(dev["Imei"].asString());
+			device->fromJson(dev);
 		}
 	}
 

@@ -30,7 +30,8 @@ public:
 	Imei iImei;
 	std::string iID;
 	std::string iType;
-	SysTime iTimestamp;
+	SysTime iUptime;
+	int64_t iTimestamp;
 	int64_t iPacketsCounter;
 
 protected:
@@ -39,6 +40,8 @@ protected:
 
 	PayloadPackets iPayloadPackets;
 
+private:
+	uint64_t getUptime() const;
 };
 
 } // namespace tc::server::iot

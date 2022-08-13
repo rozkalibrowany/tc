@@ -53,31 +53,25 @@ void HTTPSCacheSession::onReceivedRequest(const CppServer::HTTP::HTTPRequest& re
 	}
 	else if ((request.method() == "POST") || (request.method() == "PUT")) {
 			Action action;
+			result_t res = RES_OK;
 			if (action.parse(request) != RES_OK) {
 				LG_ERR(this->logger(), "Bad POST request: {}", request.url());
 				SendResponseAsync(response().MakeErrorResponse(400, "Bad request"));
 				return;
 			}
 
-			LG_ERR(this->logger(), "action.iType: {} action.iID: {} action.iQueryParam: {},{}", action.iType, action.iID, action.iQueryParam.first, action.iQueryParam.second);
-
 			if (action.iType == Action::Device) {
-				iCache->addCommand(action.iID, action.iAction);
+				res |= iCache->addCommand(action.iID, action.iAction);
 			} else {
-				iCache->set(action.iID, action.iQueryParam);
+				res |= iCache->set(action.iID, action.iQueryParam);
 			}
-			SendResponseAsync(response().MakeOKResponse());
-	}
-	else if (request.method() == "DELETE")
-	{
-			std::string key(request.url());
-			std::string value;
 
-			// Decode the key value
-			key = CppCommon::Encoding::URLDecode(key);
-			CppCommon::StringUtils::ReplaceFirst(key, "/api/cache", "");
-			CppCommon::StringUtils::ReplaceFirst(key, "?key=", "");
-
+			if (res == RES_OK)
+				SendResponseAsync(response().MakeOKResponse());
+			else
+				SendResponseAsync(response().MakeErrorResponse(400, "Bad request"));
+	} else if (request.method() == "DELETE") {
+		// TODO
 	}
 	else if (request.method() == "OPTIONS")
 			SendResponseAsync(response().MakeOptionsResponse());

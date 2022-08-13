@@ -1,15 +1,15 @@
 #include <tc/server/iot/Device.h>
+#include <chrono>
+#include <fstream>
 
 namespace tc::server::iot {
 
+using namespace std::chrono;
+
 Device::Device(const Imei &imei, const std::string id)
- : iImei(imei)
- , iID(id)
- , iType("TST100")
- , iTimestamp(tc::SysTime(true))
- , iPacketsCounter(0LL)
-{
-  // nothing to do
+			: iImei(imei), iID(id), iType("TST100"), iUptime(0LL), iTimestamp(tc::SysTime(true).timestamp()), iPacketsCounter(0LL)
+	{
+		// nothing to do
 }
 
 bool Device::operator==(const Device &rhs) const
@@ -22,6 +22,7 @@ Device &Device::operator=(const Device &rhs)
 	iImei = rhs.iImei;
 	iID = rhs.iID;
 	iTimestamp = rhs.iTimestamp;
+	iUptime = rhs.iUptime;
 	iPacketsCounter = rhs.iPacketsCounter;
 	iType = rhs.iType;
 
@@ -82,11 +83,13 @@ result_t Device::fromJsonImpl(const Json::Value &rhs, bool root)
 	for (auto const& id : rhs.getMemberNames()) {
 		if (!id.compare("Imei"))
 			iImei = rhs[id].asString();
-		if (!id.compare("Timestamp"))
+		else if (!id.compare("Timestamp"))
 			iTimestamp = rhs[id].asInt64();
-		if (!id.compare("Type"))
+		else if (!id.compare("Timestamp"))
+			iUptime = SysTime(true).timestamp() - iTimestamp;
+		else if (!id.compare("Type"))
 			iType = rhs[id].asString();
-		if (!id.compare("Packets"))
+		else if (!id.compare("Packets"))
 			iPacketsCounter = rhs[id].asInt64();
 	}
 
@@ -98,10 +101,17 @@ result_t Device::toJsonImpl(Json::Value &rhs, bool root) const
 	rhs["ID"] = iID;
 	rhs["Imei"] = iImei;
 	rhs["Type"] = iType;
-	rhs["Timestamp"] = iTimestamp.timestamp();
+	rhs["Timestamp"] = iTimestamp;
+	const auto time = SysTime().timestamp(getUptime());
+	rhs["Uptime"] = fmt::format("{:d}h:{:d}m", time.getHour(), time.getMin());
 	rhs["Packets"] = iPacketsCounter;
 
 	return RES_OK;
+}
+
+uint64_t Device::getUptime() const
+{
+	return SysTime(true).timestamp() - iTimestamp;
 }
 
 } // namespace tc::server::tcp
