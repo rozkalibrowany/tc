@@ -4,6 +4,7 @@
 #include <tc/server/http/CacheSession.h>
 #include <tc/server/http/CacheServer.h>
 #include <tc/common/Common.h>
+#include <tc/parser/ReqType.h>
 
 #include <map>
 #include <mutex>
@@ -73,13 +74,13 @@ int main(int argc, char** argv)
 			continue;
 		}
 
-		/*if (cache->hasCommands() == true) {
-			auto buf = cache->getCommand();
-			client->handle(buf);
-		}*/
+		if (cache->hasCommands() == true) {
+			auto cmd = cache->getCommand();
+			client->handle(cmd);
+		}
 
 		tc::server::http::Action action;
-		if (action.parse(PacketRequest::Devices, PacketRequest::GET) != tc::RES_OK) {
+		if (action.parse( tc::parser::PacketRequest::Devices, tc::parser::PacketRequest::GET) != tc::RES_OK) {
 			LG_WRN(log.logger(), "Unable to get devices from Telematics Connector");
 			continue;
 		}
@@ -90,7 +91,7 @@ int main(int argc, char** argv)
 
 		LG_NFO(log.logger(), "Cached: {}", cache->getDevices().toStyledString());
 
-		CppCommon::Thread::Sleep(5000);
+		CppCommon::Thread::Sleep(1500);
 	}
 	// Stop the server
 

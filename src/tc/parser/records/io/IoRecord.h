@@ -3,7 +3,7 @@
 
 #include <fmt/ostream.h>
 #include <tc/parser/records/RecordI.h>
-#include <tc/server/tcp/LockGuard.h>
+#include <tc/common/LockGuard.h>
 #include <json/json.h>
 
 namespace tc::parser::records::io {

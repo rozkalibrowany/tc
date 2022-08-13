@@ -10,43 +10,15 @@
 
 namespace tc::parser {
 
-const std::string Command::unlock = "sclockctrl 0";
-const std::string Command::lock = "sclockctrl 1";
-
-const std::string Command::led_on = "scledctrl 1";
-const std::string Command::led_off = "scledctrl 0";
-
-const std::string Command::engine_on = "scenginectrl 1";
-const std::string Command::engine_off = "scenginectrl 0";
-
-const std::string Command::restart = "screbootsys";
-
-const std::string Command::toString(const std::string &cmd)
-{
-	if (cmd.compare("unlock") == 0) {
-		return Command::unlock;
-	} else if (cmd.compare("lock") == 0) {
-		return Command::lock;
-	} else if (cmd.compare("engine_on") == 0) {
-		return Command::engine_on;
-	} else if (cmd.compare("engine_off") == 0) {
-		return Command::engine_off;
-	} else if (cmd.compare("led_on") == 0) {
-		return Command::led_on;
-	} else if (cmd.compare("led_off") == 0) {
-		return Command::led_off;
-	} else if (cmd.compare("restart") == 0) {
-		return Command::restart;
-	}
-
-	return std::string();
-}
+ std::map <std::string, std::string> Command::sMapping = {{"unlock", "sclockctrl 0"}, {"lock", "sclockctrl 1"}, {"engine_on", "scenginectrl 1"},
+	{"engine_off", "scenginectrl 0"}, {"led_on", "scledctrl 1"}, {"led_off", "scledctrl 0"},
+	{"led_sw_on", "scsetledswitch 1"}, {"led_sw_off", "scsetledswitch 0"}, {"restart", "screbootsys"}};
 
 Command::Command(const std::string &imei)
 	: tc::LogI("console")
 	, iImei(imei)
 {
-		// nothing to do
+	// nothing to do
 }
 
 result_t Command::create(const std::string &cmd, bool cr)
@@ -105,12 +77,12 @@ result_t Command::create(const std::string &cmd, bool cr)
 	return res;
 }
 
-std::vector<char> Command::asBin()
+/*std::vector<char> Command::asBin()
 {
 	std::vector<char> bin(iBuf.size() / 2);
 	tc::hex2bin((char*) iBuf.data(), (char*) bin.data());
 	return bin;
-}
+}*/
 
 result_t Command::getPayload(const std::string &cmd, parser::Buf &buf)
 {
@@ -131,11 +103,11 @@ result_t Command::getPayload(const std::string &cmd, parser::Buf &buf)
 	buf.insert(val.data(), val.length());
 
 	// command length
-	val = byte2string(Command::toString(cmd).length());
+	val = byte2string(Command::sMapping.at(cmd).length());
 	buf.insert(val.data(), val.length());
 
 	// command
-	const auto command = Command::toString(cmd);
+	const auto command = Command::sMapping.at(cmd);
 	if (command.empty() == true) {
 		return RES_INVARG;
 	}

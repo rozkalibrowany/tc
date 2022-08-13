@@ -64,10 +64,10 @@ result_t TelematicsServer::dispatchRequest(std::shared_ptr< parser::PacketReques
 	using namespace parser;
 
 	result_t res = RES_OK;
-	auto type = request->iType;
-	auto method = request->iMethod;
+	auto type = request->type();
+	auto method = request->method();
 
-	if (type == PacketRequest::Devices && method == PacketRequest::GET) {
+	if (type == ReqType::Devices && method == ReqType::GET) {
 		Json::Value list;
 		auto &el = list["devices"] = Json::arrayValue;
 		for (const auto &[key, value] : _sessions) {

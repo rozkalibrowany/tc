@@ -24,6 +24,7 @@ Device &Device::operator=(const Device &rhs)
 	iTimestamp = rhs.iTimestamp;
 	iPacketsCounter = rhs.iPacketsCounter;
 	iType = rhs.iType;
+
 	return *this;
 }
 
@@ -79,8 +80,6 @@ result_t Device::fromJsonImpl(const Json::Value &rhs, bool root)
 	}
 
 	for (auto const& id : rhs.getMemberNames()) {
-		if (!id.compare("ID"))
-			iID = rhs[id].asString();
 		if (!id.compare("Imei"))
 			iImei = rhs[id].asString();
 		if (!id.compare("Timestamp"))

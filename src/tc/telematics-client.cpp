@@ -74,7 +74,8 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	auto bin_cmd = cmd.asBin();
+	std::vector<char> bin_cmd(cmd.iBuf.size() / 2);
+	tc::hex2bin((char*) cmd.iBuf.data(), (char*) bin_cmd.data());
 
 	// Create a new Asio service
 	auto service = std::make_shared<tc::asio::AsioService>();

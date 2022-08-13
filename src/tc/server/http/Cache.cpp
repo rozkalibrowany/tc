@@ -5,15 +5,23 @@
 
 namespace tc::server::http {
 
-/*std::shared_ptr< parser::Buf > Cache::getCommand()
+bool  Cache::hasImei(const Imei imei) const
 {
-	return std::make_shared<parser::Buf>(iCommands.back());
-}*/
+	return iDevices.has(imei);
+}
+
+std::shared_ptr< Command > Cache::getCommand()
+{
+	if (iCommands.empty())
+		return nullptr;
+
+	auto command = iCommands.front();
+	iCommands.pop();
+	return command;
+}
 
 Json::Value Cache::getDevices()
 {
-	//std::scoped_lock locker(_cache_lock);
-	LG_NFO(this->logger(), "iDevices size: {}", iDevices.size());
 	return iDevices.toJson();
 }
 
@@ -55,7 +63,7 @@ result_t Cache::addCommand(const Imei imei, const std::string cmd)
 {
 	result_t res = RES_OK;
 
-	auto command = std::make_shared<parser::Command>(imei);
+	auto command = std::make_shared<Command>(imei);
 	if ((res = command->create(cmd)) != RES_OK) {
 		LG_ERR(this->logger(), "Unable to create command");
 		return res;
@@ -63,6 +71,23 @@ result_t Cache::addCommand(const Imei imei, const std::string cmd)
 
 	iCommands.push(std::move(command));
 	return res;
+}
+
+result_t Cache::set(const Imei imei, pair< const string, const string > val)
+{
+	auto &devices = iDevices.devices();
+	auto it = devices.find(imei);
+	if (it != devices.end()) {
+		LG_ERR(this->logger(), "val.first: {}, val.second: {} device: {}", val.first, val.second, fmt::ptr((*it).second));
+		if (!val.first.compare("ID") || !val.first.compare("id")) {
+			(*it).second->iID = val.second;
+		} else if (!val.first.compare("Imei")) {
+			(*it).second->iImei = val.second;
+		}
+	}
+
+	return RES_OK;
+
 }
 
 } // namespace tc::server::http

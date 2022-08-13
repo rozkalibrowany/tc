@@ -1,6 +1,11 @@
 #include <tc/server/http/Action.h>
+#include <tc/common/LockGuard.h>
+#include <tc/common/Regex.h>
+#include <tc/parser/Command.h>
 
 namespace tc::server::http {
+
+using namespace parser;
 
 result_t Action::parse(const CppServer::HTTP::HTTPRequest& request)
 {
@@ -8,16 +13,31 @@ result_t Action::parse(const CppServer::HTTP::HTTPRequest& request)
 		return RES_NOENT;
 	}
 
-	auto method = PacketRequest::toMethod(request.method());
+	auto method = toMethod(request.method());
 	if (method == Method::NONE) {
 		return RES_INVARG;
 	}
 
-	auto reqs = request.string();
-	reqs.erase(std::remove(reqs.begin(), reqs.end(), '/'), reqs.end());
+	auto type = toType(regex(std::regex{"\\/(.*?)\\/"}, request.url()));
+	auto id = regex(std::regex{"\\/([0-9]+)\\/"}, request.url());
+	auto action = tc::regex(std::regex{"([^\\/]+$)"}, request.url());
 
-	iReq = reqs;
-	iMethod = method;
+	if (type == Unknown || id.empty() || action.empty()) {
+		return RES_INVARG;
+	}
+
+	{
+		LockGuard guard(iMutex);
+		if (Command::sMapping.find(action) == Command::sMapping.end()) {
+			parse_internal_command(action);
+		} else {
+			iAction = action;
+			iType = type;
+		}
+
+		iMethod = method;
+		iID = id;
+	}
 
 	return RES_OK;
 }
@@ -28,11 +48,37 @@ result_t Action::parse(const Type type, const Method method)
 		return RES_NOENT;
 	}
 
-	auto reqs = PacketRequest::fromType(type);
+	auto reqs = fromType(type);
 	reqs.erase(std::remove(reqs.begin(), reqs.end(), '/'), reqs.end());
 
 	iReq = reqs;
 	iMethod = method;
+
+	return RES_OK;
+}
+
+result_t Action::parse_internal_command(const std::string &action)
+{
+	auto left = action.substr(0, action.find({"?"}));
+
+	if (left.compare("set")) {
+			LG_ERR(this->logger(), "RES_NOENT");
+		return RES_NOENT;
+	}
+
+	auto right = action.substr(action.find("?") + 1);
+	auto key = right.substr(0, right.find("="));
+	auto val = right.substr(right.find("=") + 1);
+
+	if (key.compare("id") && key.compare("imei")) {
+		LG_ERR(this->logger(), "RES_INVARG");
+		return RES_INVARG;
+	}
+
+	iQueryParam.first = key;
+	iQueryParam.second = val;
+	iAction = left;
+	iType = Device_set;
 
 	return RES_OK;
 }

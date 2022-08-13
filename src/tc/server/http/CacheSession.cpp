@@ -11,6 +11,28 @@ void HTTPSCacheSession::setCache(const std::shared_ptr< Cache > &cache)
 	iCache = std::move(cache);
 }
 
+result_t HTTPSCacheSession::handle(const Action &action)
+{
+	result_t res = RES_OK;
+
+	if (iCache == nullptr) {
+		return RES_NOENT;
+	}
+
+	parser::Buf buf;
+	RequestFactory req_fac;
+	if ((res = req_fac.create(action, buf)) != RES_OK) {
+		LG_ERR(this->logger(), "Unable to create request factory.");
+		return res;
+	}
+
+	size_t len = buf.size() / 2;
+	auto out = new char[len];
+	tc::hex2bin((char*) buf.data(), out);
+
+	return SendAsync(out, len) != true ? RES_ERROR : RES_OK;
+}
+
 void HTTPSCacheSession::onReceivedRequest(const CppServer::HTTP::HTTPRequest& request)
 {
 	// Show HTTP request content
@@ -30,26 +52,20 @@ void HTTPSCacheSession::onReceivedRequest(const CppServer::HTTP::HTTPRequest& re
 
 	}
 	else if ((request.method() == "POST") || (request.method() == "PUT")) {
-			LG_NFO(this->logger(), "request.method() == POST");
-
-			const std::regex action("\\/(.*?)\\/");
-			const std::regex id("\\/([0-9]+)\\/");
-			const std::regex cmd("([^\/]+$)");
-
-			auto str_action = tc::regex(action, request.url());
-			auto str_id = tc::regex(id, request.url());
-			auto str_cmd = tc::regex(cmd, request.url());
-
-			LG_NFO(this->logger(), "str_action: {}, str_id: {}, str_cmd: {}", str_action, str_id, str_cmd);
-
-			if (str_action.empty() || str_id.empty() || str_cmd.empty()) {
+			Action action;
+			if (action.parse(request) != RES_OK) {
 				LG_ERR(this->logger(), "Bad POST request: {}", request.url());
 				SendResponseAsync(response().MakeErrorResponse(400, "Bad request"));
 				return;
 			}
 
-			iCache->addCommand(str_id, str_cmd);
-			// Response with the cache value
+			LG_ERR(this->logger(), "action.iType: {} action.iID: {} action.iQueryParam: {},{}", action.iType, action.iID, action.iQueryParam.first, action.iQueryParam.second);
+
+			if (action.iType == Action::Device) {
+				iCache->addCommand(action.iID, action.iAction);
+			} else {
+				iCache->set(action.iID, action.iQueryParam);
+			}
 			SendResponseAsync(response().MakeOKResponse());
 	}
 	else if (request.method() == "DELETE")

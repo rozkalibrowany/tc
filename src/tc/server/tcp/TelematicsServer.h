@@ -29,8 +29,6 @@ protected:
 
 private:
 	result_t sendCommand(const Imei &imei, std::shared_ptr<parser::PacketCommand> &command);
-
-	iot::Devices iDevices;
 };
 
 } // namespace tc::server::tcp

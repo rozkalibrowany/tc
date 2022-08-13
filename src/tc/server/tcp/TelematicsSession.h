@@ -3,7 +3,7 @@
 
 #include <server/asio/tcp_session.h>
 #include <tc/server/tcp/Action.h>
-#include <tc/server/tcp/LockGuard.h>
+#include <tc/common/LockGuard.h>
 #include <tc/server/iot/Device.h>
 #include <tc/parser/packet/PacketRequest.h>
 
@@ -26,7 +26,7 @@ public:
 
 	bool hasImei(const Imei imei) const;
 	Action::Type type() const;
-	
+
 	result_t send(int buffer, const bool async = false);
 	result_t send(const uchar* buffer, size_t size, const bool async = false);
 	result_t send(const void *buffer, size_t size, const bool async = false);

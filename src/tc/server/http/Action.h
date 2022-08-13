@@ -3,24 +3,32 @@
 
 #include <server/http/http_request.h>
 #include <tc/parser/packet/PacketRequest.h>
+#include <tc/common/SysMutex.h>
 
 namespace tc::server::http {
 
+using namespace std;
 using namespace parser;
-
-class Action {
+using namespace CppServer::HTTP;
+class Action : public ReqType, public tc::LogI {
 public:
 
-	using Method = PacketRequest::Method;
-	using Type = PacketRequest::Type;
+	Action() = default;
 
 	result_t parse(const CppServer::HTTP::HTTPRequest& request);
 	result_t parse(const Type type, const Method method);
 
-	std::string iReq;
-	Method iMethod {PacketRequest::NONE};
+	string iID;
+	string iReq;
+	string iAction;
+	Method iMethod {NONE};
+	Type iType {Unknown};
+	pair< string, string > iQueryParam;
+	SysMutex iMutex;
 
 private:
+	result_t parse_internal_command(const string &action);
+
 };
 
 } // namespace tc::server::http

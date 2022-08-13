@@ -17,7 +17,8 @@ public:
 	void setCache(const std::shared_ptr< Cache > &cache);
 
 	result_t handle(const Action &action);
-	result_t handle(std::shared_ptr< parser::Buf > command);
+	result_t handle(std::shared_ptr< parser::Command > command);
+	//result_t handle(std::shared_ptr< parser::Buf > command);
 
 protected:
 	void onReceived(const void *buffer, size_t size) override;

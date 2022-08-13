@@ -19,17 +19,27 @@ result_t Devices::add(const std::shared_ptr<Device> &device)
 	return RES_OK;
 }
 
+Devices::DeviceMap& Devices::devices()
+{
+	return iDevices;
+}
+
 size_t Devices::size() const
 {
 	return iDevices.size();
 }
 
+bool Devices::has(const Imei &imei) const
+{
+	return iDevices.find(imei) != iDevices.end();
+}
+
 Json::Value Devices::toJson() const
 {
- Json::Value list;
- toJsonImpl(list, true);
+	Json::Value list;
+	toJsonImpl(list, true);
 
- return list;
+	return list;
 }
 
 result_t Devices::fromJsonImpl(const Json::Value &rhs, bool root)
@@ -41,13 +51,15 @@ result_t Devices::fromJsonImpl(const Json::Value &rhs, bool root)
 		return RES_INVARG;
 	}
 
-	for (unsigned int i = 0; i < devices.size(); ++i) {
-		auto device = std::make_shared < iot::Device >();
-		auto &elem = devices[i];
-		if (device->fromJson(elem) != RES_OK) {
-			continue;
+	// add unique devices
+	for (auto &dev : devices) {
+		if (has(dev["Imei"].asString()) == false) {
+			auto device = std::make_shared < iot::Device >();
+			if (device->fromJson(dev) != RES_OK) {
+				continue;
+			}
+			add(std::move(device));
 		}
-		add(std::move(device));
 	}
 
 	return RES_OK;

@@ -16,7 +16,10 @@ public:
 
 	virtual ~Devices() = default;
 
+	DeviceMap& devices();
 	result_t add(const std::shared_ptr<Device> &device);
+	bool has(const Imei &imei) const;
+
 	size_t size() const;
 	Json::Value toJson() const;
 

@@ -8,27 +8,18 @@ namespace tc::parser {
 class Command : public tc::LogI
 {
 public:
-	static const std::string unlock;
-	static const std::string lock;
-	static const std::string led_on;
-	static const std::string led_off;
-	static const std::string engine_on;
-	static const std::string engine_off;
-	static const std::string restart;
-
-	static const std::string toString(const std::string &cmd);
+	static std::map <std::string, std::string> sMapping;
 
 	Command(const std::string& imei);
 	virtual ~Command() = default;
 
 	result_t create(const std::string &cmd, bool cr = false);
-	std::vector<char> asBin();
-
-private:
-	result_t getPayload(const std::string &cmd, parser::Buf &buf);
 
 	Buf iBuf;
 	std::string iImei;
+
+private:
+	result_t getPayload(const std::string &cmd, parser::Buf &buf);
 };
 
 } // namespace tc::parser

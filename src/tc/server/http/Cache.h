@@ -1,5 +1,5 @@
-#ifndef C2C73546_BB60_4433_A0EF_D1D4FF692471
-#define C2C73546_BB60_4433_A0EF_D1D4FF692471
+#ifndef C56B686D_6161_4ADA_84B8_E655D445D95C
+#define C56B686D_6161_4ADA_84B8_E655D445D95C
 
 #include <server/http/https_server.h>
 #include <tc/server/iot/Devices.h>
@@ -9,15 +9,21 @@
 
 namespace tc::server::http {
 
+using namespace parser;
+
 class Cache : public CppCommon::Singleton<Cache>, public tc::LogI
 {
    friend CppCommon::Singleton<Cache>;
 public:
 	bool hasCommands() const;
-	//std::shared_ptr< parser::Buf > getCommand()
+	bool hasImei(const Imei imei) const;
+
+	std::shared_ptr< Command > getCommand();
 
 	Json::Value getDevices();
-	result_t addCommand(const Imei imei, const std::string cmd);
+
+	result_t addCommand(const Imei imei, const string cmd);
+	result_t set(const Imei imei, pair< const string, const string > val);
 
 	void onReceived(const void *buffer, size_t size);
 
@@ -27,9 +33,9 @@ private:
 	iot::Devices iDevices;
 	std::mutex _cache_lock;
 
-	std::queue< std::shared_ptr< parser::Command > > iCommands;
+	std::queue< std::shared_ptr< Command > > iCommands;
 };
 
 } // namespace tc::server::http
 
-#endif /* C2C73546_BB60_4433_A0EF_D1D4FF692471 */
+#endif /* C56B686D_6161_4ADA_84B8_E655D445D95C */
