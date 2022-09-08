@@ -69,6 +69,12 @@ tc_conan_build_package(NAME tc
 	UBUNTU
 )
 
+tc_conan_build_package(NAME asio
+	VERSION 1.22.1
+	DEPENDS conan-profiles conan-tc-build
+	UBUNTU
+)
+
 tc_conan_build_package(NAME args-parser
 	VERSION 6.2.0.1
 	DEPENDS conan-profiles conan-tc-build
@@ -87,11 +93,17 @@ tc_conan_build_package(NAME jsoncpp
 	UBUNTU
 )
 
-tc_conan_build_package(NAME spdlog
-	VERSION 1.9.2
-	DEPENDS conan-profiles conan-tc-build
-	UBUNTU
-)
+#tc_conan_build_package(NAME spdlog
+#	VERSION v1.x
+#	DEPENDS conan-profiles conan-tc-build
+#	UBUNTU
+#)
+
+#tc_conan_build_package(NAME fmt
+#	VERSION 9.1.0
+#	DEPENDS conan-profiles conan-tc-build
+#	UBUNTU
+#)
 
 tc_conan_build_package(NAME vscode
 	VERSION 1.0.2

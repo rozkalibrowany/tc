@@ -1,8 +1,8 @@
 from conans import ConanFile, python_requires
+import os
 
-tc = python_requires('tc/0.3.0@tc/stable')
-opts = tc.OptCreator() \
- .add_bool('shared', True)
+tc = python_requires("tc/0.3.0@tc/stable")
+opts = tc.OptCreator().add_bool("shared", True).add_bool("fPIC", True)
 
 
 class FmtConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelper):
@@ -24,17 +24,20 @@ class FmtConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelper):
         definitions = {
             "FMT_DOC": False,
             "FMT_TEST": False,
-            "FMT_INSTALL": True,
+            #            "FMT_INSTALL": True,
         }
         s.do_build(definitions=definitions)
 
     def package(s):
-        s.do_package()
+        s.copy("*.h", src=os.path.join(s._source_subfolder, "include"), dst="include")
+        s.copy("*.so", src=os.path.join(s._build_subfolder, "lib"), dst="lib")
 
     def package_info(s):
-        s.add_components([
-            {
-                "target": "lib",
-                "libs": ["fmt"],
-            },
-        ])
+        s.add_components(
+            [
+                {
+                    "target": "lib",
+                    "libs": ["fmt"],
+                },
+            ]
+        )

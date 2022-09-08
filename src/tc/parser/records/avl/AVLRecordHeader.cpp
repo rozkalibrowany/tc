@@ -1,5 +1,5 @@
 #include <tc/parser/records/avl/AVLRecordHeader.h>
-#include <fmt/format.h>
+//#include <fmt/format.h>
 
 namespace tc::parser::records::avl {
 

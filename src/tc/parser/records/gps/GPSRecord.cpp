@@ -1,5 +1,5 @@
 #include <tc/parser/records/gps/GPSRecord.h>
-#include <fmt/format.h>
+//#include <fmt/format.h>
 namespace tc::parser::records::gps {
 
 GPSRecord::GPSRecord(const Data &data)

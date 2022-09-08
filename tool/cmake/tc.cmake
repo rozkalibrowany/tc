@@ -159,7 +159,7 @@ macro(TcAddExecutable target src lib)
 		target_link_libraries(${target}-bin ${lib})
 
 		if (TcAddExecutable_INCLUDE)
-			target_include_directories(${target}-bin PUBLIC ${TcAddExecutable_INCLUDE})
+			target_include_directories(${target}-bin PRIVATE ${TcAddExecutable_INCLUDE})
 		endif()
 
 		if (TcAddExecutable_LINK_FLAGS)
@@ -171,7 +171,7 @@ macro(TcAddExecutable target src lib)
 		endif()
 
 		if (TcAddExecutable_LIBS)
-			target_link_libraries(${target}-bin ${TcAddExecutable_LIBS})
+			target_link_libraries(${target}-bin PRIVATE ${TcAddExecutable_LIBS})
 		endif()
 
 		if (TcAddExecutable_LIBRARIES)

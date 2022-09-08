@@ -6,7 +6,7 @@ opts = tc.OptCreator().add_bool("shared", True)
 
 
 class AsioConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelper):
-    name = "args-parser"
+    name = "asio"
     license = "MIT"
     exports_sources = ["CMakeLists.txt"]
     generators = tc.CmakeHelper.generators
@@ -26,6 +26,7 @@ class AsioConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelper):
         inc_dir = os.path.join(root_dir, "include")
         self.copy(pattern="LICENSE_1_0.txt", dst="licenses", src=root_dir)
         self.copy(pattern="*.hpp", dst="include", src=inc_dir)
+        self.copy(pattern="*.h", dst="include", src=inc_dir)
         self.copy(pattern="*.ipp", dst="include", src=inc_dir)
 
     def package_id(s):

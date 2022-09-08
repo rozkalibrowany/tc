@@ -3,7 +3,7 @@
 #include <tc/server/http/Cache.h>
 #include <tc/server/http/CacheSession.h>
 #include <tc/server/http/CacheServer.h>
-#include <tc/common/Common.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 #include <tc/parser/ReqType.h>
 #include <map>
 #include <mutex>

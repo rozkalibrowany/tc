@@ -1,4 +1,4 @@
-#include <tc/common/Common.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 #include <tc/server/tcp/TelematicsServer.h>
 #include <tc/asio/AsioService.h>
 

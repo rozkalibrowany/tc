@@ -10,6 +10,7 @@ for example (command unlock):
 #include <tc/client/tcp/TelematicsClient.h>
 #include <tc/parser/Command.h>
 #include <tc/asio/AsioService.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 #include <args-parser/all.hpp>
 
 int main(int argc, char** argv)
