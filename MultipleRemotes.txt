@@ -6,10 +6,7 @@ git remote set-url --add --push origin git@github.com:InfinityTech/TelematicsCon
 
 git remote add all git@github.com:rozkalibrowany/tc.git
 git remote set-url --add --push all git@github.com:InfinityTech/TelematicsConnector.git
-<<<<<<< HEAD
 git remote set-url --add --push all git@github.com:rozkalibrowany/tc.git
-=======
->>>>>>> 4aa1c573139c45c6cfef9b87b71aa400cf3f3f60
 
 # push
 git push all main
