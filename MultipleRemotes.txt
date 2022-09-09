@@ -1,0 +1,12 @@
+# assuming clone was done by
+git clone git@github.com:rozkalibrowany/tc.git
+
+git remote set-url --add --push origin git@github.com:rozkalibrowany/tc.git
+git remote set-url --add --push origin git@github.com:InfinityTech/TelematicsConnector.git
+
+git remote add all git@github.com:rozkalibrowany/tc.git
+git remote set-url --add --push all git@github.com:InfinityTech/TelematicsConnector.git
+git remote set-url --add --push all git@github.com:rozkalibrowany/tc.git
+
+# push
+git push all main
