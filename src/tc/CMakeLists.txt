@@ -43,11 +43,10 @@ TcAddLibrary(
 	SOURCE "${src}/server/tcp/*.cpp"
 	INCLUDE "${TcIncludeDir}"
 	LIBRARIES
-		spdlog::spdlog
-		tc-common
 		tc-asio
 		tc-iot
 		tc-parser
+		tc-common
 		cppserver
 		cppcommon
 	VERSION ${TcVersion}
@@ -56,35 +55,35 @@ TcAddLibrary(
 TcAddExecutable(tc-telematics-server "${src}/telematics-server.cpp" tc-server
 	LINK_FLAGS "-Wl,--no-as-needed")
 
-#TcAddLibrary(
-#	TARGET tc-client
-#	SOURCE "${src}/client/tcp/*.cpp"
-#	INCLUDE "${TcIncludeDir}"
-#	LIBRARIES
-#		tc-asio
-#		tc-common
-#		cppserver
-#		cppcommon
-#		tc-iot
-#	VERSION ${TcVersion}
-#)
+TcAddLibrary(
+	TARGET tc-client
+	SOURCE "${src}/client/tcp/*.cpp"
+	INCLUDE "${TcIncludeDir}"
+	LIBRARIES
+		tc-asio
+		tc-common
+		cppserver
+		cppcommon
+		tc-iot
+	VERSION ${TcVersion}
+)
 
-#TcAddExecutable(tc-telematics-client "${src}/telematics-client.cpp" tc-client
-#	LINK_FLAGS "-Wl,--no-as-needed")
+TcAddExecutable(tc-telematics-client "${src}/telematics-client.cpp" tc-client
+	LINK_FLAGS "-Wl,--no-as-needed")
 
 
-#TcAddLibrary(
-#	TARGET tc-vehicle-connector
-#	SOURCE "${src}/server/http/*.cpp"
-#	INCLUDE "${TcIncludeDir}"
-#	LIBRARIES
-#	tc-asio
-#	tc-common
-#	cppserver
-#	cppcommon
-#	tc-iot
-#	VERSION ${TcVersion}
-#)
+TcAddLibrary(
+	TARGET tc-vehicle-connector
+	SOURCE "${src}/server/http/*.cpp"
+	INCLUDE "${TcIncludeDir}"
+	LIBRARIES
+	tc-asio
+	tc-common
+	cppserver
+	cppcommon
+	tc-iot
+	VERSION ${TcVersion}
+)
 
-#TcAddExecutable(tc-vehicle-connector-server "${src}/vehicle-connector-server.cpp" tc-vehicle-connector
-#	LINK_FLAGS "-Wl,--no-as-needed")
+TcAddExecutable(tc-vehicle-connector-server "${src}/vehicle-connector-server.cpp" tc-vehicle-connector
+	LINK_FLAGS "-Wl,--no-as-needed")

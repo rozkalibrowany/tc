@@ -40,8 +40,8 @@ int main(int argc, char** argv)
 	// Create and prepare a new SSL server context
 	auto context = std::make_shared<CppServer::Asio::SSLContext>(asio::ssl::context::tlsv12);
 	context->set_password_callback([](size_t max_length, asio::ssl::context::password_purpose purpose) -> std::string { return "qwerty"; });
-	context->use_certificate_chain_file("/etc/ssl/certs/snakeoil.pem");
-	context->use_private_key_file("/etc/ssl/certs/snakeoil.pem", asio::ssl::context::pem);
+	//context->use_certificate_chain_file("/etc/ssl/certs/snakeoil.pem");
+	// /context->use_private_key_file("/etc/ssl/certs/snakeoil.pem", asio::ssl::context::pem);
 	//context->use_tmp_dh_file("../tools/certificates/dh4096.pem");
 
 	// Create Cache for data
