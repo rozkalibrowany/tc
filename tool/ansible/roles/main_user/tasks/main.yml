@@ -1,0 +1,10 @@
+- name: Create user if not exist, append groups
+  ansible.builtin.user:
+    name: '{{main_user__user}}'
+    groups: ['ws', 'sudo']
+    append: yes
+    update_password: on_create
+    shell: /bin/bash
+    skeleton: /etc/skel
+    password: "{{ 'dupa.789'|password_hash('sha512') }}"
+    home: /home/{{main_user__user}}

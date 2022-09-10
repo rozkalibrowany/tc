@@ -1,0 +1,58 @@
+/usr/local/ws/log/*.log {
+  su root ws
+  create 0664 ws ws
+  copytruncate
+  rotate 72
+  hourly
+  compress
+  maxsize 4G
+  sharedscripts
+  postrotate
+    chown ws:ws -R /usr/local/ws/log/*
+		find /usr/local/ws/log -type d -exec chmod 775 {} +
+		find /usr/local/ws/log -type f -exec chmod 664 {} +
+  endscript
+}
+
+/usr/local/ws/log/**/*.log {
+  su root ws
+  create 0664 ws ws
+  copytruncate
+  rotate 72
+  hourly
+  compress
+  maxsize 4G
+  sharedscripts
+  postrotate
+    chown ws:ws -R  /usr/local/ws/log/*
+		find /usr/local/ws/log -type d -exec chmod 775 {} +
+		find /usr/local/ws/log -type f -exec chmod 664 {} +
+  endscript
+}
+
+/store/usr/local/ws/log/**/*.log {
+  su root ws
+  create 0664 ws ws
+  copytruncate
+  rotate 72
+  hourly
+  compress
+  maxsize 4G
+  sharedscripts
+  postrotate
+    chown ws:ws -R  /store/usr/local/ws/log/*
+		find /store/usr/local/ws/log -type d -exec chmod 775 {} +
+		find /store/usr/local/ws/log -type f -exec chmod 664 {} +
+  endscript
+}
+
+/var/log/syslog {
+  su root ws
+  create 0664 ws ws
+  copytruncate
+  rotate 72
+  hourly
+  compress
+  maxsize 4G
+  sharedscripts
+}

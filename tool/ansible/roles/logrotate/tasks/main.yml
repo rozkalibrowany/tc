@@ -1,0 +1,19 @@
+### logrotate
+- name: Template logrotate config
+  ansible.builtin.template:
+    src: logrotate
+    dest: '/etc/logrotate.d/ws'
+    mode: u=rw,g=r,o=r
+
+- name: Template logrotate tasks to hourly crontab
+  ansible.builtin.template:
+    src: logrotate-hourly
+    dest: '/etc/cron.hourly/logrotate'
+    mode: u=rwx,g=rwx,o=r
+
+- name: Template logrotate tasks to daily crontab
+  ansible.builtin.template:
+    src: logrotate-daily
+    dest: '/etc/cron.daily/logrotate'
+    mode: u=rwx,g=rwx,o=r
+

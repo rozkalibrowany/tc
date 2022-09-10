@@ -1,0 +1,25 @@
+# Please don't run this playbook directly. Instead use zos-ansible2 bash script, that wraps this playbook. It decreases the probability of making a mistake and running ansible on all hosts.
+
+# Each role has:
+#  - a name - it needs to be the same as name of the folder in roles folder
+#  - tags that can be used to run a subset of roles. Example zos-ansible mkr <tag_you_want>
+
+- hosts: all
+  remote_user: root
+  roles:
+    # test
+    - { role: echo_whoami, tags: [echo_whoami, dev] }
+    # base
+    - { role: apt, tags: [apt, dev, shared] }
+    - { role: ws_user, tags: [ws_user, dev, shared] }
+    - { role: bash, tags: [bash, dev, shared] }
+    - { role: directories, tags: [directories, dev, shared] }
+    - { role: hostname, tags: [hostname, dev, shared] }
+    - { role: ldconfig, tags: [ldconfig, dev, shared] }
+    - { role: logrotate, tags: [logrotate, dev, shared] }
+    - { role: main_user, tags: [main_user, dev, shared] }
+    - { role: ssh, tags: [ssh, dev] }
+    - { role: pip3, tags: [pip3, dev, shared] }
+    # services
+    - { role: telematics-server, tags: [telematics-server] }
+    - { role: vehicle-connector-server, tags: [vehicle-connector-server] }

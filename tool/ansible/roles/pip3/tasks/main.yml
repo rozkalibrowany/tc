@@ -1,0 +1,10 @@
+- name: Install base pip3 packages
+  ansible.builtin.pip:
+    executable: pip3
+    state: latest
+    name:
+      - wheel       ### While pip alone is sufficient to install from pre-built binary archives...
+      - setuptools  ### ...up to date copies of the setuptools and wheel projects are useful to ensure you can also install from source archives
+      - cmake       # primary cmake installation
+      - conan       # conan is used in build process
+      - pip         # upgrades pip

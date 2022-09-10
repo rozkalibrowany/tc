@@ -1,0 +1,6 @@
+- include_role:
+    name: service
+  vars:
+    service_name: rg-cdn-scaler-agent
+    service_cfg_template: rg-cdn-scaler-agent.cfg
+    service_startup_command:  '/usr/local/atds/bin/rg-cdn-scaler-agent /usr/local/atds/etc/rg-cdn-scaler-agent.cfg'

@@ -1,0 +1,15 @@
+- name: Create group ws
+  ansible.builtin.group:
+    name: ws
+    state: present
+
+- name: Create user ws
+  ansible.builtin.user:
+    name: ws
+    groups: ["sudo", "ws"]
+    append: yes
+    update_password: on_create
+    shell: /bin/bash
+    skeleton: /etc/skel
+    password: "{{ 'dupa.789'|password_hash('sha512') }}"
+    home: /home/ws

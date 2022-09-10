@@ -1,0 +1,20 @@
+#!/bin/bash
+# {{ansible_managed}}
+
+alias ls="ls -alh --color=auto"
+alias c="curl -L"
+alias h="history"
+alias gr="grep -snR --exclude=\"*.o\" --exclude=\".sconsign.dblite\" $(printf -- '--exclude-dir=\"%s\" ' .git .svn build deliv)"
+alias mts='multitail -CS SL -mb 1GB  --mergeall --mark-interval 600'
+alias scode="sudo code --user-data-dir='~/.vscode-root'" # run vscode as superuser
+
+# increase max history size
+HISTSIZE=-1
+export HISTTIMEFORMAT='%F %T ~: '
+
+PATH=${PATH}:/usr/local/ws/bin
+
+# source .wrkrc if it exists
+if [[ -f "${HOME}/ws/git/tc/tool/bin/.wrkrc.ws" ]]; then
+    source ~/ws/git/tc/tool/bin/.wrkrc.ws
+fi

@@ -1,0 +1,24 @@
+- name: Create directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: ws
+    group: ws
+    mode: u=rwx,g=rwxs,o=rx
+  with_items:
+    [
+      "/usr/local/ws/",
+      "/usr/local/ws/log",
+      "/usr/local/ws/log/tc-telematics-server",
+      "/usr/local/ws/log/tc-vehicle-connector-server",
+      "/usr/local/ws/crt",
+      "/usr/local/ws/etc",
+      "/usr/local/ws/bin",
+      "/usr/local/ws/svc",
+      "/usr/local/ws/opt",
+      "/usr/local/ws/include",
+      "/usr/local/ws/lib",
+      "/usr/local/etc",
+      "/usr/local/sbin",
+      "/tmp/core",
+    ]

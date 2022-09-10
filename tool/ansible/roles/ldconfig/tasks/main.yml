@@ -1,0 +1,10 @@
+### ldconfig
+- name: Make ldconfig look for libraries in our output folders
+  ansible.builtin.template:
+    src: ldconf.ws.cfg
+    dest: "/etc/ld.so.conf.d/ws.conf"
+    mode: u=rw,g=r,o=r
+  register: ldconf
+- name: Restart ldconfig
+  command: ldconfig
+  when: ldconf.changed

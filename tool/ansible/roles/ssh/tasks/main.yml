@@ -1,0 +1,18 @@
+- name: Include ssh configs from directory config.d
+  ansible.builtin.lineinfile:
+    path: '{{ssh__home_directory}}.ssh/config'
+    line: Include config.d/*
+    insertbefore: BOF # include statement needs to be at the begging of file to work https://superuser.com/questions/1162387/whats-wrong-with-my-openssh-include-directive
+
+
+- name: Create .ssh/config.d directory
+  ansible.builtin.file:
+    path: '{{ssh__home_directory}}.ssh/config.d'
+    state: directory
+    owner: '{{ssh__file_owner}}'
+    group: '{{ssh__file_owner}}'
+
+- name: Template ssh config
+  ansible.builtin.template:
+    src: '{{ssh__config_template_file}}'
+    dest: '{{ssh__home_directory}}.ssh/config.d/ws'

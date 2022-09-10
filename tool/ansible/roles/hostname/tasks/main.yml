@@ -1,0 +1,9 @@
+- name: Manually update /etc/hosts because ansible does not do it
+  ansible.builtin.replace:
+    path: /etc/hosts
+    regexp: '(\s+){{ansible_hostname}}(\s*)$'
+    replace: '\1{{hostname__hostname}}\2'
+
+- name: Update hostname
+  ansible.builtin.hostname:
+    name: "{{hostname__hostname}}"

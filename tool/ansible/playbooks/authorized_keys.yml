@@ -1,0 +1,24 @@
+# run this with: zos-ansible2-run-playbook authorized_keys
+- hosts: shared
+  remote_user: root
+
+  tasks:
+  - name: Add root authorized keys
+    lineinfile:
+      path: '/root/.ssh/authorized_keys'
+      line: '{{item}}'
+    loop: '{{authorized_keys}}'
+
+  - name: Add authorized keys
+    lineinfile:
+      path: '/home/ws/.ssh/authorized_keys'
+      line: '{{item}}'
+      create: true
+    loop: '{{authorized_keys}}'
+
+  vars:
+    authorized_keys: [
+          # admins
+          ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDEsfDWX4tp/8IRiGCLCD5y3YwY3Tg7JRVM8sdaIucx1jZ8gZx21D5+laPh2UKapEKEbXNDpo8S1aoOOgiJxZZJ0kmERdLQ3bH3r+J+xowUITV8Fn0W9aatjrGr7uRIcgk8BT4wIHD43RmdriahdjtsJQ1Sou+W4cgbgc8fGE9wzaRV9hSZ5lFlhvOBeR35B9RB+uvRZhUbYkoBGxhVJjUO7ujcNx1x5wzG9mYefTTISD5r9m3+AvxB33p5ZSdQgylOqGOxIYh5bMf+74JtpMdbfK1Lmkt0SciN/5H49s3WBz2euKH6xh7o97PEbTMCuD5etuAStEBy/Dt5Py7hwGid ks@ks
+          ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQClG5VDRoo3l85PIUtydWGWuqLUpYLQW0HNFVq0yTVFSaXipqSQSSVNjGSlyK8nQXNb1ugE5k/TPFna/W2pxajE4vjwCbA1KpSrTSYHyTvUsU1K9zFOJo84j+Cts9jKhsmxtkyNzzTa1cvChpdGlKvw6uF+J+VC++hYCAwRL6pQTssymo3eQVn74kO9PzW1/TBOStGPeDER2ePs9gOEUK0ER8dbo+sJj3MzQAS/lgWClEkZcxpl+ZdcFD1R+w5QKwfngCPd4V+0EkK4YhjL9hGMQMAQqAJclRW1z7QRn/AQ2eFhs/BihZKSqbcfPprWVGcg+QRYx9ilLKrJYOj8bg2u04PTS2RFVTRSWzGZn218Y2W/uGaQGP22+JAVqsnijIv94a/dCqr5wz73a5QQHPln2CuzobmZH7G5OAS/Ptjci5PJ0nLRZ2DyyFmEGU96JUQ112x0m/lx/Q/+ROCdqUlsB5xKUajGWQwqXux05Dp5VbMp6LCFRchU1pCszWFCDyM= ws@ip-10-0-1-56
+    ]

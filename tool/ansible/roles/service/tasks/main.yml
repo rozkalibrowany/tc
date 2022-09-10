@@ -1,0 +1,36 @@
+- name: Template {{service_name}}.service - systemd service config file
+  ansible.builtin.template:
+    src: 'placeholder.service'
+    dest: '/etc/systemd/system/{{service_name}}.service'
+
+- name: Template {{service_name}}.bash - service startup script
+  ansible.builtin.template:
+    src: placeholder.bash
+    dest: /usr/local/ws/svc/{{service_name}}.bash
+    mode: u=rwx,g=rwx,o=r
+    owner: ws
+    group: ws
+
+- name: Template {{service_name}}_stop.bash - service stop script
+  ansible.builtin.template:
+    src: '{{service_stop_template}}'
+    dest: '/usr/local/ws/svc/{{service_name}}_stop.bash'
+    mode: u=rwx,g=rwx,o=r
+    owner: ws
+    group: ws
+  when: service_stop_template is defined
+
+- name: Template {{service_name}}.cfg - service configuration
+  ansible.builtin.template:
+    src: '{{service_cfg_template}}'
+    dest: '/usr/local/ws/etc/{{service_name}}.cfg'
+    owner: ws
+    group: ws
+  when: service_cfg_template is defined
+
+- name: Enable and restart {{service_name}} service
+  service:
+    name: '{{service_name}}'
+    enabled: yes
+    state: restarted
+    daemon_reload: yes

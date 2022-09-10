@@ -1,0 +1,3 @@
+- name: Hello world task
+  ansible.builtin.debug:
+    msg: "Hello world! It's me: {{ansible_user_id}}@{{ansible_hostname}}. My ip is {{ ansible_default_ipv4.address }}"

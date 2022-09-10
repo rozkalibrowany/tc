@@ -1,0 +1,31 @@
+##################
+##### common #####
+##################
+
+### Common variables are used as default values to role variables.
+### Define them in you host_vars/xxx.yml file.
+### They should NOT be used anywhere execpt this file.
+
+# user:                       <required> linux user name, emample: mk
+# hostname:                   <required> hostname, exmample: mk
+# ldap_username:              <required> your ldap account, example: maciej.kasprzyk
+# email:                      <required> your work email, exmaple: mk.redlabs.pl
+# fqdn:                       <required> fully qualified domain name of you host, exmaple: mk.redlabs.pl
+home_directory:               '/home/{{user}}/'
+
+##################
+##### roles ######
+##################
+
+### ssh
+ssh__gerrit_user:             '{{ldap_username}}'
+ssh__home_directory:          '{{home_directory}}'
+ssh__file_owner:              '{{user}}'
+ssh__hostname:                '{{hostname}}'
+ssh__config_template_file:    'ssh_config.j2'
+
+### hostname
+hostname__hostname:           '{{hostname}}'
+
+### main_user
+main_user__user:              '{{user}}'

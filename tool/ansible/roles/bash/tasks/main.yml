@@ -1,0 +1,11 @@
+- name: Template bash.zosrc
+  ansible.builtin.template:
+    src: bash.zosrc
+    dest: /etc/bash.zosrc
+    mode: 'u=rwx,g=rx,o=rx'
+
+# /etc/bash.bashrc is Debian (and adopted by Ubuntu) specific file run for all users
+- name: Source .zosrc in /etc/bash.bashrc
+  ansible.builtin.lineinfile:
+    path: /etc/bash.bashrc
+    line: source /etc/bash.zosrc
