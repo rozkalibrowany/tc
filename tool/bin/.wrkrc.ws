@@ -35,6 +35,13 @@ function ws-ansible-run-playbook()
 
 }
 
+function ws-restart-services()
+{
+	sudo service tc-vehicle-connector-server restart
+	sudo service tc-telematics-server restart
+	sudo service tc-* status
+}
+
 function ws-ansible()
 {
 	# run roles, selected by specifing tags, on a single host
