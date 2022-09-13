@@ -3,7 +3,8 @@ Description={{service_name}}
 
 [Service]
 ExecStart=/usr/local/ws/svc/{{service_name}}.bash
-
+StandardOutput=file:/usr/local/ws/log/{{service_name}}.log
+StandardError=inherit
 {% if service_stop_template is defined %}
 ExecStopPost=/usr/local/ws/svc/{{service_name}}_stop.bash
 {% endif %}

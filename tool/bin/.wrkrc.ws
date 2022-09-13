@@ -37,16 +37,16 @@ function ws-ansible-run-playbook()
 
 function ws-restart()
 {
-	sudo service tc-vehicle-connector-server restart
 	sudo service tc-telematics-server restart
-	sudo service tc-vehicle-connector-server status
+	sudo service tc-vehicle-connector-server restart
 	sudo service tc-telematics-server status
+	sudo service tc-vehicle-connector-server status
 }
 
 function ws-status()
 {
-	sudo service tc-vehicle-connector-server status
 	sudo service tc-telematics-server status
+	sudo service tc-vehicle-connector-server status
 }
 
 function ws-ansible()
