@@ -1,0 +1,17 @@
+nginx_task_manager:
+  - install
+  - config
+  - service
+
+nginx_file_nginx_config_group: root
+nginx_file_nginx_config_mode: 0644
+nginx_file_nginx_config_owner: root
+nginx_file_nginx_config: []
+
+nginx_package_name: nginx
+
+nginx_service_nginx_daemon_reload: true
+nginx_service_nginx_enabled: true
+nginx_service_nginx_manage: true
+nginx_service_nginx_name: nginx
+nginx_service_nginx_state: started

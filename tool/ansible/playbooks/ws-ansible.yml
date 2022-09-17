@@ -21,5 +21,6 @@
     - { role: ssh, tags: [ssh, dev] }
     - { role: pip3, tags: [pip3, dev, shared] }
     # services
+    - { role: nginx, tags: [nginx] }
     - { role: telematics-server, tags: [telematics-server] }
     - { role: vehicle-connector-server, tags: [vehicle-connector-server] }
