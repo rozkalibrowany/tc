@@ -9,8 +9,6 @@ StandardError=inherit
 ExecStopPost=/usr/local/ws/svc/{{service_name}}_stop.bash
 {% endif %}
 
-User=ws
-Group=ws
 SyslogLevel=debug
 PIDFile=/usr/local/ws/pid/{{service_name}}.pid
 Restart=always
