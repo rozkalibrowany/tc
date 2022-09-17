@@ -27,7 +27,7 @@ int main(int argc, char** argv)
 	std::string address = "127.0.0.1";
 
 
-	LG_NFO(log.logger(), "HTTPS server port: {}", 8443);
+	LG_NFO(log.logger(), "HTTP server port: {}", 8443);
 
 	// Create a new Asio service
 	auto service = std::make_shared<tc::asio::AsioService>();
@@ -37,18 +37,11 @@ int main(int argc, char** argv)
 	service->Start();
 	//std::cout << "Done!" << std::endl;
 
-	// Create and prepare a new SSL server context
-	auto context = std::make_shared<CppServer::Asio::SSLContext>(asio::ssl::context::tlsv12);
-	context->set_password_callback([](size_t max_length, asio::ssl::context::password_purpose purpose) -> std::string { return "qwerty"; });
-	context->use_certificate_chain_file("/etc/ssl/certs/ws.pem");
-	context->use_private_key_file("/etc/ssl/certs/ws.pem", asio::ssl::context::pem);
-	//context->use_tmp_dh_file("../tools/certificates/dh4096.pem");
-
 	// Create Cache for data
 	auto cache = std::make_shared<tc::server::http::Cache>();
 
 	// Create a new HTTPS server
-	auto server = std::make_shared<tc::server::http::HTTPSCacheServer>(service, context, port);
+	auto server = std::make_shared<tc::server::http::HTTPCacheServer>(service, port);
 	server->setCache(cache);
 	// Start the server
 	LG_NFO(log.logger(), "Server starting...");

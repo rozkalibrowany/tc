@@ -6,12 +6,12 @@
 
 namespace tc::server::http {
 
-void HTTPSCacheSession::setCache(const std::shared_ptr< Cache > &cache)
+void HTTPCacheSession::setCache(const std::shared_ptr< Cache > &cache)
 {
 	iCache = std::move(cache);
 }
 
-result_t HTTPSCacheSession::handle(const Action &action)
+result_t HTTPCacheSession::handle(const Action &action)
 {
 	result_t res = RES_OK;
 
@@ -33,7 +33,7 @@ result_t HTTPSCacheSession::handle(const Action &action)
 	return SendAsync(out, len) != true ? RES_ERROR : RES_OK;
 }
 
-void HTTPSCacheSession::onReceivedRequest(const CppServer::HTTP::HTTPRequest& request)
+void HTTPCacheSession::onReceivedRequest(const CppServer::HTTP::HTTPRequest& request)
 {
 	// Show HTTP request content
 	LG_NFO(this->logger(), "request: {}", request.string());
@@ -81,12 +81,12 @@ void HTTPSCacheSession::onReceivedRequest(const CppServer::HTTP::HTTPRequest& re
 			SendResponseAsync(response().MakeErrorResponse("Unsupported HTTP method: " + std::string(request.method())));
 }
 
-void HTTPSCacheSession::onReceivedRequestError(const CppServer::HTTP::HTTPRequest &request, const std::string &error)
+void HTTPCacheSession::onReceivedRequestError(const CppServer::HTTP::HTTPRequest &request, const std::string &error)
 {
 	// cout << "Request error: " << error << std::endl;
 }
 
-void HTTPSCacheSession::onError(int error, const std::string& category, const std::string& message)
+void HTTPCacheSession::onError(int error, const std::string& category, const std::string& message)
 {
 	// cout << "HTTPS session caught an error with code " << error << " and category '" << category << "': " << message << std::endl;
 }

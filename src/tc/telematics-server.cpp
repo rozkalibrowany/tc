@@ -12,7 +12,7 @@ int main(int argc, char** argv)
 	tc::LogI log(logger);
 	spdlog::set_default_logger(log.logger());
 	// TCP server port
-	int port = 8883;
+	int port = 8881;
 
 	LG_NFO(log.logger(), "TCP server port: {}", port);
 

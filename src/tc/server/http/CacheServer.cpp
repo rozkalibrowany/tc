@@ -4,19 +4,19 @@
 
 namespace tc::server::http {
 
-void HTTPSCacheServer::setCache(const std::shared_ptr< Cache > &cache)
+void HTTPCacheServer::setCache(const std::shared_ptr< Cache > &cache)
 {
 	iCache = std::move(cache);
 }
 
-std::shared_ptr<CppServer::Asio::SSLSession> HTTPSCacheServer::CreateSession(const std::shared_ptr<CppServer::Asio::SSLServer>& server)
+std::shared_ptr<CppServer::Asio::TCPSession> HTTPCacheServer::CreateSession(const std::shared_ptr<CppServer::Asio::TCPServer>& server)
 {
-	auto session = std::make_shared<HTTPSCacheSession>(std::dynamic_pointer_cast<CppServer::HTTP::HTTPSServer>(server));
+	auto session = std::make_shared<HTTPCacheSession>(std::dynamic_pointer_cast<CppServer::HTTP::HTTPServer>(server));
 	session->setCache(std::move(iCache));
 	return session;
 }
 
-void HTTPSCacheServer::onError(int error, const std::string& category, const std::string& message)
+void HTTPCacheServer::onError(int error, const std::string& category, const std::string& message)
 {
 	// cout << "HTTPS server caught an error with code " << error << " and category '" << category << "': " << message << std::endl;
 }

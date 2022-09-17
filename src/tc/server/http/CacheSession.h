@@ -1,17 +1,17 @@
 #ifndef D1B17E6F_7E12_4F90_8A8B_53760F4A7BE7
 #define D1B17E6F_7E12_4F90_8A8B_53760F4A7BE7
 
-#include <server/http/https_session.h>
+#include <server/http/http_session.h>
 #include <tc/common/Common.h>
 #include <tc/asio/AsioService.h>
 #include <tc/server/http/Client.h>
 
 namespace tc::server::http {
 
-class HTTPSCacheSession : public CppServer::HTTP::HTTPSSession, public tc::LogI
+class HTTPCacheSession : public CppServer::HTTP::HTTPSession, public tc::LogI
 {
 public:
-	using CppServer::HTTP::HTTPSSession::HTTPSSession;
+	using CppServer::HTTP::HTTPSession::HTTPSession;
 
 	virtual void setCache(const std::shared_ptr<Cache> &cache);
 
