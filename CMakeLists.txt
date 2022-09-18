@@ -117,6 +117,8 @@ tc_find_package_status(NAME cppserver REQUIRED)
 tc_find_package_status(NAME jsoncpp REQUIRED)
 #tc_find_package_status(NAME cppcommon REQUIRED)
 tc_find_package_status(NAME spdlog REQUIRED)
+tc_find_package_status(NAME mongocxx REQUIRED)
+tc_find_package_status(NAME bsoncxx  REQUIRED)
 
 add_subdirectory("src/tc")
 

@@ -11,7 +11,7 @@ namespace tc::parser {
 using namespace records;
 using namespace avl;
 
-class PacketPayload : public Packet
+class PacketPayload : public Packet, public JsonI
 {
 public:
 	static size_t DATA_MIN_SIZE;
@@ -29,9 +29,12 @@ public:
 
 	AVLRecords &records();
 
+protected:
+	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
+
 private:
 	std::shared_ptr< Reader > iReader;
-	size_t iRecords;
+	size_t iRecordsSize;
 	AVLRecords iAVLRecords;
 };
 

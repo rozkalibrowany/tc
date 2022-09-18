@@ -88,7 +88,7 @@ result_t PacketPayload::parse(uchar* cbuf, size_t size, size_t /* offset */)
 
 		LG_DBG(this->logger(), "Packet Payload parse. Codec: int {} char {} offset {} size{}", (int)codec, std::to_string(codec), offset, size);
 
-		iRecords = records_total;
+		iRecordsSize = records_total;
 		iCodec = codec;
 		iReader = reader;
 		return RES_OK;
@@ -100,7 +100,7 @@ result_t PacketPayload::parse(uchar* cbuf, size_t size, size_t /* offset */)
 
 const size_t PacketPayload::size()
 {
-	return iRecords;
+	return iRecordsSize;
 }
 
 std::shared_ptr< Reader > PacketPayload::reader()
@@ -111,6 +111,16 @@ std::shared_ptr< Reader > PacketPayload::reader()
 AVLRecords &PacketPayload::records()
 {
 	return iAVLRecords;
+}
+
+result_t PacketPayload::toJsonImpl(Json::Value &rhs, bool root) const
+{
+	Json::Value val;
+	if (result_t res; (res = iAVLRecords.toJson(rhs, root)) != RES_OK) {
+		return res;
+	}
+
+	return RES_OK;
 }
 
 } // namespace tc::parser

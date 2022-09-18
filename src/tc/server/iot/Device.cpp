@@ -34,6 +34,11 @@ bool Device::operator!=(const Device &rhs) const
 	return iImei.compare(rhs.iImei) != 0;
 }
 
+Device::PayloadPackets &Device::packets()
+{
+	return iPayloadPackets;
+}
+
 size_t Device::lastRecords() const
 {
 	return iPayloadPackets.empty() ? 0 : iPayloadPackets.back()->size();
@@ -56,7 +61,7 @@ result_t Device::add(const uchar* buffer, size_t size)
 	return add(std::move(packet));
 }
 
-result_t Device::add(const std::shared_ptr< parser::PacketPayload > &packet)
+result_t Device::add(const std::shared_ptr< parser::PacketPayload > packet)
 {
   if (has(packet) == true) {
 		LG_ERR(this->logger(), "Packet already exists.");

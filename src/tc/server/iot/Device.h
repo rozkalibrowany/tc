@@ -22,8 +22,10 @@ public:
 
 	bool has(const std::shared_ptr< parser::PacketPayload > &packet);
 
+	PayloadPackets &packets();
+
 	result_t add(const uchar* buffer, size_t size);
-	result_t add(const std::shared_ptr< parser::PacketPayload > &packet);
+	result_t add(const std::shared_ptr< parser::PacketPayload > packet);
 
 	size_t lastRecords() const;
 

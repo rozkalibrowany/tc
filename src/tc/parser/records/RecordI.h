@@ -18,6 +18,7 @@ public:
 	virtual void clear() = 0;
 	virtual bool empty() const = 0;
 	virtual std::string toString() = 0;
+
 };
 
 } // namespace tc::parser::records

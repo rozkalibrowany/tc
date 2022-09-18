@@ -8,3 +8,4 @@
       - cmake       # primary cmake installation
       - conan       # conan is used in build process
       - pip         # upgrades pip
+      - pymongo

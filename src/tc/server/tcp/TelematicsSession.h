@@ -43,6 +43,7 @@ private:
 	result_t handlePayload(const uchar *buffer, size_t size);
 	result_t handleStandby(const uchar *buffer, size_t size);
 
+	result_t save_packet(const std::shared_ptr<parser::PacketPayload> &packet);
 
 	std::shared_ptr<TelematicsServer> telematicsServer();
 

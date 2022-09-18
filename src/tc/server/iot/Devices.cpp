@@ -34,7 +34,7 @@ bool Devices::has(const Imei &imei) const
 	return iDevices.find(imei) != iDevices.end();
 }
 
-Json::Value Devices::toJson() const
+Json::Value Devices::toJson()
 {
 	Json::Value list;
 	toJsonImpl(list, true);

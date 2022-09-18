@@ -18,6 +18,7 @@
     - { role: ldconfig, tags: [ldconfig, dev, shared] }
     - { role: logrotate, tags: [logrotate, dev, shared] }
     - { role: main_user, tags: [main_user, dev, shared] }
+    - { role: mongodb, tags: [mongodb, dev, shared] }
     - { role: ssh, tags: [ssh, dev] }
     - { role: pip3, tags: [pip3, dev, shared] }
     # services

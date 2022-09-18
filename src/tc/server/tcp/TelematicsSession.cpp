@@ -3,6 +3,8 @@
 #include <tc/parser/packet/PacketPayload.h>
 #include <tc/parser/packet/PacketCommand.h>
 #include <tc/parser/packet/PacketRequest.h>
+#include <bsoncxx/builder/stream/document.hpp>
+#include <bsoncxx/json.hpp>
 #include <iomanip>
 
 namespace tc::server::tcp {
@@ -97,12 +99,22 @@ result_t TelematicsSession::handlePayload(const uchar *buffer, size_t size)
 
 	result_t res = RES_OK;
 
-	res = iDevice->add(buffer, size);
+	auto packet = std::make_shared< parser::PacketPayload >();
+	if ((res = packet->parse((uchar*) buffer, size)) != RES_OK) {
+		LG_ERR(this->logger(), "Parse payload packet");
+		return res;
+	}
+
+	res = iDevice->add(packet);
 	if (res != RES_OK && res != RES_INVCRC) {
 		LG_ERR(this->logger(), "Unable to add packet, imei[{}]", iDevice->iImei);
 		send(eInvalid);
 		return res;
 	}
+
+	if (telematicsServer()->iSaveRecords)
+		res |= save_packet(packet);
+
 
 	if (res == RES_INVCRC) {
 		iBufferIncomplete = std::make_shared< parser::Buf >(buffer, size);
@@ -141,6 +153,24 @@ result_t TelematicsSession::handleStandby(const uchar *buffer, size_t size)
 	LG_NFO(this->logger(), "Handle standby[{}]", size);
 
 	return send(eOK);
+}
+
+
+result_t TelematicsSession::save_packet(const std::shared_ptr<parser::PacketPayload> &packet)
+{
+	Json::Value val;
+
+	val["imei"] = iDevice->iImei;
+
+	if (packet->toJson(val, true) != RES_OK) {
+		LG_ERR(this->logger(), "Packet to json.");
+		return RES_INVARG;
+	}
+
+	auto coll = telematicsServer()->iDbClient["cluster0"]["Packets"];
+	bsoncxx::document::value bsonObj = bsoncxx::from_json(val.toStyledString());
+	coll.insert_one(bsonObj.view());
+	return RES_OK;
 }
 
 result_t TelematicsSession::send(const uchar* buffer, size_t size, const bool async)

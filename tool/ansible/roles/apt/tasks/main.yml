@@ -6,6 +6,7 @@
       # todo to wszystko trzeba przejrzeć, pewnie dużo usunąć i rozbić na mniejsze role
       # Ubuntu.base.base
       - sudo
+      - mongodb
       - python3
       - python3-pip
       - gcc-10

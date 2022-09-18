@@ -26,6 +26,8 @@ TcAddLibrary(
 	INCLUDE "${TcIncludeDir}"
 	LIBRARIES
 	 tc-parser
+	 mongocxx
+	 bsoncxx
 	VERSION ${TcVersion}
 )
 

@@ -1,4 +1,4 @@
-from conans import ConanFile, python_requires,
+from conans import ConanFile, python_requires
 from conan.tools.cmake import CMakeDeps
 from conan.tools.files import apply_conandata_patches, get
 import os

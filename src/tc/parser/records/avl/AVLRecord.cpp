@@ -41,12 +41,14 @@ result_t AVLRecord::set(const int codec)
 
 result_t AVLRecord::toJsonImpl(Json::Value &rhs, bool root) const
 {
-	auto &arr = rhs["AVLRecord"] = Json::arrayValue;
+	auto &arr = rhs["Record"] = Json::arrayValue;
 
   Json::Value val;
-	iRecordHeader.toJson(val);
-  iGPSRecord.toJson(val);
-  iRecordIo.toJson(val);
+	iRecordHeader.toJson(val, root);
+	arr.append(val);
+  iGPSRecord.toJson(val, root);
+  arr.append(val);
+	iRecordIo.toJson(val, root);
   arr.append(val);
 
 	return RES_OK;
@@ -66,6 +68,20 @@ bool AVLRecords::empty() const
 void AVLRecords::clear()
 {
   iData.clear();
+}
+
+result_t AVLRecords::toJsonImpl(Json::Value &rhs, bool root) const
+{
+	auto &arr = rhs["Records"] = Json::arrayValue;
+
+	Json::Value val;
+  for (auto rec : iData) {
+		if (rec->toJson(val, root) != RES_OK)
+			continue;
+		arr.append(val);
+	}
+
+	return RES_OK;
 }
 
 AVLRecordSPtr &AVLRecords::first()
@@ -124,7 +140,7 @@ AVLRecordList &AVLRecords::data()
   return iData;
 }
 
-const AVLRecordList &AVLRecords::data() const
+const AVLRecordList &AVLRecords::cdata() const
 {
   return iData;
 }

@@ -169,7 +169,7 @@ result_t IoRecord::toJsonImpl(Json::Value &rhs, bool root) const
 	auto &el = rhs["IoRecords"] = Json::arrayValue;
 	for (auto &r : iRecordsMap) {
 		Json::Value val;
-		r.second.front()->toJson(val);
+		r.second.front()->toJson(val, root);
 		el.append(val);
 	}
 	return RES_OK;

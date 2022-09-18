@@ -1,6 +1,8 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <tc/server/tcp/TelematicsServer.h>
 #include <tc/asio/AsioService.h>
+#include <mongocxx/client.hpp>
+#include <mongocxx/instance.hpp>
 
 // core dumps may be disallowed by parent of this process; change that
 
@@ -30,6 +32,7 @@ int main(int argc, char** argv)
 	// Create a new TCP server
 	auto server = std::make_shared< tc::server::tcp::TelematicsServer >(service, port);
 	server->SetupReusePort(true);
+
 	// Start the server
 	LG_NFO(log.logger(), "TCP Server starting...");
 	if (server->Start() != true) {

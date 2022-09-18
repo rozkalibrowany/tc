@@ -1,3 +1,5 @@
+#ifndef D8AB2E39_84B7_48C6_9D5F_3015EF5742CF
+#define D8AB2E39_84B7_48C6_9D5F_3015EF5742CF
 #include <tc/server/http/Client.h>
 #include <tc/asio/AsioService.h>
 #include <tc/server/http/Cache.h>
@@ -5,8 +7,6 @@
 #include <tc/server/http/CacheServer.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <tc/parser/ReqType.h>
-#include <map>
-#include <mutex>
 
 
 int main(int argc, char** argv)
@@ -96,3 +96,6 @@ int main(int argc, char** argv)
 
 	return 0;
 }
+
+
+#endif /* D8AB2E39_84B7_48C6_9D5F_3015EF5742CF */

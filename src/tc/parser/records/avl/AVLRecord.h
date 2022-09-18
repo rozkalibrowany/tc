@@ -31,7 +31,7 @@ private:
 	io::IoRecord iRecordIo;
 };
 
-class AVLRecords {
+class AVLRecords : public tc::LogI, public parser::JsonI {
 public:
 	~AVLRecords() = default;
 
@@ -55,9 +55,11 @@ public:
 	void add(const AVLRecord &rhs);
 
 	AVLRecordList &data();
-	const AVLRecordList &data() const;
+	const AVLRecordList &cdata() const;
 
 protected:
+	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
+
 	AVLRecordList iData;
 	AVLRecordSPtr cInvalidEl {std::make_shared< AVLRecord >()};
 };

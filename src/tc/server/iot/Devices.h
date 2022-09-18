@@ -21,7 +21,7 @@ public:
 	bool has(const Imei &imei) const;
 
 	size_t size() const;
-	Json::Value toJson() const;
+	Json::Value toJson();
 
 protected:
 	result_t fromJsonImpl(const Json::Value &rhs, bool root) override;

@@ -5,6 +5,8 @@
 #include <tc/parser/packet/PacketCommand.h>
 #include <tc/server/iot/Devices.h>
 #include <server/asio/tcp_server.h>
+#include <mongocxx/instance.hpp>
+#include <mongocxx/client.hpp>
 
 namespace tc::server::tcp {
 
@@ -17,8 +19,11 @@ public:
 	using CppServer::Asio::TCPServer::TCPServer;
 
 	result_t handleCommand(const uchar *buffer, size_t size);
-  result_t dispatchRequest(std::shared_ptr< PacketRequest > &request, const CppCommon::UUID id);
+	result_t dispatchRequest(std::shared_ptr< PacketRequest > &request, const CppCommon::UUID id);
 	result_t handleRequest(const uchar *buffer, size_t size, const CppCommon::UUID id);
+
+	bool iSaveRecords{true};
+	mongocxx::client iDbClient {mongocxx::uri("mongodb+srv://ws:TelematicsConnector2021!@cluster0.7fif7ds.mongodb.net/?retryWrites=true&w=majority")};
 
 protected:
 	std::shared_ptr< CppServer::Asio::TCPSession > CreateSession(const std::shared_ptr<TCPServer> &server) override;
@@ -29,6 +34,7 @@ protected:
 
 private:
 	result_t sendCommand(const Imei &imei, std::shared_ptr<parser::PacketCommand> &command);
+
 };
 
 } // namespace tc::server::tcp
