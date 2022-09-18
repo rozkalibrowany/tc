@@ -161,6 +161,7 @@ result_t TelematicsSession::save_packet(const std::shared_ptr<parser::PacketPayl
 	Json::Value val;
 
 	val["imei"] = iDevice->iImei;
+	val["timestamp"] = packet->id().timestamp.timestamp();
 
 	if (packet->toJson(val, true) != RES_OK) {
 		LG_ERR(this->logger(), "Packet to json.");
