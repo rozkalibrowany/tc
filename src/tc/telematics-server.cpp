@@ -3,6 +3,7 @@
 #include <tc/asio/AsioService.h>
 #include <mongocxx/client.hpp>
 #include <mongocxx/instance.hpp>
+#include <list>
 
 // core dumps may be disallowed by parent of this process; change that
 
@@ -32,6 +33,10 @@ int main(int argc, char** argv)
 	// Create a new TCP server
 	auto server = std::make_shared< tc::server::tcp::TelematicsServer >(service, port);
 	server->SetupReusePort(true);
+	std::vector<std::string> collections = server->iDbClient["cluster0"].list_collection_names();
+	if (std::find(collections.begin(), collections.end(), "Packets") == collections.end()) {
+		server->iDbClient["cluster0"].create_collection("Packets");
+	}
 
 	// Start the server
 	LG_NFO(log.logger(), "TCP Server starting...");
