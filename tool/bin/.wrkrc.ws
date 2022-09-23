@@ -81,3 +81,25 @@ function ws-ansible()
 	ANSIBLE_CONFIG="${cWsAnsibleDir}/ansible.cfg" \
 	ansible-playbook -i "${cWsAnsibleDir}/hosts.ini" "${cWsAnsibleDir}/playbooks/ws-ansible.yml" --limit ${host} --tags ${tags} "$@"
 }
+
+function ws-telematics-log ()
+{
+ 	ws-log-base /usr/local/ws "fuse\|tsplay|gz$" "tc-telematics-server" "$@"
+}
+
+function ws-vehicle-log ()
+{
+ 	ws-log-base /usr/local/ws "fuse\|tsplay|gz$" "tc-vehicle-connector-server" "$@"
+}
+
+function ws-log-base ()
+{
+	K="$4 $5 $6 $7 $8";
+	F=$(find ${1}/log/ -name '*.log' | grep -v "$2" | grep "$3");
+	echo ${F};
+	C=$(printf -- "$K -i %s " ${F});
+	C="multitail -F ${DIR}/.multitailrc -CS SL -mb 1GB  --mergeall --mark-interval 600 $C";
+	echo $C;
+	echo ${F};
+	eval "$C"
+}

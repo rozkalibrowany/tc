@@ -1,0 +1,89 @@
+# https://github.com/flok99/multitail/blob/master/multitail.conf
+# http://fossies.org/linux/multitail/multitail.conf
+
+colorscheme:SL
+
+# normal log
+cs_re_s:white,red,bold:\[( error)\]
+cs_re_s:white,red,bold:\[(error)\]
+cs_re_s:white,red,bold:\[(err)\]
+cs_re_s:magenta,,bold:\[( debug)\]
+cs_re_s:magenta,,bold:\[(debug)\]
+cs_re_s:magenta,,bold:\[(dbg)\]
+cs_re_s:white,,bold:\[( info)\]
+cs_re_s:white,,bold:\[(info)\]
+cs_re_s:white,,bold:\[(nfo)\]
+cs_re_s:yellow,,bold:\[(  warn)\]
+cs_re_s:yellow,,bold:\[(warn)\]
+cs_re_s:yellow,,bold:\[(wrn)\]
+cs_re_s:black,yellow,bold:\[(TRC)\]
+
+# apache log
+cs_re_s:white,red,bold:\[(:error)\]
+cs_re_s:magenta,,bold:\[(:debug)\]
+cs_re_s:white,,bold:\[(:notice)\]
+cs_re_s:yellow,,bold:\[(:warning)\]
+cs_re_s:cyan:\[pid ([0-9]*)\]
+
+# APACHE RETCODES
+cs_re_s:white,red,bold:\[(HTTP_[A-Z_]*)\]
+
+# services
+cs_re_s:yellow,,bold:(rg-cdn-package-agent)
+cs_re_s:magenta,,bold:(rg-cdn-dcs)
+
+# ATDS
+cs_re_s:yellow,,bold:([A-Za-z]+:)
+cs_re_s:cyan,,bold:([0-9]*)\([0-9]*\)
+cs_re_s:magenta:[0-9]*\(([0-9]*)\)
+cs_re_s:blue,,bold:[0-9]*(\()[0-9]*(\))
+cs_re_s:white,red,bold:\[ *(INVARG|IOERR|RETRY|TIMEOUT|NOMEM|IOERROR|NOIMPL|ABORT|ADDRERROR|CONNERROR|BINDERROR|SOCKETERROR|INVPATH|NOPERM)\]
+cs_re_s:white,red,bold:\[ *(EXISTS|NOENT|NOTDIR|BUSY|NOTOPENED|ISDIR|OPENED|CLOSED|NOTSTARTED|RUNNING|ABORTED)\]
+cs_re_s:black,cyan,bold:\[ *(INVARG)\]
+cs_re_s:green,,bold:\[ *(OK)\]
+cs_re_s:green,,bold:\[(OK)\]
+cs_re_s:yellow,blue,bold:(REQ_[\_A-Z]+)
+
+# ms
+cs_re_s:red,,bold:([0-9]+)ms
+cs_re_s:magenta,,bold:[0-9]+(ms)
+
+# b
+cs_re_s:red,,bold:([0-9]+)b
+cs_re_s:magenta,,bold:[0-9]+(b)
+
+# header
+cs_re_s:cyan:\[([^[]*.h)\]
+# cpp
+cs_re_s:blue:\[([^[]*.cpp)\]
+# line number
+cs_re_s:yellow:\[( *[0-9]*)\]
+
+filterscheme:SL:removes 'APACHE'
+usefilterscheme:SL:/var/log/apache2
+
+editscheme:SL:removes 'APACHE'
+# date
+editrule:kr:1:12
+# msecs year
+editrule:kr:23:32
+
+useeditscheme:SL:/var/log/apache2
+
+filterscheme:SLL:removesATDS 'ATDS'
+usefilterscheme:SLL:/home/ap/at.svn/gita
+
+editscheme:SLL:removesATDS 'ATDS'
+# date
+editrule:kr:0:11
+# msecs TAG
+editrule:kr:19:24
+# TAG
+editrule:ke:StreamsAgent
+#rule:ev:TRC1
+#rule:ev:TRC0
+rule:ev:socket\ timeout
+
+useeditscheme:SLL:/home/ap/at.svn/gita
+
+defaultcscheme:SL
