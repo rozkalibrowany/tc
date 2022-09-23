@@ -70,7 +70,7 @@ std::string SysTime::getDateTime() const
 	datetime += getMonth() < 10 ? "0" : "";
 	datetime += std::to_string(getMonth()) + ":";
 	datetime += getDay() < 10 ? "0" : "";
-	datetime += std::to_string(getDay()) + " ";
+	datetime += std::to_string(getDay()) + "-";
 	datetime += getHour() < 10 ? "0" : "";
 	datetime += std::to_string(getHour()) + ":";
 	datetime += getMin() < 10 ? "0" : "";

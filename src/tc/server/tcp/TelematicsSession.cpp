@@ -113,7 +113,7 @@ result_t TelematicsSession::handlePayload(const uchar *buffer, size_t size)
 	}
 
 	if (telematicsServer()->iSaveRecords)
-		res |= save_packet(packet);
+		res |= savePacket(packet);
 
 
 	if (res == RES_INVCRC) {
@@ -156,12 +156,16 @@ result_t TelematicsSession::handleStandby(const uchar *buffer, size_t size)
 }
 
 
-result_t TelematicsSession::save_packet(const std::shared_ptr<parser::PacketPayload> &packet)
+result_t TelematicsSession::savePacket(const std::shared_ptr<parser::PacketPayload> &packet)
 {
 	Json::Value val;
 
+	auto timestamp = packet->id().timestamp.timestamp();
+	auto systime = SysTime(timestamp);
+
 	val["imei"] = iDevice->iImei;
-	val["timestamp"] = packet->id().timestamp.timestamp();
+	val["timestamp"] = timestamp;
+	val["datetime"] = systime.getDateTime();
 
 	if (packet->toJson(val, true) != RES_OK) {
 		LG_ERR(this->logger(), "Packet to json.");

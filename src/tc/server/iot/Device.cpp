@@ -7,8 +7,13 @@ namespace tc::server::iot {
 using namespace std::chrono;
 
 Device::Device(const Imei &imei, const std::string id)
-			: iImei(imei), iID(id), iType("TST100"), iUptime(0LL), iTimestamp(tc::SysTime(true).timestamp()), iPacketsCounter(0LL)
-	{
+ : iImei(imei)
+ , iID(id)
+ , iType("TST100")
+ , iUptime(static_cast<int64_t>(0LL))
+ , iTimestamp(tc::SysTime(true).timestamp())
+ , iPacketsCounter(0LL)
+ {
 		// nothing to do
 }
 

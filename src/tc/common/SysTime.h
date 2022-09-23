@@ -16,6 +16,11 @@ public:
 			set();
 	}
 
+	SysTime(int64_t timestamp)
+	{
+		iTimestamp = timestamp;
+	}
+
 	virtual ~SysTime()
 	{
 	}
