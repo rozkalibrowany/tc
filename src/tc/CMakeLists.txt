@@ -62,7 +62,6 @@ TcAddLibrary(
 	SOURCE "${src}/client/tcp/*.cpp"
 	INCLUDE "${TcIncludeDir}"
 	LIBRARIES
-		args-parser::lib
 		tc-asio
 		tc-common
 		cppserver

@@ -99,9 +99,14 @@ tc_conan_build_package(NAME mongo-c-driver
 	UBUNTU
 )
 
-
 tc_conan_build_package(NAME mongo-cxx-driver
 	VERSION r3.6.7
+	DEPENDS conan-profiles conan-tc-build
+	UBUNTU
+)
+
+tc_conan_build_package(NAME mini
+	VERSION 0.9.14
 	DEPENDS conan-profiles conan-tc-build
 	UBUNTU
 )

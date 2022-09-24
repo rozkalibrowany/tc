@@ -50,6 +50,7 @@ class TcConan(ConanFile, Os):
         self.requires("jsoncpp/1.9.5@tc/stable")
         # self.requires("spdlog/v1.x@tc/stable")
         self.requires("args-parser/6.2.0.1@tc/stable")
+        self.requires("mini/0.9.14@tc/stable")
         self.requires("vscode/1.0.2@tc/stable")
 
     def imports(self):

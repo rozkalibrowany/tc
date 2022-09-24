@@ -6,7 +6,7 @@ opts = tc.OptCreator().add_bool("shared", True)
 
 
 class ArgsParserConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelper):
-    name = "args-parser"
+    name = "mini"
     license = "MIT"
     exports_sources = ["CMakeLists.txt"]
     generators = tc.CmakeHelper.generators
@@ -14,29 +14,24 @@ class ArgsParserConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHe
 
     options, default_options = opts.options, opts.default
 
-    def configure(s):
-        del s.settings.compiler.cppstd
-
     def source(s):
         return s.do_source()
 
-    def build(s):
-        s.do_build(definitions=None)
-
     def package(s):
+        src_dir = os.path.join(s._source_subfolder, "src")
         s.copy(
-            "*.hpp",
-            src=os.path.join(s._source_subfolder, "args-parser"),
-            dst=os.path.join("include", "args-parser"),
+            "*.h",
+            src=os.path.join(src_dir, "mini"),
+            dst=os.path.join("include", "mini"),
         )
 
     def package_id(s):
         s.info.header_only()
 
     def package_info(self):
-        self.cpp_info.set_property("cmake_file_name", "args-parser")
-        self.cpp_info.set_property("cmake_target_name", "args-parser::args-parser")
-        self.cpp_info.includedirs.append(os.path.join("include", "args-parser"))
+        self.cpp_info.set_property("cmake_file_name", "mini")
+        self.cpp_info.set_property("cmake_target_name", "mini::mini")
+        self.cpp_info.includedirs.append(os.path.join("include", "mini"))
         self.cpp_info.bindirs = []
         self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
