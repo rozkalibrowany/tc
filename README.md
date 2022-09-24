@@ -7,7 +7,7 @@
  - Cppserver 3rd party library based on ASIO
 
 # Bulding (Linux)
-/* GCC/G++ 10 required */
+* GCC/G++ 10 required
 * mkdir build-conan && cd build-conan
 * cmake ../conan && make conan-build
 * cd ../ && mkdir build && cd build
