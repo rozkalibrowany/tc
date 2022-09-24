@@ -5,6 +5,7 @@
  - C++17 
  - Tools (CMake, Ansible, Conan)
  - Cppserver 3rd party library based on ASIO
+ - MongoDB to backup telemetry (possible to use only RAM Cache)
 
 # Bulding (Linux)
 * GCC/G++ 10 required
