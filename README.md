@@ -3,9 +3,8 @@
 
 # Stack
  - C++17 
- - Tools (Python, Ansible, Conan)
- - Asio (Cppserver wrapper)
- - CMake + GNU/GCC
+ - Tools (CMake, Ansible, Conan)
+ - Cppserver 3rd party library based on ASIO
 
 # Bulding (Linux)
 * mkdir build-conan && cd build-conan
