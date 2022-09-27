@@ -2,7 +2,7 @@
 ![alt text](https://i.ibb.co/hgtM5tt/Screenshot-from-2022-06-22-20-52-34.png)
 
 # Integrated hardware API
- - Teltonika TST100
+ - Teltonika Codec 8/12
 
 # Stack
  - C++17 
