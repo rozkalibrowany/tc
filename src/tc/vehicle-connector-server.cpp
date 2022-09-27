@@ -108,8 +108,6 @@ int main(int argc, char** argv)
 			client->DisconnectAsync();
 		}
 
-		LG_NFO(log.logger(), "Cached: {}", cache->getDevices().toStyledString());
-
 		CppCommon::Thread::Sleep(interval);
 	}
 	// Stop the server

@@ -46,7 +46,6 @@ private:
 
 	int iEventID;
 	int iElements;
-	//SysMutex iMutex;
 	ByteSizeList iByteSizes;
 	IoRecordsPropertyMap iRecordsMap;
 };

@@ -43,7 +43,6 @@ void HTTPCacheSession::onReceivedRequest(const CppServer::HTTP::HTTPRequest& req
 	// Process HTTP request methods
 	if (request.method() == "HEAD") {
 		SendResponseAsync(response().MakeHeadResponse());
-		LG_NFO(this->logger(), "request.method() == HEAD");
 	}
 	else if (request.method() == "GET") {
 		auto action = request.string();
