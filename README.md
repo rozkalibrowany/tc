@@ -8,11 +8,13 @@
  - MongoDB to backup telemetry (possible to use only RAM Cache)
 
 # Bulding (Linux)
-* GCC/G++ 10 required
-* mkdir build-conan && cd build-conan
-* cmake ../conan && make conan-build
-* cd ../ && mkdir build && cd build
-* cmake ../ && make
+GCC/G++ 10 required
+```
+mkdir build-conan && cd build-conan
+cmake ../conan && make conan-build
+cd ../ && mkdir build && cd build
+cmake ../ && make
+```
 
 # Targets
 * tc-telematics-client
@@ -29,12 +31,12 @@ curl -X GET -kvH "Accept: application/json" https://127.0.0.1:8443/device/<IMEI/
 
 ```bash
 * POST
-curl -X POST --cacert <cert> https://127.0.0.1:8443/device/<IMEI/ID>/unlock
-curl -X POST --cacert <cert> https://127.0.0.1:8443/device/<IMEI/ID>/lock
-curl -X POST --cacert <cert> https://127.0.0.1:8443/device/<IMEI/ID>/led_off
-curl -X POST --cacert <cert> https://127.0.0.1:8443/device/<IMEI/ID>/led_on
-curl -X POST --cacert <cert> https://127.0.0.1:8443/device/<IMEI/ID>/engine_off
-curl -X POST --cacert <cert> https://127.0.0.1:8443/device/<IMEI/ID>/engine_on
+curl -X POST --data '{}' https://127.0.0.1:8443/device/<IMEI/ID>/unlock
+curl -X POST --data '{}' https://127.0.0.1:8443/device/<IMEI/ID>/lock
+curl -X POST --data '{}' https://127.0.0.1:8443/device/<IMEI/ID>/led_off
+curl -X POST --data '{}' https://127.0.0.1:8443/device/<IMEI/ID>/led_on
+curl -X POST --data '{}' https://127.0.0.1:8443/device/<IMEI/ID>/engine_off
+curl -X POST --data '{}' https://127.0.0.1:8443/device/<IMEI/ID>/engine_on
 ```
 
 ```bash
