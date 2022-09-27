@@ -1,6 +1,9 @@
 # Telematics Connector - service for IoT Devices Connectivity
 ![alt text](https://i.ibb.co/hgtM5tt/Screenshot-from-2022-06-22-20-52-34.png)
 
+# Integrated hardware API
+ - Teltonika TST100
+
 # Stack
  - C++17 
  - Tools (CMake, Ansible, Conan)
