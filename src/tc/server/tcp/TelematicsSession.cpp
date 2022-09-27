@@ -87,7 +87,7 @@ result_t TelematicsSession::handleImei(const uchar *buffer, size_t size)
 
 	LG_DBG(this->logger(), "Parse imei OK: {}", imei);
 
-	iDevice = std::make_unique<iot::Device>(imei);
+	iDevice = std::make_unique<iot::Device>(telematicsServer()->cacheSize(), imei);
 	res |= send(eOK);
 
 	return res;
@@ -112,9 +112,8 @@ result_t TelematicsSession::handlePayload(const uchar *buffer, size_t size)
 		return res;
 	}
 
-	if (telematicsServer()->iSaveRecords)
+	if (telematicsServer()->dbClient()->enabled())
 		res |= savePacket(packet);
-
 
 	if (res == RES_INVCRC) {
 		iBufferIncomplete = std::make_shared< parser::Buf >(buffer, size);
@@ -172,7 +171,8 @@ result_t TelematicsSession::savePacket(const std::shared_ptr<parser::PacketPaylo
 		return RES_INVARG;
 	}
 
-	auto coll = telematicsServer()->iDbClient["cluster0"]["Packets"];
+	auto dbclient = telematicsServer()->dbClient();
+	auto coll = dbclient->client()[dbclient->name()][dbclient->collection("collection_packets")];
 	bsoncxx::document::value bsonObj = bsoncxx::from_json(val.toStyledString());
 	coll.insert_one(bsonObj.view());
 	return RES_OK;

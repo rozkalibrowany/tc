@@ -2,5 +2,5 @@
     name: service
   vars:
     service_name: tc-vehicle-connector-server
-    service_cfg_template: tc-vehicle-connector-server.cfg
-    service_startup_command: '/usr/local/ws/bin/tc-vehicle-connector-server'
+    service_cfg_template: tc-vehicle-connector-server.ini
+    service_startup_command: '/usr/local/ws/bin/tc-vehicle-connector-server /usr/local/ws/etc/tc-vehicle-connector-server.ini'

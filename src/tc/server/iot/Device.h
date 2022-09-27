@@ -10,10 +10,10 @@ namespace tc::server::iot {
 class Device : public tc::LogI, public parser::JsonI
 {
 public:
-  using PayloadPackets = std::vector< std::shared_ptr< parser::PacketPayload > >;
+  using PayloadPackets = std::deque< std::shared_ptr< parser::PacketPayload > >;
 
 	Device() = default;
-  Device(const Imei &imei, const std::string id = "");
+	Device(size_t cache, const Imei &imei, const std::string id = "");
 	virtual ~Device() = default;
 
 	bool operator==(const Device &rhs) const;
@@ -41,6 +41,7 @@ protected:
 	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
 
 	PayloadPackets iPayloadPackets;
+	size_t iCacheSize;
 
 private:
 	uint64_t getUptime() const;

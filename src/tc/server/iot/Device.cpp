@@ -6,13 +6,14 @@ namespace tc::server::iot {
 
 using namespace std::chrono;
 
-Device::Device(const Imei &imei, const std::string id)
+Device::Device(size_t cache, const Imei &imei, const std::string id)
  : iImei(imei)
  , iID(id)
  , iType("TST100")
  , iUptime(static_cast<int64_t>(0LL))
  , iTimestamp(tc::SysTime(true).timestamp())
  , iPacketsCounter(0LL)
+ , iCacheSize(cache)
  {
 		// nothing to do
 }
@@ -30,6 +31,7 @@ Device &Device::operator=(const Device &rhs)
 	iUptime = rhs.iUptime;
 	iPacketsCounter = rhs.iPacketsCounter;
 	iType = rhs.iType;
+	iCacheSize = rhs.iCacheSize;
 
 	return *this;
 }
@@ -74,7 +76,11 @@ result_t Device::add(const std::shared_ptr< parser::PacketPayload > packet)
   }
 
 	++iPacketsCounter;
-	iPayloadPackets.push_back(std::move(packet));
+	if (iPayloadPackets.size() >= iCacheSize) {
+		iPayloadPackets.pop_back();
+	}
+	iPayloadPackets.push_front(std::move(packet));
+
 	return RES_OK;
 }
 

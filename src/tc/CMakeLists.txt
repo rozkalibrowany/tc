@@ -26,6 +26,14 @@ TcAddLibrary(
 	INCLUDE "${TcIncludeDir}"
 	LIBRARIES
 	 tc-parser
+	VERSION ${TcVersion}
+)
+
+TcAddLibrary(
+	TARGET tc-db
+	SOURCE "${src}/db/*.cpp"
+	INCLUDE "${TcIncludeDir}"
+	LIBRARIES
 	 mongocxx
 	 bsoncxx
 	VERSION ${TcVersion}
@@ -46,6 +54,7 @@ TcAddLibrary(
 	INCLUDE "${TcIncludeDir}"
 	LIBRARIES
 		tc-asio
+		tc-db
 		tc-iot
 		tc-parser
 		tc-common

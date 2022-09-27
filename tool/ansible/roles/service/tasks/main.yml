@@ -23,7 +23,7 @@
 - name: Template {{service_name}}.cfg - service configuration
   ansible.builtin.template:
     src: '{{service_cfg_template}}'
-    dest: '/usr/local/ws/etc/{{service_name}}.cfg'
+    dest: '/usr/local/ws/etc/{{service_name}}.ini'
     owner: ws
     group: ws
   when: service_cfg_template is defined

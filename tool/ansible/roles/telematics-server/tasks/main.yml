@@ -2,5 +2,5 @@
     name: service
   vars:
     service_name: tc-telematics-server
-    service_cfg_template: tc-telematics-server.cfg
-    service_startup_command: '/usr/local/ws/bin/tc-telematics-server /usr/local/ws/etc/tc-telematics-server.cfg'
+    service_cfg_template: tc-telematics-server.ini
+    service_startup_command: '/usr/local/ws/bin/tc-telematics-server /usr/local/ws/etc/tc-telematics-server.ini'

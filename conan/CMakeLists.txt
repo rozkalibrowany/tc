@@ -93,14 +93,14 @@ tc_conan_build_package(NAME jsoncpp
 	UBUNTU
 )
 
-tc_conan_build_package(NAME mongo-c-driver
-	VERSION 1.22.0
+tc_conan_build_package(NAME mongo-cxx-driver
+	VERSION r3.6.7
 	DEPENDS conan-profiles conan-tc-build
 	UBUNTU
 )
 
-tc_conan_build_package(NAME mongo-cxx-driver
-	VERSION r3.6.7
+tc_conan_build_package(NAME mongo-c-driver
+	VERSION 1.22.0
 	DEPENDS conan-profiles conan-tc-build
 	UBUNTU
 )
