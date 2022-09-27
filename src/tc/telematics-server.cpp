@@ -8,15 +8,6 @@
 
 // core dumps may be disallowed by parent of this process; change that
 
-static const std::function< bool(int) > vIsPortNumber = [](int port)
-{
-	return (port >= 0 && port <= 65535);
-};
-
-static const std::function<bool(const std::string &)> vIsAddress = [](const std::string &addr)
-{
-	return std::count(addr.begin(), addr.end(), '.') == 3;
-};
 
 int main(int argc, char** argv)
 {

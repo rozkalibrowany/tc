@@ -1,5 +1,6 @@
 #ifndef D8AB2E39_84B7_48C6_9D5F_3015EF5742CF
 #define D8AB2E39_84B7_48C6_9D5F_3015EF5742CF
+
 #include <tc/server/http/Client.h>
 #include <tc/asio/AsioService.h>
 #include <tc/server/http/Cache.h>
@@ -7,57 +8,84 @@
 #include <tc/server/http/CacheServer.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <tc/parser/ReqType.h>
-
+#include <mini/ini.h>
+#include <filesystem>
 
 int main(int argc, char** argv)
 {
+	using namespace tc;
+	using namespace mINI;
+
 	auto logger = spdlog::stdout_color_mt("console");
 
-	tc::LogI log(logger);
+	LogI log(logger);
 	spdlog::set_default_logger(log.logger());
 
-	// HTTPS server port
-	int port = 8443;
+	if(!std::filesystem::exists(argv[1])) {
+		LG_ERR(log.logger(), "Config file not exists. Exiting...");
+		return 1;
+	}
 
-	// TCP server port
-	int tcp_port = 8883;
+	INIFile file(argv[1]);
+	INIStructure ini;
 
-	if (argc > 1)
-			port = std::atoi(argv[1]);
-	std::string address = "127.0.0.1";
+	if(!file.read(ini)) {
+		LG_ERR(log.logger(), "Unable to read INI config file. Exiting...");
+		return 1;
+	}
 
+	auto http_port = std::stoi(ini["http"]["port"]);
+	if (!ini["http"].has("port") || !vIsPortNumber(http_port)) {
+		LG_ERR(log.logger(), "Invalid or missing HTTP port number. Exiting...");
+		return 1;
+	}
 
-	LG_NFO(log.logger(), "HTTP server port: {}", 8443);
+	auto tcp_port = std::stoi(ini["tcp"]["port"]);
+	if (!ini["tcp"].has("port") || !vIsPortNumber(tcp_port)) {
+		LG_ERR(log.logger(), "Invalid or missing TCP port number. Exiting...");
+		return 1;
+	}
+
+	auto &addr = ini["tcp"]["address"];
+	if (!ini["tcp"].has("address") || !vIsAddress(addr)) {
+		LG_ERR(log.logger(), "Invalid or missing server address. Exiting...");
+		return 1;
+	}
+
+	auto interval = std::stoi(ini["tcp"]["interval"]);
+	if (!ini["tcp"].has("interval")) {
+		LG_ERR(log.logger(), "Invalid or missing interval. Exiting...");
+		return 1;
+	}
 
 	// Create a new Asio service
 	auto service = std::make_shared<tc::asio::AsioService>();
-
-	// Start the Asio service
-	LG_NFO(log.logger(), "Asio service starting...");
 	service->Start();
-	//std::cout << "Done!" << std::endl;
+	LG_NFO(log.logger(), "Asio service running!");
 
 	// Create Cache for data
-	auto cache = std::make_shared<tc::server::http::Cache>();
+	auto cache = std::make_shared<server::http::Cache>();
 
 	// Create a new HTTPS server
-	auto server = std::make_shared<tc::server::http::HTTPCacheServer>(service, port);
+	auto server = std::make_shared<server::http::HTTPCacheServer>(service, http_port);
 	server->setCache(cache);
 	// Start the server
-	LG_NFO(log.logger(), "Server starting...");
-	server->Start();
-	LG_NFO(log.logger(), "Done!");
+	if (!server->Start()) {
+		LG_ERR(log.logger(), "Unable to start HTTP server. Exiting...");
+		return 1;
+	}
+	LG_NFO(log.logger(), "HTTP Server running!");
 
 	// Create a new TCP client
-	auto client = std::make_shared< tc::server::http::Client >(service, address, tcp_port);
+	auto client = std::make_shared< server::http::Client >(service, addr, tcp_port);
 	client->setCache(cache);
 
 	// Connect the client
-	LG_NFO(log.logger(), "Client connecting...");
 	if(!client->ConnectAsync()) {
-		LG_ERR(log.logger(), "Connect async");
+		LG_ERR(log.logger(), "TCP client connect async");
 		return 1;
 	}
+	LG_NFO(log.logger(), "TCP client running!");
 
 	while (true) {
 		if (client->IsConnected() == false) {
@@ -70,19 +98,19 @@ int main(int argc, char** argv)
 			client->handle(cmd);
 		}
 
-		tc::server::http::Action action;
-		if (action.parse( tc::parser::PacketRequest::Devices, tc::parser::PacketRequest::GET) != tc::RES_OK) {
+		server::http::Action action;
+		if (action.parse( parser::PacketRequest::Devices, parser::PacketRequest::GET) != RES_OK) {
 			LG_WRN(log.logger(), "Unable to get devices from Telematics Connector");
 			continue;
 		}
-		if (client->handle(action) != tc::RES_OK) {
+		if (client->handle(action) != RES_OK) {
 			LG_DBG(log.logger(), "Unable to handle action");
 			client->DisconnectAsync();
 		}
 
 		LG_NFO(log.logger(), "Cached: {}", cache->getDevices().toStyledString());
 
-		CppCommon::Thread::Sleep(1500);
+		CppCommon::Thread::Sleep(interval);
 	}
 	// Stop the server
 

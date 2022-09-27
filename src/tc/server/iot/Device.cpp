@@ -77,9 +77,9 @@ result_t Device::add(const std::shared_ptr< parser::PacketPayload > packet)
 
 	++iPacketsCounter;
 	if (iPayloadPackets.size() >= iCacheSize) {
-		iPayloadPackets.pop_back();
+		iPayloadPackets.pop_front();
 	}
-	iPayloadPackets.push_front(std::move(packet));
+	iPayloadPackets.push_back(std::move(packet));
 
 	return RES_OK;
 }

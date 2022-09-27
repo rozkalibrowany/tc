@@ -89,6 +89,7 @@ TcAddLibrary(
 	INCLUDE "${TcIncludeDir}"
 	LIBRARIES
 	tc-asio
+	tc-db
 	tc-common
 	cppserver
 	cppcommon

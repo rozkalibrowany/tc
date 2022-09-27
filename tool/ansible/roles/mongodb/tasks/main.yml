@@ -1,0 +1,14 @@
+### mongodb
+- name: Create 'telematicsDb' database user with name 'ws'.
+  community.mongodb.mongodb_user:
+    database: telematicsDb
+    name: ws
+    password: dupa.789
+    state: present
+- name: Define roles
+  community.mongodb.mongodb_user:
+    database: telematicsDb
+    name: ws
+    password: dupa.789
+    roles: readWrite,dbAdmin,userAdmin
+    state: present

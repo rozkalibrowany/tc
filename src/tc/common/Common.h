@@ -19,6 +19,16 @@
 using uchar = unsigned char;
 using Imei = std::string;
 
+static const std::function< bool(int) > vIsPortNumber = [](int port)
+{
+	return (port >= 0 && port <= 65535);
+};
+
+static const std::function<bool(const std::string &)> vIsAddress = [](const std::string &addr)
+{
+	return std::count(addr.begin(), addr.end(), '.') == 3;
+};
+
 using namespace std;
 
 #endif /* CF85BD92_7E22_45A2_ABC3_BF3EC33AE7C6 */
