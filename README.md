@@ -21,6 +21,35 @@ cmake ../ && make
 * tc-telematics-server
 * tc-vehicle-connector-server
 
+# Service config files
+tc-telematics-server:
+```
+[server]
+address=127.0.0.1
+port=8881
+
+[session]
+cache=1000
+
+[db]
+enabled=true
+name=cluster0
+collection_packets=Packets
+collection_devices=Devices
+uri=mongodb+srv://login:pass@cluster.12345.mongodb.net
+```
+
+tc-vehicle-connector-server:
+```
+[tcp]
+address=127.0.0.1
+port=8881
+interval=10000
+
+[http]
+port=8443
+```
+
 # Example requests
 Configure tc-vehicle-connector-server as localhost
 ```bask
