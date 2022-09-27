@@ -7,20 +7,6 @@
  - Cppserver 3rd party library based on ASIO
  - MongoDB to backup telemetry (possible to use only RAM Cache)
 
-# Bulding (Linux)
-GCC/G++ 10 required
-```
-mkdir build-conan && cd build-conan
-cmake ../conan && make conan-build
-cd ../ && mkdir build && cd build
-cmake ../ && make
-```
-
-# Targets
-* tc-telematics-client
-* tc-telematics-server
-* tc-vehicle-connector-server
-
 # Service config files
 tc-telematics-server:
 ```
@@ -49,6 +35,27 @@ interval=10000
 [http]
 port=8443
 ```
+
+# Ansible env setup
+```
+ws-ansible wsr dev
+ws-ansible wsr tc-telematics-server
+ws-ansible wsr tc-vehicle-connector-server
+```
+# Bulding (Linux)
+GCC/G++ 10 required
+```
+mkdir build-conan && cd build-conan
+cmake ../conan && make conan-build
+cd ../ && mkdir build && cd build
+cmake ../ && make
+```
+
+# Targets
+* tc-telematics-client
+* tc-telematics-server
+* tc-vehicle-connector-server
+
 
 # Example requests
 Configure tc-vehicle-connector-server as localhost
