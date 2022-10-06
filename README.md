@@ -5,7 +5,7 @@
  - Teltonika Codec 8/12
 
 # Stack
- - C++17 
+ - C++17
  - Tools (CMake, Ansible, Conan)
  - Cppserver 3rd party library based on ASIO
  - MongoDB to backup telemetry (possible to use only RAM Cache)
@@ -69,13 +69,16 @@ curl -X GET -kvH "Accept: application/json" https://127.0.0.1:8443/device/<IMEI/
 ```
 
 ```bash
-* POST
+* POST (device)
 curl -X POST --data '{}' https://127.0.0.1:8443/device/<IMEI/ID>/unlock
 curl -X POST --data '{}' https://127.0.0.1:8443/device/<IMEI/ID>/lock
 curl -X POST --data '{}' https://127.0.0.1:8443/device/<IMEI/ID>/led_off
 curl -X POST --data '{}' https://127.0.0.1:8443/device/<IMEI/ID>/led_on
 curl -X POST --data '{}' https://127.0.0.1:8443/device/<IMEI/ID>/engine_off
 curl -X POST --data '{}' https://127.0.0.1:8443/device/<IMEI/ID>/engine_on
+
+* POST (settings)
+curl -X POST --data '{}' https://127.0.0.1:8443/device/<IMEI>/set?id=123456
 ```
 
 ```bash

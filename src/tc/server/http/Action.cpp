@@ -27,16 +27,16 @@ result_t Action::parse(const CppServer::HTTP::HTTPRequest& request)
 	}
 
 	{
+		iMethod = method;
+		iID = id;
+
 		LockGuard guard(iMutex);
 		if (Command::sMapping.find(action) == Command::sMapping.end()) {
-			parse_internal_command(action);
+			return parse_internal_command(action);
 		} else {
 			iAction = action;
 			iType = type;
 		}
-
-		iMethod = method;
-		iID = id;
 	}
 
 	return RES_OK;
@@ -62,7 +62,7 @@ result_t Action::parse_internal_command(const std::string &action)
 	auto left = action.substr(0, action.find({"?"}));
 
 	if (left.compare("set")) {
-			LG_ERR(this->logger(), "RES_NOENT");
+			LG_ERR(this->logger(), "Invalid action");
 		return RES_NOENT;
 	}
 
@@ -71,14 +71,20 @@ result_t Action::parse_internal_command(const std::string &action)
 	auto val = right.substr(right.find("=") + 1);
 
 	if (key.compare("id") && key.compare("imei")) {
-		LG_ERR(this->logger(), "RES_INVARG");
+		LG_ERR(this->logger(), "Invalid key.");
+		return RES_INVARG;
+	}
+
+	// ID shoud have 6 digits
+	if (!key.compare("id") && val.size() != 6) {
+		LG_ERR(this->logger(), "Invalid ID format.");
 		return RES_INVARG;
 	}
 
 	iQueryParam.first = key;
 	iQueryParam.second = val;
 	iAction = left;
-	iType = Device_set;
+	iType = Set;
 
 	return RES_OK;
 }

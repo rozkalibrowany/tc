@@ -14,7 +14,7 @@ public:
 		Unknown = 0,
 		Devices,
 		Device,
-    Device_set
+    Set
   };
 
 	enum Method {
