@@ -114,10 +114,13 @@ result_t Device::fromJsonImpl(const Json::Value &rhs, bool root)
 
 result_t Device::toJsonImpl(Json::Value &rhs, bool root) const
 {
+	auto systime = SysTime(iTimestamp);
+
 	rhs["ID"] = iID;
 	rhs["Imei"] = iImei;
 	rhs["Type"] = iType;
 	rhs["Timestamp"] = iTimestamp;
+	rhs["Datetime"] = systime.getDateTime();
 	const auto time = SysTime().timestamp(getUptime());
 	rhs["Uptime"] = fmt::format("{:d}h:{:d}m", time.getHour(), time.getMin());
 	rhs["Packets"] = iPacketsCounter;
