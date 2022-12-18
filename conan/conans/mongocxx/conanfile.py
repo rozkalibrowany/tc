@@ -8,9 +8,8 @@ import os
 tc = python_requires('tc/0.3.0@tc/stable')
 opts = (tc.OptCreator().add_bool('shared', True).add_bool('fPIC', False))
 
-
 class MongoConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelper):
-    name = "mongo-cxx-driver"
+    name = "mongocxx"
     description = "A Cross Platform MongoDB Client Library for C"
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
@@ -22,7 +21,7 @@ class MongoConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelper)
     options, default_options = opts.options, opts.default
 
     def requirements(self):
-        self.requires("mongo-c-driver/1.22.0@tc/stable")
+        self.requires("mongoc/1.22.0@tc/stable")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version],
@@ -31,8 +30,8 @@ class MongoConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelper)
     def generate(self):
         deps = CMakeDeps(self)
         deps.generate()
-        mongoc_config_file = os.path.join(self.generators_folder, "mongoc-1.0-config.cmake")
-        bson_config_file = os.path.join(self.generators_folder, "bson-1.0-config.cmake")
+        mongoc_config_file = os.path.join(self.generators_folder, "mongoc-config.cmake")
+        bson_config_file = os.path.join(self.generators_folder, "bson-config.cmake")
         if not os.path.exists(bson_config_file):
             self.output.info("Copying mongoc config file to bson")
             shutil.copy(src=mongoc_config_file, dst=bson_config_file)
@@ -50,12 +49,12 @@ class MongoConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelper)
               {
                  "target": "lib",
                  "libs": ["mongocxx"],
-                 "requires": ["mongo-c-driver::mongoc"],
+                 "requires": ["mongoc::mongoc"],
               },
               {
                  "target": "lib",
                  "libs": ["bsoncxx"],
-                 "requires": ["mongo-c-driver::bson"],
+                 "requires": ["mongoc::bson"],
               },
           ]
         )

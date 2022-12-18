@@ -7,7 +7,6 @@
 	os=Linux
 	os.name=Ubuntu
 	os.variant=dev
-	os.version=20.04
 
 [options]
 *:shared=True
