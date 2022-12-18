@@ -1,4 +1,4 @@
-from conans import ConanFile, tools, python_requires
+from conans import ConanFile, CMake, tools, python_requires
 import os
 import os.path as osp
 import glob
@@ -10,7 +10,7 @@ opts = tc.OptCreator().add_bool("shared", True)
 class CppServerConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelper):
     name = "cppserver"
     license = "MIT"
-    exports_sources = ["CMakeLists.txt", "patches/**"]
+    exports_sources = ["CMakeLists.txt"]
     generators = tc.CmakeHelper.generators
     settings = tc.CmakeHelper.settings
     options, default_options = opts.options, opts.default
@@ -18,64 +18,34 @@ class CppServerConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHel
     scm = {
         "type": "git",
         "subfolder": "source_subfolder",
-        "url": "https://github.com/rozkalibrowany/CppServer",
+        "url": "https://github.com/rozkalibrowany/CppServer.git",
         "revision": "master",
     }
-
-    # def requirements(self):
-    #    self.requires("fmt/9.0.0@tc/stable")
 
     def build(self):
         os.chdir(self._source_subfolder)
         self.run("gil update")
-        definitions = {
-            "CPPSERVER_MODULE": "ON",
-        }
-        return self.do_build(definitions=definitions)
+        return self.do_build()
 
     def package(self):
         inc_dir = osp.join(self._source_subfolder, "include")
         common_dir = osp.join(self._source_subfolder, "modules", "CppCommon", "include")
-        #fmt_dir = osp.join(self._source_subfolder, "modules", "CppCommon", "modules", "fmt", "include")
-        # asio_dir = osp.join(
-        #    self._source_subfolder, "modules", "asio", "asio", "include"
-        # )
-        self.copy("*.h", dst="include", src=inc_dir)
-        self.copy("*.h", dst="include", src=common_dir)
-        # self.copy("*.h*", dst="include", src=asio_dir)
-        #self.copy("*.h*", dst="include", src=fmt_dir)
-
+        self.copy("*.h*", dst="include", src=inc_dir)
+        self.copy("*.h*", dst="include", src=common_dir)
         self.copy("*.inl", dst="include", src=common_dir)
         self.copy("*.inl", dst="include", src=inc_dir)
-        self.copy(
-            "libcppserver.so", dst="lib", src=osp.join(self._build_subfolder, "lib")
-        )
-        self.copy(
-            "libcppcommon.so", dst="lib", src=osp.join(self._build_subfolder, "lib")
-        )
-        self.copy("libasio.so", dst="lib", src=osp.join(self._build_subfolder, "lib"))
+        self.copy("*.so", dst="lib", src=osp.join(self._build_subfolder, "lib"))
 
-    #    def package_id(self):
-    #       self.info.requires["fmt"].unrelated_mode()
 
     def package_info(self):
         self.add_components(
             [
-                # {
-                #    "target": "cppcommon",
-                #    "libs": ["cppcommon"],
-                #    "system_libs": ["fmt::fmt"],
-                # },
-                # {
-                #    "target": "asio",
-                #    "libs": ["asio"],
-                #    "requires": [],
-                #    "system_libs": ["pthread", "fmt::fmt"],
-                # },
                 {
                     "target": "lib",
                     "libs": ["cppserver"],
-                    #    "requires": ["fmt::lib"],
                 },
             ]
         )
+        libdir_c = os.path.join(os.path.join(self.package_folder, "lib"), "cmake")
+        self.output.info("Appending PATH environment variable: {}".format(libdir_c))
+        self.env_info.PATH.append(libdir_c)

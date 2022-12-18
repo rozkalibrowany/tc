@@ -41,10 +41,6 @@ class MongoCConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelper
         self.do_build(definitions=definitions)
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "THIRD_PARTY_NOTICES", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
-        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         self.do_package()
 
 
@@ -56,12 +52,12 @@ class MongoCConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelper
                  "libs": ["mongoc"],
               },
               {
-                 "target": "lib",
+                 "target": "bson",
                  "libs": ["bson"],
               },
           ]
         )
 
-        libdir_c = os.path.join(os.path.join(self.package_folder, "lib"), "cmake")
-        self.output.info("Appending PATH environment variable: {}".format(libdir_c))
-        self.env_info.PATH.append(libdir_c)
+       # libdir_c = os.path.join(os.path.join(self.package_folder, "lib"), "cmake")
+       # self.output.info("Appending PATH environment variable: {}".format(libdir_c))
+       # self.env_info.PATH.append(libdir_c)
