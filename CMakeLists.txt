@@ -112,12 +112,12 @@ TcOptMsg("TC_SYSTEM_NAME"             TC_SYSTEM_NAME)
 TcOptMsg("TC_SYSTEM_VERSION"          RG_SYSTEM_VERSION)
 message(STATUS "")
 
-tc_find_package_status(NAME cppserver REQUIRED)
+#tc_find_package_status(NAME cppserver REQUIRED)
 tc_find_package_status(NAME jsoncpp REQUIRED)
 #tc_find_package_status(NAME cppcommon REQUIRED)
 tc_find_package_status(NAME spdlog REQUIRED)
+tc_find_package_status(NAME mongoc REQUIRED)
 tc_find_package_status(NAME mongocxx REQUIRED)
-tc_find_package_status(NAME bsoncxx  REQUIRED)
 
 add_subdirectory("src/tc")
 

@@ -34,9 +34,9 @@ TcAddLibrary(
 	SOURCE "${src}/db/*.cpp"
 	INCLUDE "${TcIncludeDir}"
 	LIBRARIES
-	 mongocxx
+	 mongocxx::lib
 	 bsoncxx
-	VERSION ${TcVersion}
+	 VERSION ${TcVersion}
 )
 
 TcAddLibrary(

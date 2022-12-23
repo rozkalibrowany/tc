@@ -1,6 +1,7 @@
 from conans import ConanFile, CMake, tools, python_requires
 import os
 import os.path as osp
+import glob
 
 tc = python_requires("tc/0.3.0@tc/stable")
 opts = tc.OptCreator().add_bool("shared", True)

@@ -2,7 +2,6 @@
 #include <tc/server/tcp/TelematicsServer.h>
 #include <tc/asio/AsioService.h>
 #include <tc/db/Client.h>
-#include <mongocxx/instance.hpp>
 #include <mini/ini.h>
 #include <filesystem>
 

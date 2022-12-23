@@ -29,9 +29,9 @@ class MongoCxxConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelp
         "with_ssl": [True, False],
     }
     default_options = {
-        "shared": False,
+        "shared": True,
         "fPIC": True,
-        "polyfill": "boost",
+        "polyfill": "mnmlstc",
         "with_ssl": True,
     }
 
@@ -39,6 +39,7 @@ class MongoCxxConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelp
     def _minimal_std_version(self):
         return {
             "std": "17",
+            "mnmlstc": "17",
             "experimental": "14",
             "boost": "11",
             "polyfill": "11"
@@ -78,17 +79,21 @@ class MongoCxxConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelp
             shutil.copy(src=mongoc_config_file, dst=bson_config_file)
 
     def build(self):
-        self.do_build()
+        definition = {
+          "ENABLE_TESTS": "OFF"
+				}
+        self.do_build(definitions=definition)
 
     def package(self):
-        #self.copy("*.hpp", dst="include/bsoncxx", src=posixpath.join(self.build_folder, self._build_subfolder, "src"), keep_path=False)
-        #self.copy("*.hpp", dst="include/mongocxx", src=posixpath.join(self.build_folder, self._build_subfolder, "src"), keep_path=False)
-        #self.copy("*.so*", dst="lib", src=osp.join(self.build_folder, "src"))
+        cmake = self._configure_cmake()
+        cmake.install()
+        self.copy("*.h*", dst="include", src=osp.join(self.package_folder, "include/bsoncxx/v_noabi"), keep_path=True)
+        self.copy("*.h*", dst="include", src=osp.join(self.package_folder, "include/mongocxx/v_noabi"), keep_path=True)
+        self.copy("*.so*", dst="lib", src=self._build_subfolder, keep_path=False)
         #self.copy("*.cmake", dst=osp.join("lib/cmake/bsoncxx-", self.version), src=posixpath.join(self.build_folder, self._build_subfolder, "src", "bsoncxx"))
         #self.copy("*.cmake", dst=osp.join("lib/cmake/mongocxx-", self.version), src=posixpath.join(self.build_folder, self._build_subfolder, "src", "mongocxx"))        #cmake = CMake(self)
         #cmake.definitions["CMAKE_INSTALL_INCLUDEDIR"] = osp.join("include", "mongocxx")
-        cmake = self._configure_cmake()
-        cmake.install()
+
 
         tools.rmdir(os.path.join(self.package_folder, 'share', 'man'))
         tools.rmdir(os.path.join(self.package_folder, 'lib', 'pkgconfig'))
@@ -100,10 +105,10 @@ class MongoCxxConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelp
               {
                  "target": "lib",
                  "libs": ["mongocxx"],
-                 "requires": ["mongoc::mongoc"],
+                 "requires": ["mongoc::lib"],
               },
               {
-                 "target": "lib",
+                 "target": "bson",
                  "libs": ["bsoncxx"],
                  "requires": ["mongoc::bson"],
               },
