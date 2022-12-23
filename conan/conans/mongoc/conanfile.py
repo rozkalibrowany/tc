@@ -7,8 +7,8 @@ import os
 
 
 tc = python_requires('tc/0.3.0@tc/stable')
-opts = (tc.OptCreator().add_bool('shared', True).add_bool('fPIC', True).add_bool('with_ssl', True))
-
+opts = (tc.OptCreator().add_bool('shared', True).add_bool('fPIC', True).add_bool('with_ssl', True)).add_any('polyfill', 'mnmlstc')\
+  .add_bool('with_snappy', True).add_bool('with_zlib', True).add_bool('with_zstd', True).add_bool('with_icu', False).add_bool('srv', True)
 
 class MongoCConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelper):
     name = "mongoc"
@@ -18,43 +18,7 @@ class MongoCConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelper
     exports_sources = ["CMakeLists.txt"]
     generators = tc.CmakeHelper.generators
     settings = tc.CmakeHelper.settings
-    options = {
-        "shared": [True, False],
-        "fPIC": [True, False],
-        "with_ssl": [False, "darwin", "windows", "openssl", "libressl"],
-        "with_sasl": [False, "sspi", "cyrus"],
-        "with_snappy": [True, False],
-        "with_zlib": [True, False],
-        "with_zstd": [True, False],
-        "with_icu": [True, False],
-        "srv": [True, False],
-    }
-    default_options = {
-        "shared": True,
-        "fPIC": True,
-        "with_ssl": "openssl",
-        "with_sasl": False,
-        "with_snappy": True,
-        "with_zlib": True,
-        "with_zstd": True,
-        "with_icu": False,
-        "srv": True,
-    }
-
-    @property
-    def _ssl_cmake_value(self):
-        return {
-            "darwin": "DARWIN",
-            "windows": "WINDOWS",
-            "openssl": "OPENSSL",
-            "libressl": "LIBRESSL",
-        }.get(str(self.options.with_ssl), "OFF")
-    @property
-    def _sasl_cmake_value(self):
-        return {
-            "sspi": "SSPI",
-            "cyrus": "CYRUS",
-        }.get(str(self.options.with_sasl), "OFF")
+    options, default_options = opts.options, opts.default
 
     def configure(self):
         if self.options.shared:
