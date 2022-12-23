@@ -1,3 +1,5 @@
 sources:
-  "r3.6.7":
+  "3.6.7":
     url: https://github.com/mongodb/mongo-cxx-driver/releases/download/r3.6.7/mongo-cxx-driver-r3.6.7.tar.gz
+  "3.7.0":
+    url: https://github.com/mongodb/mongo-cxx-driver/releases/download/r3.7.0/mongo-cxx-driver-r3.7.0.tar.gz

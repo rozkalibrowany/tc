@@ -45,7 +45,7 @@ class TcConan(ConanFile, Os):
         # self.requires("fmt/9.1.0@tc/stable")
         self.requires("asio/1.22.1@tc/stable")
         self.requires("mongoc/1.22.0@tc/stable")
-        self.requires("mongocxx/r3.6.7@tc/stable")
+        self.requires("mongocxx/3.7.0@tc/stable")
         self.requires("cppserver/master@tc/stable")
         self.requires("jsoncpp/1.9.5@tc/stable")
         # self.requires("spdlog/v1.x@tc/stable")

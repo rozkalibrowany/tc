@@ -57,7 +57,6 @@ class MongoCConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelper
               },
           ]
         )
-
-       # libdir_c = os.path.join(os.path.join(self.package_folder, "lib"), "cmake")
-       # self.output.info("Appending PATH environment variable: {}".format(libdir_c))
-       # self.env_info.PATH.append(libdir_c)
+        cmake_dir = os.path.join(os.path.join(self.package_folder, "lib"), "cmake")
+        self.output.info("Appending PATH environment variable: {}".format(cmake_dir))
+        self.env_info.PATH.append(cmake_dir)

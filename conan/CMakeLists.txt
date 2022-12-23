@@ -100,7 +100,7 @@ tc_conan_build_package(NAME mongoc
 )
 
 tc_conan_build_package(NAME mongocxx
-	VERSION r3.6.7
+	VERSION 3.7.0
 	DEPENDS conan-profiles conan-tc-build
 	UBUNTU
 )
