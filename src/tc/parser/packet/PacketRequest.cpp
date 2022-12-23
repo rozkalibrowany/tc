@@ -31,7 +31,7 @@ result_t PacketRequest::parse(uchar* cbuf, size_t size, size_t  offset)
 		return RES_NOENT;
 	}
 
-	Method met = static_cast<Method>((cbuf + 3)[0]);
+	int met = static_cast<int>((cbuf + 3)[0]);
 	iMethod = met;
 
 	size_t len = (size - 5) / 2;
@@ -39,7 +39,7 @@ result_t PacketRequest::parse(uchar* cbuf, size_t size, size_t  offset)
 	auto str = tc::uchar2string((const uchar*)cbuf + 5, size - 5);
 	tc::hex2bin((char*) str.data(), out);
 
-	iType = str2req(out);
+	//iType = tc::server::http::Request::str2req(out);
 	iSize = size - 5;
 	delete out;
 
@@ -49,16 +49,6 @@ result_t PacketRequest::parse(uchar* cbuf, size_t size, size_t  offset)
 const size_t PacketRequest::size()
 {
 	return iSize;
-}
-
-ReqType::Method PacketRequest::method() const
-{
-  return iMethod;
-}
-
-ReqType::Type PacketRequest::type() const
-{
-  return iType;
 }
 
 } // namespace tc::parser

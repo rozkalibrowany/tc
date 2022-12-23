@@ -111,17 +111,17 @@ tc_conan_build_package(NAME mini
 	UBUNTU
 )
 
-#tc_conan_build_package(NAME spdlog
-#	VERSION v1.x
-#	DEPENDS conan-profiles conan-tc-build
-#	UBUNTU
-#)
+tc_conan_build_package(NAME spdlog
+	VERSION 1.11.0
+	DEPENDS conan-profiles conan-tc-build
+	UBUNTU
+)
 
-#tc_conan_build_package(NAME fmt
-#	VERSION 9.1.0
-#	DEPENDS conan-profiles conan-tc-build
-#	UBUNTU
-#)
+tc_conan_build_package(NAME fmt
+	VERSION 9.1.0
+	DEPENDS conan-profiles conan-tc-build
+	UBUNTU
+)
 
 tc_conan_build_package(NAME vscode
 	VERSION 1.0.2

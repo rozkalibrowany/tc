@@ -7,84 +7,120 @@ namespace tc::server::http {
 
 using namespace parser;
 
+std::shared_ptr< Request > Action::get() const
+{
+	return std::make_shared<Request>(iRequest);
+}
+
 result_t Action::parse(const CppServer::HTTP::HTTPRequest& request)
 {
+	result_t res = RES_OK;
 	if (request.empty()) {
 		return RES_NOENT;
 	}
 
-	auto method = toMethod(request.method());
-	if (method == Method::NONE) {
-		return RES_INVARG;
+	Request req(request);
+
+	switch (req.method()) {
+		case Request::eGet:
+			res = handleGet(req);
+			break;
+		case Request::ePost:
+			res = handlePost(req);
+			break;
+		default:
+			res = RES_NOIMPL;
 	}
 
-	auto type = toType(regex(std::regex{"\\/(.*?)\\/"}, request.url()));
-	auto id = regex(std::regex{"\\/([0-9]+)\\/"}, request.url());
-	auto action = tc::regex(std::regex{"([^\\/]+$)"}, request.url());
+	return res;
+}
 
-	if (type == Unknown || id.empty() || action.empty()) {
-		return RES_INVARG;
+result_t Action::handleGet(const Request &request)
+{
+	if (request.type() == Request::eDevice) {
+		return parseDevice(request);
 	}
 
-	{
-		iMethod = method;
-		iID = id;
+	if (request.type() == Request::eDevices) {
+		return parseDevices(request);
+	}
 
-		LockGuard guard(iMutex);
-		if (Command::sMapping.find(action) == Command::sMapping.end()) {
-			return parse_internal_command(action);
-		} else {
-			iAction = action;
-			iType = type;
+	return RES_INVARG;
+}
+
+result_t Action::parseDevice(const Request &request)
+{
+	auto it = Command::sMapping.find(request.command());
+
+	if (request.method() == Request::ePost) {
+		if (!request.command().compare("set")) {
+			return parseQuery(request);
+		}
+		if (it != Command::sMapping.end()) {
+			return RES_OK;
 		}
 	}
 
-	return RES_OK;
+	if (request.method() == Request::eGet) {
+		return parseDeviceId(request);
+	}
+
+	return RES_NOENT;
 }
 
-result_t Action::parse(const Type type, const Method method)
+result_t Action::parseDevices(const Request &request)
 {
-	if (type == Type::Unknown || method == Method::NONE) {
+	if (request.method() != Request::eGet) {
 		return RES_NOENT;
 	}
 
-	auto reqs = fromType(type);
-	reqs.erase(std::remove(reqs.begin(), reqs.end(), '/'), reqs.end());
+	return RES_OK;
+}
 
-	iReq = reqs;
-	iMethod = method;
+result_t Action::parseCommand(const Request &request)
+{
+	return RES_NOIMPL;
+}
+
+result_t Action::handlePost(const Request &request)
+{
+	return RES_NOIMPL;
+}
+
+result_t Action::parseDeviceId(const Request &request)
+{
+	if (request.id().length() != 6 && request.id().length() != 15) { // IMEI_LENGTH
+		return RES_INVARG;
+	}
 
 	return RES_OK;
 }
 
-result_t Action::parse_internal_command(const std::string &action)
+result_t Action::parseQuery(const Request &request)
 {
-	auto left = action.substr(0, action.find({"?"}));
+	auto left = request.command().substr(0, request.command().find({"?"}));
 
-	if (left.compare("set")) {
-			LG_ERR(this->logger(), "Invalid action");
+	if (left.compare(Request::type2str(Request::ePackets))) {
 		return RES_NOENT;
 	}
 
-	auto right = action.substr(action.find("?") + 1);
+	auto right = request.command().substr(request.command().find("?") + 1);
 	auto key = right.substr(0, right.find("="));
 	auto val = right.substr(right.find("=") + 1);
 
-	if (key.compare("id") && key.compare("imei")) {
+	if (key.compare("id")) {
 		LG_ERR(this->logger(), "Invalid key.");
 		return RES_INVARG;
 	}
 
 	// ID shoud have 6 digits
 	if (!key.compare("id") && val.size() != 6) {
-		LG_ERR(this->logger(), "Invalid ID format.");
+		LG_ERR(this->logger(), "Invalid ID format. Required: '123456'");
 		return RES_INVARG;
 	}
 
-	iQueryParam.first = key;
-	iQueryParam.second = val;
-	iAction = left;
-	iType = Set;
+	request.iQueryParam.first = key;
+	request.iQueryParam.second = val;
 
 	return RES_OK;
 }

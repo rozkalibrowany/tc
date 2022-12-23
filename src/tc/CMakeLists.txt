@@ -7,7 +7,8 @@ TcAddLibrary(
 	SOURCE "${src}/common/*.cpp"
 	INCLUDE "${TcIncludeDir}"
 	LIBRARIES
-		spdlog::spdlog
+		spdlog::lib
+		fmt::lib
 	VERSION ${TcVersion}
 )
 
@@ -32,7 +33,7 @@ TcAddLibrary(
 TcAddLibrary(
 	TARGET tc-db
 	SOURCE "${src}/db/*.cpp"
-	INCLUDE "${TcIncludeDir}"
+	INCLUDE "/usr/local/ws/include" "${TcIncludeDir}"
 	LIBRARIES
 	 mongocxx::lib
 	 bsoncxx
@@ -42,7 +43,7 @@ TcAddLibrary(
 TcAddLibrary(
 	TARGET tc-asio
 	SOURCE "${src}/asio/*.cpp"
-	INCLUDE "${TcIncludeDir}" "/usr/local/include"
+	INCLUDE "${TcIncludeDir}"
 	LIBRARIES
 		asio
 	VERSION ${TcVersion}
@@ -53,13 +54,12 @@ TcAddLibrary(
 	SOURCE "${src}/server/tcp/*.cpp"
 	INCLUDE "${TcIncludeDir}"
 	LIBRARIES
+		cppserver
 		tc-asio
 		tc-db
 		tc-iot
 		tc-parser
 		tc-common
-		cppserver
-		cppcommon
 	VERSION ${TcVersion}
 )
 
@@ -71,10 +71,9 @@ TcAddLibrary(
 	SOURCE "${src}/client/tcp/*.cpp"
 	INCLUDE "${TcIncludeDir}"
 	LIBRARIES
+		cppserver
 		tc-asio
 		tc-common
-		cppserver
-		cppcommon
 		tc-iot
 	VERSION ${TcVersion}
 )
@@ -88,12 +87,12 @@ TcAddLibrary(
 	SOURCE "${src}/server/http/*.cpp"
 	INCLUDE "${TcIncludeDir}"
 	LIBRARIES
-	tc-asio
-	tc-db
-	tc-common
-	cppserver
-	cppcommon
-	tc-iot
+		cppserver
+		fmt::lib
+		tc-asio
+		tc-db
+		tc-common
+		tc-iot
 	VERSION ${TcVersion}
 )
 

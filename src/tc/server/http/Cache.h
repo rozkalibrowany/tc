@@ -4,7 +4,7 @@
 #include <server/http/https_server.h>
 #include <tc/server/iot/Devices.h>
 #include <tc/parser/Command.h>
-#include <tc/common/Common.h>
+#include <tc/server/http/Action.h>
 #include <queue>
 
 namespace tc::server::http {
@@ -18,16 +18,16 @@ public:
 	bool hasCommands() const;
 	bool hasImei(const Imei imei) const;
 
+	result_t handleAction(const Action &action, CppServer::HTTP::HTTPResponse &response);
+
 	std::shared_ptr< Command > getCommand();
-
-	Json::Value getDevices();
-
-	result_t addCommand(const Imei imei, const string cmd);
-	result_t set(const Imei imei, pair< const string, const string > val);
 
 	void onReceived(const void *buffer, size_t size);
 
 private:
+	result_t getDevices(CppServer::HTTP::HTTPResponse &response);
+	result_t addCommand(const Imei imei, const string cmd);
+	result_t set(const Imei imei, pair< const string, const string > val);
 	result_t decodeJson(const std::string &data);
 
 	iot::Devices iDevices;

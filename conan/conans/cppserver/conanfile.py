@@ -4,7 +4,7 @@ import os.path as osp
 import glob
 
 tc = python_requires("tc/0.3.0@tc/stable")
-opts = tc.OptCreator().add_bool("shared", True)
+opts = tc.OptCreator().add_bool("shared", True).add_bool("fPIC", True)
 
 
 class CppServerConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelper):
@@ -42,10 +42,15 @@ class CppServerConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHel
             [
                 {
                     "target": "lib",
+                    "libs": ["fmt"],
+                },
+                {
+                    "target": "lib",
                     "libs": ["cppserver"],
                 },
+
             ]
         )
-        libdir_c = os.path.join(os.path.join(self.package_folder, "lib"), "cmake")
-        self.output.info("Appending PATH environment variable: {}".format(libdir_c))
-        self.env_info.PATH.append(libdir_c)
+        #libdir_c = os.path.join(os.path.join(self.package_folder, "lib"), "cmake")
+        #self.output.info("Appending PATH environment variable: {}".format(libdir_c))
+        #self.env_info.PATH.append(libdir_c)

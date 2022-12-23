@@ -64,18 +64,22 @@ cmake ../ && make
 Configure tc-vehicle-connector-server as localhost
 ```bask
 * GET
-curl -X GET -kvH "Accept: application/json" https://127.0.0.1:8443/devices
-curl -X GET -kvH "Accept: application/json" https://127.0.0.1:8443/device/<IMEI/ID>
+curl -X GET https://127.0.0.1:8443/devices
+
+curl -X GET https://127.0.0.1:8443/device/<Imei/ID>
+curl -X GET https://127.0.0.1:8443/device/<Imei/ID>/packets
+curl -X GET https://127.0.0.1:8443/device/<Imei/ID>/packets?start=<timestamp>
+curl -X GET https://127.0.0.1:8443/device/<Imei/ID>/packets?start=<timestamp>&end=<timestamp>
 ```
 
 ```bash
 * POST (device)
-curl -X POST --data '{}' https://127.0.0.1:8443/device/<IMEI/ID>/unlock
-curl -X POST --data '{}' https://127.0.0.1:8443/device/<IMEI/ID>/lock
-curl -X POST --data '{}' https://127.0.0.1:8443/device/<IMEI/ID>/led_off
-curl -X POST --data '{}' https://127.0.0.1:8443/device/<IMEI/ID>/led_on
-curl -X POST --data '{}' https://127.0.0.1:8443/device/<IMEI/ID>/engine_off
-curl -X POST --data '{}' https://127.0.0.1:8443/device/<IMEI/ID>/engine_on
+curl -X POST --data '{}' https://127.0.0.1:8443/device/<Imei/ID>/unlock
+curl -X POST --data '{}' https://127.0.0.1:8443/device/<Imei/ID>/lock
+curl -X POST --data '{}' https://127.0.0.1:8443/device/<Imei/ID>/led_off
+curl -X POST --data '{}' https://127.0.0.1:8443/device/<Imei/ID>/led_on
+curl -X POST --data '{}' https://127.0.0.1:8443/device/<Imei/ID>/engine_off
+curl -X POST --data '{}' https://127.0.0.1:8443/device/<Imei/ID>/engine_on
 
 * POST (settings)
 curl -X POST --data '{}' https://127.0.0.1:8443/device/<IMEI>/set?id=123456
@@ -83,5 +87,5 @@ curl -X POST --data '{}' https://127.0.0.1:8443/device/<IMEI>/set?id=123456
 
 ```bash
 * DELETE
-curl -X DELETE --cacert <cert> https://127.0.0.1:8443/device/<IMEI/ID>
+curl -X DELETE --cacert <cert> https://127.0.0.1:8443/device/<Imei/ID>
 ```

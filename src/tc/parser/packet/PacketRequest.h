@@ -1,13 +1,12 @@
 #ifndef E0CCFC07_4DC4_466F_BFF6_501414B18F09
 #define E0CCFC07_4DC4_466F_BFF6_501414B18F09
 
-#include <tc/common/Common.h>
 #include <tc/parser/packet/Packet.h>
 #include <tc/parser/Reader.h>
-#include <tc/parser/ReqType.h>
+
 namespace tc::parser {
 
-class PacketRequest : public Packet, public ReqType
+class PacketRequest : public Packet
 {
 public:
 	static size_t REQ_MIN_SIZE;
@@ -19,12 +18,11 @@ public:
 
 	const size_t size() override;
 
-	Method method() const override;
-	Type type() const override;
+	int iMethod {0};
+	int iType {0};
 
 protected:
-	Method iMethod {NONE};
-	Type iType {Unknown};
+
 	size_t iSize {0};
 };
 

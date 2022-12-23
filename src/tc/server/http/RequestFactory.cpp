@@ -1,4 +1,5 @@
 #include <tc/server/http/RequestFactory.h>
+#include <tc/server/http/Action.h>
 
 namespace tc::server::http {
 
@@ -20,14 +21,14 @@ result_t RequestFactory::create(const Action &action, parser::Buf &buf, bool cr)
 	buf.insert(val.data(), val.length());
 
 	// method type
-	val = byte2string(action.iMethod);
+	val = byte2string(action.get()->method());
 	buf.insert(val.data(), val.length());
 
 	// 1 zero-byte
 	val = byte2string(0);
 	buf.insert(val.data(), val.length());
 
-  val = tc::tohex(action.iReq, cr);
+  val = tc::tohex(action.get()->command(), cr);
   buf.insert(val.data(), val.length());
 
 	return res;

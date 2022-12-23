@@ -107,7 +107,9 @@ int main(int argc, char** argv)
 		if (client->SendAsync((const void*) bin_cmd.data(), bin_cmd.size())) {
 			break;
 		}
-		CppCommon::Thread::Sleep(2000);
+		using milliseconds = std::chrono::milliseconds;
+		milliseconds interv = 2000ms;
+		std::this_thread::sleep_for(interv);
 	}
 
 	// Disconnect the client

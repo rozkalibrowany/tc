@@ -99,10 +99,10 @@ result_t TelematicsServer::dispatchRequest(std::shared_ptr< parser::PacketReques
 	using namespace parser;
 
 	result_t res = RES_OK;
-	auto type = request->type();
-	auto method = request->method();
+	auto type = request->iType;
+	auto method = request->iMethod;
 
-	if (type == ReqType::Devices && method == ReqType::GET) {
+	/*if (type == Request::Devices && method == Request::GET) {
 		Json::Value list;
 		auto &el = list["devices"] = Json::arrayValue;
 		for (const auto &[key, value] : _sessions) {
@@ -117,7 +117,7 @@ result_t TelematicsServer::dispatchRequest(std::shared_ptr< parser::PacketReques
 		if ((res = session->send((const uchar *)hexJson.data(), hexJson.size())) != RES_OK) {
 			LG_ERR(this->logger(), "Send hex json");
 		}
-	}
+	}*/
 
 	return res;
 }

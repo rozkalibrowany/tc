@@ -1,6 +1,7 @@
 #ifndef D636C7F7_D6B6_414B_B468_0498319874FF
 #define D636C7F7_D6B6_414B_B468_0498319874FF
 
+#include <mongocxx/v_noabi/mongocxx/instance.hpp>
 #include <tc/common/Common.h>
 #include <mongocxx/client.hpp>
 #include <mongocxx/instance.hpp>

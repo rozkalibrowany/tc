@@ -6,10 +6,10 @@
 #include <tc/server/http/Cache.h>
 #include <tc/server/http/CacheSession.h>
 #include <tc/server/http/CacheServer.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
-#include <tc/parser/ReqType.h>
 #include <mini/ini.h>
 #include <filesystem>
+#include <chrono>
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 int main(int argc, char** argv)
 {
@@ -97,9 +97,10 @@ int main(int argc, char** argv)
 			auto cmd = cache->getCommand();
 			client->handle(cmd);
 		}
-
+		std::string url = std::string("http://localhost:") + std::to_string(tcp_port) + std::string("/devices");
+		CppServer::HTTP::HTTPRequest req("GET", url, "HTTP/1.1");
 		server::http::Action action;
-		if (action.parse( parser::PacketRequest::Devices, parser::PacketRequest::GET) != RES_OK) {
+		if (action.parse(req) != RES_OK) {
 			LG_WRN(log.logger(), "Unable to get devices from Telematics Connector");
 			continue;
 		}
@@ -108,7 +109,9 @@ int main(int argc, char** argv)
 			client->DisconnectAsync();
 		}
 
-		CppCommon::Thread::Sleep(interval);
+		using milliseconds = std::chrono::milliseconds;
+		milliseconds interv = 2000ms;
+		std::this_thread::sleep_for(interv);
 	}
 	// Stop the server
 

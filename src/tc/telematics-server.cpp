@@ -1,9 +1,9 @@
-#include <spdlog/sinks/stdout_color_sinks.h>
 #include <tc/server/tcp/TelematicsServer.h>
 #include <tc/asio/AsioService.h>
 #include <tc/db/Client.h>
 #include <mini/ini.h>
 #include <filesystem>
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 // core dumps may be disallowed by parent of this process; change that
 
@@ -86,7 +86,9 @@ int main(int argc, char** argv)
 
 
 	while (true) {
-		CppCommon::Thread::Sleep(15000);
+		using milliseconds = std::chrono::milliseconds;
+		milliseconds interv = 15000ms;
+		std::this_thread::sleep_for(interv);
 		LG_NFO(log.logger(), "Alive! connected sessions: {} threads: {} IsPolling: {} IsStarted: {}",
 		(int) server->connected_sessions(), (int) service->threads(), (int) service->IsPolling(), (int) service->IsStarted());
 	}

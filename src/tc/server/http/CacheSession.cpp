@@ -1,5 +1,4 @@
 #include <tc/server/http/CacheSession.h>
-#include <tc/server/http/Cache.h>
 #include <string/string_utils.h>
 #include <tc/server/http/RequestFactory.h>
 #include <regex>
@@ -22,7 +21,7 @@ result_t HTTPCacheSession::handle(const Action &action)
 	parser::Buf buf;
 	RequestFactory req_fac;
 	if ((res = req_fac.create(action, buf)) != RES_OK) {
-		LG_ERR(this->logger(), "Unable to create request factory.");
+		//LG_ERR(this->logger(), "Unable to create request factory.");
 		return res;
 	}
 
@@ -36,7 +35,7 @@ result_t HTTPCacheSession::handle(const Action &action)
 void HTTPCacheSession::onReceivedRequest(const CppServer::HTTP::HTTPRequest& request)
 {
 	// Show HTTP request content
-	LG_NFO(this->logger(), "request: {}", request.string());
+	//LG_NFO(this->logger(), "request: {}", request.string());
 	if (iCache == nullptr) {
 		return;
 	}
@@ -44,50 +43,37 @@ void HTTPCacheSession::onReceivedRequest(const CppServer::HTTP::HTTPRequest& req
 	if (request.method() == "HEAD") {
 		SendResponseAsync(response().MakeHeadResponse());
 	}
-	else if (request.method() == "GET") {
-		auto action = request.string();
-		action.erase(std::remove(action.begin(), action.end(), '/'), action.end());
-		SendResponseAsync(response().MakeGetResponse(iCache->getDevices().toStyledString(), "application/json; charset=UTF-8"));
-
+	if (request.method() != "GET" && request.method() != "POST") {
+		SendResponseAsync(response().MakeErrorResponse(400, "Bad request"));
 	}
-	else if ((request.method() == "POST") || (request.method() == "PUT")) {
-			Action action;
-			result_t res = RES_OK;
-			if (action.parse(request) != RES_OK) {
-				LG_ERR(this->logger(), "Bad POST request: {}", request.url());
-				SendResponseAsync(response().MakeErrorResponse(400, "Bad request"));
-				return;
-			}
 
-			if (action.iType == Action::Device) {
-				res |= iCache->addCommand(action.iID, action.iAction);
-			} else {
-				res |= iCache->set(action.iID, action.iQueryParam);
-			}
-
-			if (res == RES_OK)
-				SendResponseAsync(response().MakeOKResponse());
-			else
-				SendResponseAsync(response().MakeErrorResponse(400, "Bad request"));
-	} else if (request.method() == "DELETE") {
-		// TODO
+	Action action;
+	result_t res;
+	if ((res = action.parse(request)) != RES_OK) {
+		//LG_ERR(this->logger(), "Bad {} request[{}]", request.method(), request.url());
+		SendResponseAsync(response().MakeErrorResponse(400, "Bad request"));
+		return;
 	}
-	else if (request.method() == "OPTIONS")
-			SendResponseAsync(response().MakeOptionsResponse());
-	else if (request.method() == "TRACE")
-			SendResponseAsync(response().MakeTraceResponse(request.cache()));
-	else
-			SendResponseAsync(response().MakeErrorResponse("Unsupported HTTP method: " + std::string(request.method())));
+
+	CppServer::HTTP::HTTPResponse resp;
+	if ((res = iCache->handleAction(action, resp)) != RES_OK) {
+		//LG_ERR(this->logger(), "Unable to handle action[{}][{}]", request.method(), request.url());
+		resp = res == RES_NOIMPL ? response().MakeErrorResponse(500, "Internal Server Error") : response().MakeErrorResponse(400, "Bad Request");
+		SendResponseAsync(resp);
+		return;
+	}
+
+	SendResponseAsync(response().MakeOKResponse());
 }
 
 void HTTPCacheSession::onReceivedRequestError(const CppServer::HTTP::HTTPRequest &request, const std::string &error)
 {
-	// cout << "Request error: " << error << std::endl;
+	//LG_ERR(this->logger(), "Request error: {}", error);
 }
 
 void HTTPCacheSession::onError(int error, const std::string& category, const std::string& message)
 {
-	// cout << "HTTPS session caught an error with code " << error << " and category '" << category << "': " << message << std::endl;
+	//LG_ERR(this->logger(), "HTTPS session caught an error with code: {}, cat: {}, msg: {}", error, category, message);
 }
 
 } // namespace tc::server::http

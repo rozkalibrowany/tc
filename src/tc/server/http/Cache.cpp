@@ -1,13 +1,36 @@
 #include <tc/server/http/Cache.h>
 #include <json/json.h>
 #include <tc/parser/Util.h>
-#include <sstream>
 
 namespace tc::server::http {
 
 bool  Cache::hasImei(const Imei imei) const
 {
 	return iDevices.has(imei);
+}
+
+result_t Cache::handleAction(const Action &action, CppServer::HTTP::HTTPResponse &response)
+{
+	switch(action.get()->type()) {
+		case Request::eDevices:
+			return getDevices(response);
+
+		case Request::eDevice:
+			if (action.get()->method() == Request::eGet) {
+				return RES_NOIMPL;
+			}
+			if (action.get()->command().compare("set")) {
+				return set(action.get()->id(), action.get()->iQueryParam);
+			} else {
+				return addCommand(action.get()->id(), action.get()->command());
+			}
+
+		case Request::ePackets:
+		default:
+			return RES_NOIMPL;
+		}
+
+		return RES_NOENT;
 }
 
 std::shared_ptr< Command > Cache::getCommand()
@@ -20,9 +43,10 @@ std::shared_ptr< Command > Cache::getCommand()
 	return command;
 }
 
-Json::Value Cache::getDevices()
+result_t Cache::getDevices(CppServer::HTTP::HTTPResponse &response)
 {
-	return iDevices.toJson();
+	response.SetBody(iDevices.toJson().toStyledString());
+	return RES_OK;
 }
 
 void Cache::onReceived(const void *buffer, size_t size)

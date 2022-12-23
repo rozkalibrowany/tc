@@ -13,21 +13,14 @@ class SpdlogConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelper
     generators = tc.CmakeHelper.generators
     options, default_options = opts.options, opts.default
 
-    scm = {
-        "type": "git",
-        "subfolder": "source_subfolder",
-        "url": "https://github.com/gabime/spdlog",
-        "revision": "v1.x",
-    }
+    def configure(s):
+        del s.settings.compiler.cppstd
 
-    # def configure(s):
-    #    del s.settings.compiler.cppstd
+    def requirements(s):
+        s.requires("fmt/9.1.0@tc/stable")
 
-    # def requirements(s):
-    #    s.requires("fmt/9.1.0@tc/stable")
-
-    # def source(s):
-    #    s.do_source()
+    def source(s):
+        s.do_source()
 
     def build(s):
         definitions = {
@@ -47,8 +40,7 @@ class SpdlogConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelper
                 {
                     "target": "lib",
                     "libs": ["spdlog"],
-                    "system_libs": ["fmt::fmt"]
-                    # "requires": ["fmt::fmt"],
+                    "requires": ["fmt::lib"]
                 },
             ]
         )
