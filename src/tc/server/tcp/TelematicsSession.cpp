@@ -159,7 +159,7 @@ result_t TelematicsSession::savePacket(const std::shared_ptr<parser::PacketPaylo
 {
 	Json::Value val;
 
-	auto timestamp = packet->id().timestamp.timestamp();
+	auto timestamp = packet->timestamp().timestamp.timestamp();
 	auto systime = SysTime(timestamp);
 
 	val["imei"] = iDevice->iImei;

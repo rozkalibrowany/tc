@@ -4,14 +4,15 @@
 #include <server/http/http_session.h>
 #include <tc/server/http/Cache.h>
 #include <tc/asio/AsioService.h>
+#include <tc/common/Logger.h>
 namespace tc::server::http {
 
-class HTTPCacheSession : public CppServer::HTTP::HTTPSession
+class HTTPCacheSession : public CppServer::HTTP::HTTPSession, public tc::LogI
 {
 public:
 	using CppServer::HTTP::HTTPSession::HTTPSession;
 
-	virtual void setCache(const std::shared_ptr<Cache> &cache);
+	HTTPCacheSession(const std::shared_ptr<CppServer::HTTP::HTTPServer> &server, const std::shared_ptr<Cache> &cache);
 
 protected:
 	result_t handle(const Action &action);

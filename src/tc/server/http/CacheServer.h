@@ -3,6 +3,7 @@
 
 #include <server/http/http_server.h>
 #include <tc/server/http/Cache.h>
+#include <tc/asio/AsioService.h>
 
 namespace tc::server::http {
 
@@ -11,7 +12,7 @@ class HTTPCacheServer : public CppServer::HTTP::HTTPServer
 public:
 	using CppServer::HTTP::HTTPServer::HTTPServer;
 
-	virtual void setCache(const std::shared_ptr< Cache > &cache);
+	HTTPCacheServer(const std::shared_ptr<asio::AsioService>& service, int port, const std::shared_ptr<Cache> &cache);
 
 protected:
 	std::shared_ptr<CppServer::Asio::TCPSession> CreateSession(const std::shared_ptr<CppServer::Asio::TCPServer>& server) override;

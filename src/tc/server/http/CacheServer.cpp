@@ -4,15 +4,16 @@
 
 namespace tc::server::http {
 
-void HTTPCacheServer::setCache(const std::shared_ptr< Cache > &cache)
+HTTPCacheServer::HTTPCacheServer(const std::shared_ptr<asio::AsioService>& service, int port, const std::shared_ptr< Cache > &cache)
+ : CppServer::HTTP::HTTPServer(service, port)
+ , iCache(cache)
 {
-	iCache = std::move(cache);
+	// nothing to do
 }
 
 std::shared_ptr<CppServer::Asio::TCPSession> HTTPCacheServer::CreateSession(const std::shared_ptr<CppServer::Asio::TCPServer>& server)
 {
-	auto session = std::make_shared<HTTPCacheSession>(std::dynamic_pointer_cast<CppServer::HTTP::HTTPServer>(server));
-	session->setCache(std::move(iCache));
+	auto session = std::make_shared<HTTPCacheSession>(std::dynamic_pointer_cast<CppServer::HTTP::HTTPServer>(server), iCache);
 	return session;
 }
 

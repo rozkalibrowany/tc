@@ -32,6 +32,8 @@ result_t Action::parse(const CppServer::HTTP::HTTPRequest& request)
 			res = RES_NOIMPL;
 	}
 
+	iRequest = std::move(req);
+
 	return res;
 }
 
@@ -48,21 +50,36 @@ result_t Action::handleGet(const Request &request)
 	return RES_INVARG;
 }
 
+
+result_t Action::handlePost(const Request &request)
+{
+	if (request.type() == Request::eDevices) {
+		return RES_NOENT;
+	}
+
+	if (request.type() == Request::eDevice) {
+		return parseDevice(request);
+	}
+
+	return RES_NOENT;
+}
+
 result_t Action::parseDevice(const Request &request)
 {
-	auto it = Command::sMapping.find(request.command());
-
 	if (request.method() == Request::ePost) {
 		if (!request.command().compare("set")) {
 			return parseQuery(request);
 		}
+		auto it = Command::sMapping.find(request.command());
 		if (it != Command::sMapping.end()) {
 			return RES_OK;
 		}
 	}
 
 	if (request.method() == Request::eGet) {
-		return parseDeviceId(request);
+		if(parseDeviceId(request) == RES_OK && request.command().empty()) {
+			return RES_OK;
+		}
 	}
 
 	return RES_NOENT;
@@ -78,11 +95,6 @@ result_t Action::parseDevices(const Request &request)
 }
 
 result_t Action::parseCommand(const Request &request)
-{
-	return RES_NOIMPL;
-}
-
-result_t Action::handlePost(const Request &request)
 {
 	return RES_NOIMPL;
 }

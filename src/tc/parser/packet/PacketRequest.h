@@ -11,19 +11,16 @@ class PacketRequest : public Packet
 public:
 	static size_t REQ_MIN_SIZE;
 
-	static bool hasRequest(const uchar* buf, size_t size);
-	static bool contains(const uchar* buf, size_t size, uchar c);
+	static bool hasRequest(const uchar *buf, size_t size);
+	static bool contains(const uchar *buf, size_t size, uchar c);
 
-	result_t parse(uchar* cbuf, size_t size, size_t offset = 0) override;
+	result_t parse(uchar *cbuf, size_t size, size_t offset = 0) override;
 
 	const size_t size() override;
 
-	int iMethod {0};
-	int iType {0};
-
-protected:
-
-	size_t iSize {0};
+	Method iMethod{eNone};
+	Type iType{eUnknown};
+	size_t iSize{0};
 };
 
 } // namespace tc::parser

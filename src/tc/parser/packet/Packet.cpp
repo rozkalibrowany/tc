@@ -10,6 +10,17 @@ Packet::Packet(const std::string imei)
 	// nothing to do
 }
 
+Packet::Type Packet::str2req(const std::string &req)
+{
+	if (req.compare("devices") == 0) {
+		return Type::eDevices;
+	} else if (req.compare("data") == 0) {
+		return Type::eDevice;
+	} else {
+		return Type::eUnknown;
+	}
+}
+
 bool Packet::hasImei(const uchar *cbuf, size_t size)
 {
 	if (size < 15) {
@@ -67,34 +78,34 @@ int Packet::codec() const
 	return iCodec;
 }
 
-const Packet::ID &Packet::id() const
+const Packet::Timestamp &Packet::timestamp() const
 {
-	return iID;
+	return iTimestamp;
 }
 
 bool Packet::operator<(const Packet &rhs) const
 {
-	return iID.timestamp.timestamp() < rhs.iID.timestamp.timestamp();
+	return iTimestamp.timestamp.timestamp() < rhs.iTimestamp.timestamp.timestamp();
 }
 
 bool Packet::operator<=(const Packet &rhs) const
 {
-	return iID.timestamp.timestamp() <= rhs.iID.timestamp.timestamp();
+	return iTimestamp.timestamp.timestamp() <= rhs.iTimestamp.timestamp.timestamp();
 }
 
 bool Packet::operator>(const Packet &rhs) const
 {
-	return iID.timestamp.timestamp() > rhs.iID.timestamp.timestamp();
+	return iTimestamp.timestamp.timestamp() > rhs.iTimestamp.timestamp.timestamp();
 }
 
 bool Packet::operator>=(const Packet &rhs) const
 {
-	return iID.timestamp.timestamp() >= rhs.iID.timestamp.timestamp();
+	return iTimestamp.timestamp.timestamp() >= rhs.iTimestamp.timestamp.timestamp();
 }
 
 bool Packet::operator==(const Packet &rhs) const
 {
-	return iID.timestamp.timestamp() == rhs.iID.timestamp.timestamp();
+	return iTimestamp.timestamp.timestamp() == rhs.iTimestamp.timestamp.timestamp();
 }
 
 } // namespace tc::parser

@@ -31,15 +31,14 @@ result_t PacketRequest::parse(uchar* cbuf, size_t size, size_t  offset)
 		return RES_NOENT;
 	}
 
-	int met = static_cast<int>((cbuf + 3)[0]);
-	iMethod = met;
+	iMethod = static_cast<Method>((cbuf + 3)[0]);
 
 	size_t len = (size - 5) / 2;
 	auto out = new char[len];
 	auto str = tc::uchar2string((const uchar*)cbuf + 5, size - 5);
 	tc::hex2bin((char*) str.data(), out);
 
-	//iType = tc::server::http::Request::str2req(out);
+	iType = Packet::str2req(out);
 	iSize = size - 5;
 	delete out;
 

@@ -4,6 +4,13 @@
 
 namespace tc::server::http {
 
+Cache::Cache(Signal<Imei, std::string> &signal)
+ : CppCommon::Singleton<Cache>()
+ , iSignal(signal)
+{
+	// nothing to do
+}
+
 bool  Cache::hasImei(const Imei imei) const
 {
 	return iDevices.has(imei);
@@ -17,12 +24,12 @@ result_t Cache::handleAction(const Action &action, CppServer::HTTP::HTTPResponse
 
 		case Request::eDevice:
 			if (action.get()->method() == Request::eGet) {
-				return RES_NOIMPL;
+				return getDevice(action.get()->id(), response);
 			}
-			if (action.get()->command().compare("set")) {
-				return set(action.get()->id(), action.get()->iQueryParam);
+			if (!action.get()->command().compare("set")) {
+				return set(action.get()->id(), action.get()->iQueryParam, response);
 			} else {
-				return addCommand(action.get()->id(), action.get()->command());
+				return addCommand(action.get()->id(), action.get()->command(), response);
 			}
 
 		case Request::ePackets:
@@ -33,20 +40,25 @@ result_t Cache::handleAction(const Action &action, CppServer::HTTP::HTTPResponse
 		return RES_NOENT;
 }
 
-std::shared_ptr< Command > Cache::getCommand()
+result_t Cache::getDevice(const Imei &imei, CppServer::HTTP::HTTPResponse &response)
 {
-	if (iCommands.empty())
-		return nullptr;
-
-	auto command = iCommands.front();
-	iCommands.pop();
-	return command;
+	if ((iDevices.devices().find(imei) == iDevices.devices().end())) {
+		response.MakeErrorResponse(400, "Bad request");
+		return RES_NOENT;
+	}
+	response.MakeGetResponse(iDevices.devices().at(imei)->toJson().toStyledString(), "application/json; charset=UTF-8");
+	return RES_OK;
 }
 
 result_t Cache::getDevices(CppServer::HTTP::HTTPResponse &response)
 {
-	response.SetBody(iDevices.toJson().toStyledString());
+	response.MakeGetResponse(iDevices.toJson().toStyledString(), "application/json; charset=UTF-8");
 	return RES_OK;
+}
+
+std::string Cache::getDevices()
+{
+	return iDevices.toJson().toStyledString();
 }
 
 void Cache::onReceived(const void *buffer, size_t size)
@@ -78,26 +90,14 @@ result_t Cache::decodeJson(const std::string &data)
 	return iDevices.fromJson(root);
 }
 
-bool Cache::hasCommands() const
+result_t Cache::addCommand(const Imei imei, const std::string cmd, CppServer::HTTP::HTTPResponse &response)
 {
-	return !iCommands.empty();
+	iSignal.emit(imei, cmd);
+	response.MakeOKResponse();
+	return RES_OK;
 }
 
-result_t Cache::addCommand(const Imei imei, const std::string cmd)
-{
-	result_t res = RES_OK;
-
-	auto command = std::make_shared<Command>(imei);
-	if ((res = command->create(cmd)) != RES_OK) {
-		LG_ERR(this->logger(), "Unable to create command");
-		return res;
-	}
-
-	iCommands.push(std::move(command));
-	return res;
-}
-
-result_t Cache::set(const Imei imei, pair< const string, const string > val)
+result_t Cache::set(const Imei imei, pair< const string, const string > val, CppServer::HTTP::HTTPResponse &response)
 {
 	auto &devices = iDevices.devices();
 	auto it = devices.find(imei);
@@ -105,12 +105,13 @@ result_t Cache::set(const Imei imei, pair< const string, const string > val)
 		if (!val.first.compare("ID") || !val.first.compare("id")) {
 			(*it).second->iID = val.second;
 		} else {
+			response.MakeErrorResponse(400, "Bad Request");
 			return RES_INVARG;
 		}
 	}
 
+	response.MakeOKResponse();
 	return RES_OK;
-
 }
 
 } // namespace tc::server::http

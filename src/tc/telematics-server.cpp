@@ -51,7 +51,7 @@ int main(int argc, char** argv)
 	size_t cache = static_cast<size_t>(std::stoi(ini["session"]["cache"]));
 
 	// Create a new Asio service
-	const auto service = std::make_shared< server::tcp::AsioService >();
+	const auto service = std::make_shared< server::tcp::AsioService >(10);
 	if (service->Start() != true) {
 		LG_ERR(log.logger(), "Unable to start asio service. Exiting...");
 		return 1;

@@ -16,12 +16,26 @@ class Packet : public tc::LogI
 {
 public:
 
-	struct ID {
-		ID &operator=(const ID &rhs) = default;
-		auto operator<=>(const ID &rhs) const = default;
+	enum Type {
+		eUnknown = 0,
+		ePackets,
+		eDevices,
+		eDevice
+  };
 
-		ID(bool now) : timestamp(SysTime(now)) {}
-		ID() : ID(true) {}
+	enum Method {
+		eNone = 0,
+		eHead,
+		eGet,
+		ePost,
+		eDelete
+	};
+	struct Timestamp {
+		Timestamp &operator=(const Timestamp &rhs) = default;
+		auto operator<=>(const Timestamp &rhs) const = default;
+
+		Timestamp(bool now) : timestamp(SysTime(now)) {}
+		Timestamp() : Timestamp(true) {}
 
 		SysTime timestamp;
 	};
@@ -31,6 +45,7 @@ public:
 
 	static result_t parseImei(const uchar *cbuf, size_t size, Imei &imei);
 	static const std::string toImei(const uchar *cbuf, int len);
+	static Type str2req(const std::string &req);
 
 	static bool hasImei(const uchar *cbuf, size_t size);
 
@@ -44,12 +59,12 @@ public:
 	virtual const size_t size() = 0;
 
 	virtual int codec() const;
-	virtual const ID &id() const;
+	virtual const Timestamp &timestamp() const;
 
 protected:
 	bool crcOk(const std::shared_ptr< Buf > buf, size_t size);
 
-	ID iID;
+	Timestamp iTimestamp;
 	int iCodec;
 };
 

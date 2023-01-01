@@ -2,12 +2,14 @@
 #define B94047BD_14E6_47AB_816B_617BFEAE19BF
 
 #include <server/http/http_request.h>
+#include <tc/common/Common.h>
+#include <tc/parser/Buf.h>
 
 namespace tc::server::http {
 
 class HTTPRequest;
 
-class Request {
+class Request : public tc::LogI {
 public:
 
 	enum Type {
@@ -25,15 +27,17 @@ public:
 		eDelete
 	};
 
-  Request() = default;
+  Request();
   Request(const CppServer::HTTP::HTTPRequest& request);
 
-  ~Request() = default;
+  virtual ~Request() = default;
 
 	Method method() const;
 	Type type() const;
 	const std::string id() const;
 	const std::string command() const;
+
+	result_t toInternal(parser::Buf &buf, bool cr = false);
 
 	static Type str2req(const std::string &req);
   static const std::string_view method2str(Method method);
@@ -42,7 +46,9 @@ public:
   static Type str2type(const std::string type);
 
 	mutable std::pair<std::string, std::string> iQueryParam;
-protected:
+private:
+	const size_t depth() const;
+
 	mutable CppServer::HTTP::HTTPRequest iRequest;
 };
 

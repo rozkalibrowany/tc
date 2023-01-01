@@ -1,5 +1,6 @@
 #include <tc/server/tcp/TelematicsServer.h>
 #include <tc/server/iot/Devices.h>
+#include <tc/server/http/Request.h>
 
 namespace tc::server::tcp {
 
@@ -102,7 +103,7 @@ result_t TelematicsServer::dispatchRequest(std::shared_ptr< parser::PacketReques
 	auto type = request->iType;
 	auto method = request->iMethod;
 
-	/*if (type == Request::Devices && method == Request::GET) {
+	if (type == Packet::eDevices && method == Packet::eGet) {
 		Json::Value list;
 		auto &el = list["devices"] = Json::arrayValue;
 		for (const auto &[key, value] : _sessions) {
@@ -117,7 +118,7 @@ result_t TelematicsServer::dispatchRequest(std::shared_ptr< parser::PacketReques
 		if ((res = session->send((const uchar *)hexJson.data(), hexJson.size())) != RES_OK) {
 			LG_ERR(this->logger(), "Send hex json");
 		}
-	}*/
+	}
 
 	return res;
 }

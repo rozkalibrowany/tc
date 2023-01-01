@@ -1,13 +1,14 @@
 #include <tc/server/http/CacheSession.h>
 #include <string/string_utils.h>
-#include <tc/server/http/RequestFactory.h>
 #include <regex>
 
 namespace tc::server::http {
 
-void HTTPCacheSession::setCache(const std::shared_ptr< Cache > &cache)
+HTTPCacheSession::HTTPCacheSession(const std::shared_ptr<CppServer::HTTP::HTTPServer> &server, const std::shared_ptr<Cache> &cache)
+ : HTTPSession(server)
+ , iCache(cache)
 {
-	iCache = std::move(cache);
+	// nothing to do
 }
 
 result_t HTTPCacheSession::handle(const Action &action)
@@ -18,10 +19,10 @@ result_t HTTPCacheSession::handle(const Action &action)
 		return RES_NOENT;
 	}
 
-	parser::Buf buf;
+/*	parser::Buf buf;
 	RequestFactory req_fac;
 	if ((res = req_fac.create(action, buf)) != RES_OK) {
-		//LG_ERR(this->logger(), "Unable to create request factory.");
+		LG_ERR(this->logger(), "Unable to create request factory.");
 		return res;
 	}
 
@@ -29,13 +30,13 @@ result_t HTTPCacheSession::handle(const Action &action)
 	auto out = new char[len];
 	tc::hex2bin((char*) buf.data(), out);
 
-	return SendAsync(out, len) != true ? RES_ERROR : RES_OK;
+	return SendAsync(out, len) != true ? RES_ERROR : RES_OK; */
+	return res;
 }
 
 void HTTPCacheSession::onReceivedRequest(const CppServer::HTTP::HTTPRequest& request)
 {
-	// Show HTTP request content
-	//LG_NFO(this->logger(), "request: {}", request.string());
+	LG_NFO(this->logger(), "request: {}", request.string());
 	if (iCache == nullptr) {
 		return;
 	}
@@ -50,30 +51,30 @@ void HTTPCacheSession::onReceivedRequest(const CppServer::HTTP::HTTPRequest& req
 	Action action;
 	result_t res;
 	if ((res = action.parse(request)) != RES_OK) {
-		//LG_ERR(this->logger(), "Bad {} request[{}]", request.method(), request.url());
+		LG_ERR(this->logger(), "Bad {} request[{}]", request.method(), request.url());
 		SendResponseAsync(response().MakeErrorResponse(400, "Bad request"));
 		return;
 	}
 
 	CppServer::HTTP::HTTPResponse resp;
 	if ((res = iCache->handleAction(action, resp)) != RES_OK) {
-		//LG_ERR(this->logger(), "Unable to handle action[{}][{}]", request.method(), request.url());
+		LG_ERR(this->logger(), "Unable to handle action[{}][{}]", request.method(), request.url());
 		resp = res == RES_NOIMPL ? response().MakeErrorResponse(500, "Internal Server Error") : response().MakeErrorResponse(400, "Bad Request");
 		SendResponseAsync(resp);
 		return;
 	}
 
-	SendResponseAsync(response().MakeOKResponse());
+	SendResponseAsync(resp);
 }
 
 void HTTPCacheSession::onReceivedRequestError(const CppServer::HTTP::HTTPRequest &request, const std::string &error)
 {
-	//LG_ERR(this->logger(), "Request error: {}", error);
+	LG_ERR(this->logger(), "Request error: {}", error);
 }
 
 void HTTPCacheSession::onError(int error, const std::string& category, const std::string& message)
 {
-	//LG_ERR(this->logger(), "HTTPS session caught an error with code: {}, cat: {}, msg: {}", error, category, message);
+	LG_ERR(this->logger(), "HTTPS session caught an error with code: {}, cat: {}, msg: {}", error, category, message);
 }
 
 } // namespace tc::server::http
