@@ -1,7 +1,6 @@
 #include <tc/server/http/Action.h>
 #include <tc/common/LockGuard.h>
 #include <tc/common/Regex.h>
-#include <tc/parser/Command.h>
 
 namespace tc::server::http {
 
@@ -10,6 +9,11 @@ using namespace parser;
 std::shared_ptr< Request > Action::get() const
 {
 	return std::make_shared<Request>(iRequest);
+}
+
+bool Action::hasQuery(const Request &request)
+{
+	return request.command().find({"?"}) != request.command().npos;
 }
 
 result_t Action::parse(const CppServer::HTTP::HTTPRequest& request)
@@ -66,23 +70,11 @@ result_t Action::handlePost(const Request &request)
 
 result_t Action::parseDevice(const Request &request)
 {
-	if (request.method() == Request::ePost) {
-		if (!request.command().compare("set")) {
-			return parseQuery(request);
-		}
-		auto it = Command::sMapping.find(request.command());
-		if (it != Command::sMapping.end()) {
-			return RES_OK;
-		}
+	if (parseDeviceId(request) != RES_OK) {
+		return RES_NOENT;
 	}
 
-	if (request.method() == Request::eGet) {
-		if(parseDeviceId(request) == RES_OK && request.command().empty()) {
-			return RES_OK;
-		}
-	}
-
-	return RES_NOENT;
+	return parseCommand(request);
 }
 
 result_t Action::parseDevices(const Request &request)
@@ -94,25 +86,11 @@ result_t Action::parseDevices(const Request &request)
 	return RES_OK;
 }
 
-result_t Action::parseCommand(const Request &request)
-{
-	return RES_NOIMPL;
-}
-
-result_t Action::parseDeviceId(const Request &request)
-{
-	if (request.id().length() != 6 && request.id().length() != 15) { // IMEI_LENGTH
-		return RES_INVARG;
-	}
-
-	return RES_OK;
-}
-
 result_t Action::parseQuery(const Request &request)
 {
 	auto left = request.command().substr(0, request.command().find({"?"}));
 
-	if (left.compare(Request::type2str(Request::ePackets))) {
+	if (left.compare("packets") && left.compare("set")) {
 		return RES_NOENT;
 	}
 
@@ -120,7 +98,7 @@ result_t Action::parseQuery(const Request &request)
 	auto key = right.substr(0, right.find("="));
 	auto val = right.substr(right.find("=") + 1);
 
-	if (key.compare("id")) {
+	if (key.compare("id") && key.compare("begin") && key.compare("end")) {
 		LG_ERR(this->logger(), "Invalid key.");
 		return RES_INVARG;
 	}
@@ -130,9 +108,31 @@ result_t Action::parseQuery(const Request &request)
 		LG_ERR(this->logger(), "Invalid ID format. Required: '123456'");
 		return RES_INVARG;
 	}
+	return RES_OK;
+}
 
-	request.iQueryParam.first = key;
-	request.iQueryParam.second = val;
+result_t Action::parseCommand(const Request &request)
+{
+	if (request.method() == Request::eGet && !request.command().compare("set")) {
+		return RES_NOENT;
+	}
+
+	if (request.method() == Request::ePost && !request.command().compare("packets")) {
+		return RES_NOENT;
+	}
+
+	if (hasQuery(request) == true) {
+		return parseQuery(request);
+	}
+
+	return RES_OK;
+}
+
+result_t Action::parseDeviceId(const Request &request)
+{
+	if (request.id().length() != 6 && request.id().length() != 15) { // IMEI_LENGTH
+		return RES_INVARG;
+	}
 
 	return RES_OK;
 }

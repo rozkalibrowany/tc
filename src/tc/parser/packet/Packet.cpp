@@ -1,24 +1,14 @@
 #include <tc/parser/packet/Packet.h>
 #include <tc/common/CRC16.h>
 
-namespace tc::parser {
+namespace tc::parser::packet {
 
-Packet::Packet(const std::string imei)
+Packet::Packet(const Imei &imei)
 	: tc::LogI("console")
+	, iImei(imei)
 	, iCodec(0)
 {
 	// nothing to do
-}
-
-Packet::Type Packet::str2req(const std::string &req)
-{
-	if (req.compare("devices") == 0) {
-		return Type::eDevices;
-	} else if (req.compare("data") == 0) {
-		return Type::eDevice;
-	} else {
-		return Type::eUnknown;
-	}
 }
 
 bool Packet::hasImei(const uchar *cbuf, size_t size)
@@ -108,4 +98,4 @@ bool Packet::operator==(const Packet &rhs) const
 	return iTimestamp.timestamp.timestamp() == rhs.iTimestamp.timestamp.timestamp();
 }
 
-} // namespace tc::parser
+} // namespace tc::parser::packet

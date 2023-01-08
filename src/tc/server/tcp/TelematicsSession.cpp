@@ -1,8 +1,8 @@
 #include <tc/server/tcp/TelematicsSession.h>
 #include <tc/server/tcp/TelematicsServer.h>
 #include <tc/parser/packet/PacketPayload.h>
-#include <tc/parser/packet/PacketCommand.h>
-#include <tc/parser/packet/PacketRequest.h>
+#include <tc/parser/packet/Command.h>
+#include <tc/parser/packet/InternalRequest.h>
 #include <bsoncxx/builder/stream/document.hpp>
 #include <bsoncxx/json.hpp>
 #include <iomanip>
@@ -13,6 +13,14 @@ std::shared_ptr<TelematicsServer> TelematicsSession::telematicsServer()
 {
 	std::shared_ptr<TelematicsServer> server = std::dynamic_pointer_cast<TelematicsServer>(this->server());
 	return server;
+}
+
+const Imei TelematicsSession::imei() const
+{
+	if (iDevice == nullptr) {
+		return std::string();
+	}
+	return iDevice->iImei;
 }
 
 bool TelematicsSession::hasImei(const Imei imei) const
@@ -78,7 +86,7 @@ result_t TelematicsSession::handleImei(const uchar *buffer, size_t size)
 	result_t res = RES_OK;
 	Imei imei;
 
-	res |= Packet::parseImei(buffer, size, imei);
+	res |= packet::Packet::parseImei(buffer, size, imei);
 	if (res != RES_OK) {
 		LG_ERR(this->logger(), "Parse imei.");
 		send(eInvalid);
@@ -99,7 +107,7 @@ result_t TelematicsSession::handlePayload(const uchar *buffer, size_t size)
 
 	result_t res = RES_OK;
 
-	auto packet = std::make_shared< parser::PacketPayload >();
+	auto packet = std::make_shared< parser::packet::PacketPayload >();
 	if ((res = packet->parse((uchar*) buffer, size)) != RES_OK) {
 		LG_ERR(this->logger(), "Parse payload packet");
 		return res;
@@ -155,7 +163,7 @@ result_t TelematicsSession::handleStandby(const uchar *buffer, size_t size)
 }
 
 
-result_t TelematicsSession::savePacket(const std::shared_ptr<parser::PacketPayload> &packet)
+result_t TelematicsSession::savePacket(const std::shared_ptr<parser::packet::PacketPayload> &packet)
 {
 	Json::Value val;
 

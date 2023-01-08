@@ -7,6 +7,7 @@
 #include <tc/common/SysTime.h>
 #include <tc/common/Codec.h>
 #include <tc/common/Regex.h>
+#include <tc/common/Types.h>
 #include <string>
 #include <cstddef>
 #include <vector>
@@ -18,6 +19,7 @@
 
 using uchar = unsigned char;
 using Imei = std::string;
+using timestamp = int64_t;
 
 static const std::function< bool(int) > vIsPortNumber = [](int port)
 {

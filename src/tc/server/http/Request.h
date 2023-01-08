@@ -9,23 +9,8 @@ namespace tc::server::http {
 
 class HTTPRequest;
 
-class Request : public tc::LogI {
+class Request : public Types, public tc::LogI {
 public:
-
-	enum Type {
-		eUnknown = 0,
-		ePackets,
-		eDevices,
-		eDevice
-  };
-
-	enum Method {
-		eNone = 0,
-		eHead,
-		eGet,
-		ePost,
-		eDelete
-	};
 
   Request();
   Request(const CppServer::HTTP::HTTPRequest& request);
@@ -36,16 +21,8 @@ public:
 	Type type() const;
 	const std::string id() const;
 	const std::string command() const;
+	const std::pair<std::string, std::string> query() const;
 
-	result_t toInternal(parser::Buf &buf, bool cr = false);
-
-	static Type str2req(const std::string &req);
-  static const std::string_view method2str(Method method);
-  static const std::string type2str(Type type);
-  static Method str2method(const std::string_view method);
-  static Type str2type(const std::string type);
-
-	mutable std::pair<std::string, std::string> iQueryParam;
 private:
 	const size_t depth() const;
 

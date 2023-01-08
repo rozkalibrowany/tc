@@ -10,7 +10,7 @@ namespace tc::server::iot {
 class Device : public tc::LogI, public parser::JsonI
 {
 public:
-  using PayloadPackets = std::deque< std::shared_ptr< parser::PacketPayload > >;
+  using PayloadPackets = std::deque< std::shared_ptr< parser::packet::PacketPayload > >;
 
 	Device() = default;
 	Device(size_t cache, const Imei &imei, const std::string id = "");
@@ -20,12 +20,14 @@ public:
 	bool operator!=(const Device &rhs) const;
   Device &operator=(const Device &rhs);
 
-	bool has(const std::shared_ptr< parser::PacketPayload > &packet);
+	bool has(const std::shared_ptr< parser::packet::PacketPayload > &packet);
 
 	PayloadPackets &packets();
 
 	result_t add(const uchar* buffer, size_t size);
-	result_t add(const std::shared_ptr< parser::PacketPayload > packet);
+	result_t add(const std::shared_ptr< parser::packet::PacketPayload > packet);
+
+	result_t last(std::shared_ptr< parser::packet::PacketPayload > packet);
 
 	size_t lastRecords() const;
 

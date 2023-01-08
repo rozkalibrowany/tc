@@ -7,18 +7,41 @@
 #include <tc/server/http/CacheSession.h>
 #include <tc/server/http/CacheServer.h>
 #include <tc/server/http/Request.h>
+#include <tc/parser/packet/InternalRequest.h>
 #include <mini/ini.h>
 #include <filesystem>
 #include <chrono>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
+using namespace tc;
+using namespace parser;
+
 void sleep_for(uint64_t time) {
 	std::this_thread::sleep_for(chrono::milliseconds(time));
 }
 
+result_t devices_req(packet::InternalRequest &internal)
+{
+	CppServer::HTTP::HTTPRequest req("GET", "/devices");
+	server::http::Request request(req);
+	if (result_t res; (res = internal.create(request.method(), request.type())) != RES_OK) {
+		return res;
+	}
+	return RES_OK;
+}
+
+/*result_t device_req(parser::Buf &buf, const Imei &imei)
+{
+	CppServer::HTTP::HTTPRequest req("GET", fmt::format("%s/%s", "device", imei));
+	server::http::Request request(req);
+	if (result_t res; (res = int_req.create(request.method(), request.type())) != RES_OK) {
+		return res;
+	}
+	return RES_OK;
+}*/
+
 int main(int argc, char** argv)
 {
-	using namespace tc;
 	using namespace mINI;
 
 	auto logger = spdlog::stdout_color_mt("console");
@@ -64,11 +87,11 @@ int main(int argc, char** argv)
 	}
 
 	// Create Cache for data
-	Signal<Imei, std::string> signal_cmd;
+	Signal<Imei, std::string, timestamp> signal_cmd;
 	auto cache = std::make_shared<server::http::Cache>(signal_cmd);
 
 	// Create a new Asio service
-	auto service = std::make_shared<tc::asio::AsioService>();
+	auto service = std::make_shared<tc::asio::AsioService>(10);
 	service->Start();
 	LG_NFO(log.logger(), "Asio service started!");
 
@@ -82,8 +105,8 @@ int main(int argc, char** argv)
 	auto client = std::make_shared< client::tcp::Client >(signal, service, addr, tcp_port);
 
 	// connect cache signal
-	signal_cmd.connect([&](Imei imei, std::string cmd) {
-    client->send(imei, cmd);
+	signal_cmd.connect([&](Imei imei, std::string cmd, timestamp t) {
+    client->send(imei, cmd, t);
   });
 
 	// Create a new HTTPS server
@@ -110,22 +133,21 @@ int main(int argc, char** argv)
 			continue;
 		}
 
-		CppServer::HTTP::HTTPRequest req("GET", "/devices", "HTTP/1.1");
-		server::http::Request request(req);
-		parser::Buf buf;
-		if (request.toInternal(buf) != RES_OK) {
-			LG_ERR(log.logger(), "Unable to convert to internal request");
+		// devices
+		packet::InternalRequest internal;
+		if (devices_req(internal) != RES_OK) {
 			continue;
 		}
-
-		if (client->send(buf) != RES_OK)	{
-			LG_ERR(log.logger(), "Unable to send buffer");
+		if (client->send(internal) != RES_OK)	{
 			client->DisconnectAsync();
 		}
 
-
 		LG_NFO(log.logger(), "Cached: {}", cache->getDevices());
-		sleep_for(interval);
+		sleep_for(2000);
+
+		cache->updatePackets();
+
+		sleep_for(2000);
 	}
 	// Stop the server
 

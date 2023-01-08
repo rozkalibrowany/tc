@@ -5,7 +5,7 @@
 #include <tc/server/tcp/Action.h>
 #include <tc/common/LockGuard.h>
 #include <tc/server/iot/Device.h>
-#include <tc/parser/packet/PacketRequest.h>
+#include <tc/parser/packet/InternalRequest.h>
 
 
 namespace tc::server::tcp {
@@ -24,6 +24,7 @@ public:
 
 	using CppServer::Asio::TCPSession::TCPSession;
 
+	const Imei imei() const;
 	bool hasImei(const Imei imei) const;
 	Action::Type type() const;
 
@@ -43,7 +44,7 @@ private:
 	result_t handlePayload(const uchar *buffer, size_t size);
 	result_t handleStandby(const uchar *buffer, size_t size);
 
-	result_t savePacket(const std::shared_ptr<parser::PacketPayload> &packet);
+	result_t savePacket(const std::shared_ptr<packet::PacketPayload> &packet);
 
 	std::shared_ptr<TelematicsServer> telematicsServer();
 

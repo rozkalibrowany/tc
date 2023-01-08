@@ -114,6 +114,18 @@ std::string byte2string(int val, int width)
 	return ret;
 }
 
+std::string byte2string(int64_t val, int width)
+{
+	std::stringstream ss;
+	ss << std::setw(width) << std::setfill('0') << std::hex << (val);
+	std::string ret(ss.str());
+
+	//std::transform(ret.begin(), ret.end(), ret.begin(),
+	//	[](char c) { return std::toupper(c); });
+
+	return ret;
+}
+
 void hex2bin(const char* src, char* target)
 {
 	while(*src && src[1])

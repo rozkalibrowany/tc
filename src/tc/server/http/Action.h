@@ -5,7 +5,7 @@
 #include <tc/common/Common.h>
 namespace tc::server::http {
 
-class Action : public tc::LogI {
+class Action : public Types, public tc::LogI {
 public:
 
 	Action() = default;
@@ -15,11 +15,13 @@ public:
 	std::shared_ptr< Request > get() const;
 
 private:
+	bool hasQuery(const Request &request);
+
 	result_t parseDevice(const Request &request);
 	result_t parseDevices(const Request &request);
+	result_t parseQuery(const Request &request);
 	result_t parseDeviceId(const Request &request);
 	result_t parseCommand(const Request &request);
-	result_t parseQuery(const Request &request);
 
 	result_t handleGet(const Request &request);
 	result_t handlePost(const Request &request);

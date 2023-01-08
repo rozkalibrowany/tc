@@ -3,7 +3,6 @@
 
 #include <server/http/https_server.h>
 #include <tc/server/iot/Devices.h>
-#include <tc/parser/Command.h>
 #include <tc/server/http/Action.h>
 #include <tc/common/Signal.h>
 #include <queue>
@@ -16,26 +15,30 @@ class Cache : public CppCommon::Singleton<Cache>, public tc::LogI
 {
    friend CppCommon::Singleton<Cache>;
 public:
-	Cache(Signal<Imei, std::string> &signal);
+	Cache(Signal<Imei, std::string, timestamp> &signal);
 
 	bool hasImei(const Imei imei) const;
 
+	result_t handleDevicesRequest(CppServer::HTTP::HTTPResponse &response);
+
 	result_t getDevice(const Imei &imei, CppServer::HTTP::HTTPResponse &response);
-	result_t getDevices(CppServer::HTTP::HTTPResponse &response);
+	result_t getPacket(const Imei &imei, CppServer::HTTP::HTTPResponse &response);
 	std::string getDevices();
+	void updatePackets();
 
 	result_t handleAction(const Action &action, CppServer::HTTP::HTTPResponse &response);
 	void onReceived(const void *buffer, size_t size);
 
 private:
-	result_t addCommand(const Imei imei, const string cmd, CppServer::HTTP::HTTPResponse &response);
+	result_t requestCommand(const Imei imei, const string cmd, CppServer::HTTP::HTTPResponse &response);
 	result_t set(const Imei imei, pair< const string, const string > val, CppServer::HTTP::HTTPResponse &response);
 	result_t decodeJson(const std::string &data);
 
-	Signal<Imei, std::string> &iSignal;
+	Signal<Imei, std::string, timestamp> &iSignal;
 
+	std::map<Imei, int64_t> iPacketsCounter;
 	iot::Devices iDevices;
-	std::mutex _cache_lock;
+	mutable SysMutex iMutex;
 };
 
 } // namespace tc::server::http

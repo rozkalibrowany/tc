@@ -1,4 +1,6 @@
 #include <tc/client/tcp/Client.h>
+#include <tc/parser/packet/Command.h>
+#include <tc/common/LockGuard.h>
 
 namespace tc::client::tcp {
 
@@ -6,50 +8,65 @@ Client::Client(Signal<const void *, size_t> &signal, const std::shared_ptr<Servi
  : TCPClient(service, address, port)
  , iSignal(signal)
 {
-	// nothing to do
+	this->SetupNoDelay(true);
 }
 
-result_t Client::send(const parser::Buf &buf)
+result_t Client::send(const uchar *data, size_t size)
 {
 	result_t res = RES_OK;
-
-	size_t len = buf.iBuf.size() / 2;
+	auto len = size / 2;
 	auto out = new char[len];
-	tc::hex2bin((char*)  buf.iBuf.data(), out);
+	tc::hex2bin((const char*) data, out);
 
-	res = SendAsync(out, len) != true ? RES_ERROR : RES_OK;
+	{
+		LockGuard g(iMutex);
+		res = SendAsync(out, len) != true ? RES_ERROR : RES_OK;
+	}
 	delete out;
 	return res;
 }
 
-result_t Client::send(std::shared_ptr< parser::Command > command)
+result_t Client::send(const parser::Buf &buf)
 {
-	if (command == nullptr) {
-		return RES_INVARG;
-	}
-
-	size_t len = command->iBuf.size() / 2;
-
-	auto out = new char[len];
-	tc::hex2bin((char*) command->iBuf.data(), out);
-
-	auto ok = SendAsync(out, len);
-	delete out;
-
-	return ok == true ? RES_OK : RES_ERROR;
+	return send(buf.iBuf.data(), buf.iBuf.size());
 }
 
-result_t Client::send(const Imei &imei, const std::string command)
+result_t Client::send(const packet::InternalRequest &internal)
+{
+	LG_NFO(this->logger(), "Sending internal : size: {}", internal.size());
+
+	return send(internal.cdata(), internal.size());
+}
+
+result_t Client::send(const Imei &imei, const std::string command, timestamp t)
 {
 	result_t res = RES_OK;
 
-	auto cmd = std::make_shared< parser::Command >(imei);
-	if ((res = cmd->create(command)) != RES_OK) {
+	if (t != 0) {
+		return sendInternal(imei, command, t);
+	}
+	packet::Command cmd(imei);
+	if ((res = cmd.create(command)) != RES_OK) {
 		LG_ERR(this->logger(), "Unable to create command");
 		return res;
 	}
 
-	return send(cmd);
+	LG_NFO(this->logger(), "Sending command : size: {} command: {} timestamp: {}", cmd.size(), command, t);
+
+
+	return send(cmd.data(), cmd.size());
+}
+
+result_t Client::sendInternal(const Imei &imei, const std::string command, timestamp t)
+{
+	packet::InternalRequest internal;
+	if (internal.create(Types::eGet, Types::str2type(command), imei, t) != RES_OK) {
+		return RES_NOENT;
+	}
+
+	LG_NFO(this->logger(), "Sending internal : size: {} command: {} timestamp: {}", internal.size(), command, t);
+
+	return send(internal.data(), internal.size());
 }
 
 void Client::onReceived(const void *buffer, size_t size)

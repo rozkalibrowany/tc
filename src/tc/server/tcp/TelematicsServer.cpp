@@ -4,6 +4,7 @@
 
 namespace tc::server::tcp {
 
+
 TelematicsServer::TelematicsServer(const std::shared_ptr<AsioService>& service, std::shared_ptr<db::Client>& client, size_t cache)
  : TelematicsServer(service, client, cache, 8881)
 {
@@ -65,13 +66,13 @@ result_t TelematicsServer::handleCommand(const uchar *buffer, size_t size)
 
 	Imei imei;
 
-	result_t res = parser::Packet::parseImei(buffer, size, imei);
+	result_t res = packet::Packet::parseImei(buffer, size, imei);
 	if (res != RES_OK) {
 		LG_ERR(this->logger(), "Parse imei.");
 		return res;
 	}
 
-	auto packetCommand = std::make_shared< parser::PacketCommand >();
+	auto packetCommand = std::make_shared< packet::Command >();
 	res = packetCommand->parse((uchar*) buffer, size, imei.length());
 	if (res != RES_OK) {
 		LG_ERR(this->logger(), "Parse command.");
@@ -85,7 +86,7 @@ result_t TelematicsServer::handleRequest(const uchar *buffer, size_t size, const
 {
 	LG_NFO(this->logger(), "Handle request[{}]", size);
 
-	auto request = std::make_shared< parser::PacketRequest >();
+	auto request = std::make_shared< packet::InternalRequest >();
 	result_t res = request->parse((uchar*) buffer, size);
 	if (res != RES_OK) {
 		LG_ERR(this->logger(), "Parse request.");
@@ -95,15 +96,32 @@ result_t TelematicsServer::handleRequest(const uchar *buffer, size_t size, const
 	return dispatchRequest(request, id);
 }
 
-result_t TelematicsServer::dispatchRequest(std::shared_ptr< parser::PacketRequest > &request, const CppCommon::UUID id)
+result_t TelematicsServer::dispatchRequest(std::shared_ptr< packet::InternalRequest > &request, const CppCommon::UUID id)
 {
 	using namespace parser;
 
 	result_t res = RES_OK;
-	auto type = request->iType;
-	auto method = request->iMethod;
+	auto type = request->type();
+	auto method = request->method();
 
-	if (type == Packet::eDevices && method == Packet::eGet) {
+	if (type == packet::Packet::eDevices && method == packet::Packet::eGet) {
+		Json::Value list;
+		auto &el = list["devices"] = Json::arrayValue;
+		for (const auto &[key, value] : _sessions) {
+			if (key == id) continue;
+			const auto &session = dynamic_pointer_cast<TelematicsSession>(value);
+			Json::Value val;
+			session->toJson(val);
+			el.append(val);
+		}
+		auto hexJson = tc::tohex(list.toStyledString());
+		const auto &session = dynamic_pointer_cast<TelematicsSession>(_sessions.at(id));
+		if ((res = session->send((const uchar *)hexJson.data(), hexJson.size())) != RES_OK) {
+			LG_ERR(this->logger(), "Send hex json");
+		}
+	}
+
+	if (type == packet::Packet::eDevice && method == packet::Packet::eGet) {
 		Json::Value list;
 		auto &el = list["devices"] = Json::arrayValue;
 		for (const auto &[key, value] : _sessions) {
@@ -123,7 +141,7 @@ result_t TelematicsServer::dispatchRequest(std::shared_ptr< parser::PacketReques
 	return res;
 }
 
-result_t TelematicsServer::sendCommand(const Imei &imei, std::shared_ptr<parser::PacketCommand> &command)
+result_t TelematicsServer::sendCommand(const Imei &imei, std::shared_ptr<packet::Command> &command)
 {
 	for (const auto &[key, value] : _sessions) {
 		const auto &session = dynamic_pointer_cast<TelematicsSession>(value);

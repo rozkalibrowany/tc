@@ -32,12 +32,12 @@ public:
   int32_t toInt32(int offset);
   int64_t toInt64(int offset);
 
-	const bool empty();
-	const size_t size();
+	bool empty() const;
+	size_t size() const;
 
 	void clear();
 
-	const uchar *cdata();
+	const uchar *cdata() const;
 	uchar *data();
 
 	void push_back(const uchar val);

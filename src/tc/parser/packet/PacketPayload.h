@@ -6,7 +6,7 @@
 #include <tc/parser/Reader.h>
 #include <tc/parser/Buf.h>
 
-namespace tc::parser {
+namespace tc::parser::packet {
 
 using namespace records;
 using namespace avl;
@@ -24,7 +24,7 @@ public:
 
 	result_t parse(uchar* cbuf, size_t size, size_t offset = 0) override;
 
-	const size_t size() override;
+	size_t size() const override;
 	std::shared_ptr< Reader > reader();
 
 	AVLRecords &records();
@@ -38,6 +38,6 @@ private:
 	AVLRecords iAVLRecords;
 };
 
-} // namespace tc::parser
+} // namespace tc::parser::packet
 
 #endif /* E1382A91_4A19_490A_9DB0_1B2CEB94E659 */

@@ -3,7 +3,7 @@
 
 #include <server/asio/tcp_server.h>
 #include <tc/server/tcp/TelematicsSession.h>
-#include <tc/parser/packet/PacketCommand.h>
+#include <tc/parser/packet/Command.h>
 #include <tc/server/iot/Devices.h>
 #include <tc/asio/AsioService.h>
 #include <tc/db/Client.h>
@@ -27,7 +27,7 @@ public:
 	virtual ~TelematicsServer();
 
 	result_t handleCommand(const uchar *buffer, size_t size);
-	result_t dispatchRequest(std::shared_ptr< PacketRequest > &request, const CppCommon::UUID id);
+	result_t dispatchRequest(std::shared_ptr< packet::InternalRequest > &request, const CppCommon::UUID id);
 	result_t handleRequest(const uchar *buffer, size_t size, const CppCommon::UUID id);
 
 	size_t cacheSize() const;
@@ -41,7 +41,7 @@ protected:
 	void onError(int error, const std::string &category, const std::string &message) override;
 
 private:
-	result_t sendCommand(const Imei &imei, std::shared_ptr<parser::PacketCommand> &command);
+	result_t sendCommand(const Imei &imei, std::shared_ptr< packet::Command > &command);
 	std::shared_ptr< db::Client > iDbClient;
 	size_t iCacheSize;
 };

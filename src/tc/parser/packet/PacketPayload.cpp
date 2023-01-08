@@ -1,7 +1,7 @@
 #include <tc/parser/packet/PacketPayload.h>
 #include <algorithm>
 
-namespace tc::parser {
+namespace tc::parser::packet {
 
 size_t PacketPayload::DATA_MIN_SIZE = 45;
 size_t PacketPayload::IMEI_MIN_SIZE = 15;
@@ -13,7 +13,7 @@ bool PacketPayload::hasPayload(const uchar* buf, size_t size)
 		return isPayload;
 	}
 
-	isPayload |= (contains(buf, size, '8') || contains(buf, size, '\x8E'));
+	isPayload |= ((contains(buf, size, '8') || contains(buf, size, '\x8E')) && (static_cast<uchar>((buf + 1)[0] == 0)));
 
 	return isPayload;
 }
@@ -98,7 +98,7 @@ result_t PacketPayload::parse(uchar* cbuf, size_t size, size_t /* offset */)
 	return RES_NOENT;
 }
 
-const size_t PacketPayload::size()
+size_t PacketPayload::size() const
 {
 	return iRecordsSize;
 }
@@ -123,4 +123,4 @@ result_t PacketPayload::toJsonImpl(Json::Value &rhs, bool root) const
 	return RES_OK;
 }
 
-} // namespace tc::parser
+} // namespace tc::parser::packet

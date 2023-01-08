@@ -2,7 +2,7 @@
 
 namespace tc::server::tcp {
 
-RequestDispatcher::RequestDispatcher(const std::shared_ptr< parser::PacketRequest > &request)
+RequestDispatcher::RequestDispatcher(const std::shared_ptr< packet::InternalRequest > &request)
  : iRequest(std::move(request))
 {
   // nothing to do

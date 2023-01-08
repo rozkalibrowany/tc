@@ -1,24 +1,45 @@
+#include <tc/parser/packet/Command.h>
+#include <tc/common/CRC16.h>
+#include <algorithm>
+
 /*
 
 0x00000000	Data size	0x0C	Command quantity	0x05	Command size	Command	<CR><LF>	Command quantity	CRC
 4 bytes	4 bytes	1 byte	1 byte	1 byte	4 bytes	X bytes	0D0A	1 byte	4 bytes
 
 */
-#include <tc/parser/Command.h>
-#include <tc/parser/packet/Packet.h>
-#include <tc/common/CRC16.h>
 
-namespace tc::parser {
+namespace tc::parser::packet {
 
- std::map <std::string, std::string> Command::sMapping = {{"unlock", "sclockctrl 0"}, {"lock", "sclockctrl 1"}, {"engine_on", "scenginectrl 1"},
+std::map <std::string, std::string> Command::sMapping = {{"unlock", "sclockctrl 0"}, {"lock", "sclockctrl 1"}, {"engine_on", "scenginectrl 1"},
 	{"engine_off", "scenginectrl 0"}, {"led_on", "scledctrl 1"}, {"led_off", "scledctrl 0"},
 	{"led_sw_on", "scsetledswitch 1"}, {"led_sw_off", "scsetledswitch 0"}, {"restart", "screbootsys"}};
 
-Command::Command(const std::string &imei)
-	: tc::LogI("console")
-	, iImei(imei)
+
+Command::Command(const std::string imei)
+	: Packet(imei)
 {
-	// nothing to do
+ // nothing to do
+}
+
+bool Command::hasCommand(const uchar* cbuf, size_t size)
+{
+	auto val = (((cbuf[0]) << 8) | ((cbuf[1]) << 0));
+
+	return (val == IMEI_LENGTH) && size > 17 ? true : false;
+}
+
+result_t Command::parse(uchar* cbuf, size_t size, size_t offset)
+{
+	result_t res = RES_OK;
+
+	auto begin = offset + 2;
+	Buf buf((uchar *)cbuf + begin, size - begin);
+
+	LG_NFO(this->logger(), "command: {}", tc::uchar2string(buf.cdata(), buf.size()));
+	iBuf = std::move(buf);
+
+	return res;
 }
 
 result_t Command::create(const std::string &cmd, bool cr)
@@ -77,13 +98,6 @@ result_t Command::create(const std::string &cmd, bool cr)
 	return res;
 }
 
-/*std::vector<char> Command::asBin()
-{
-	std::vector<char> bin(iBuf.size() / 2);
-	tc::hex2bin((char*) iBuf.data(), (char*) bin.data());
-	return bin;
-}*/
-
 result_t Command::getPayload(const std::string &cmd, parser::Buf &buf)
 {
 	// codec
@@ -95,7 +109,7 @@ result_t Command::getPayload(const std::string &cmd, parser::Buf &buf)
 	buf.insert(val.data(), val.length());
 
 	// type command
-	val = byte2string(TYPE_PACKET_COMMAND);
+	val = byte2string(TYPE_COMMAND);
 	buf.insert(val.data(), val.length());
 
 	// 3 zero-bytes
@@ -103,11 +117,11 @@ result_t Command::getPayload(const std::string &cmd, parser::Buf &buf)
 	buf.insert(val.data(), val.length());
 
 	// command length
-	val = byte2string(Command::sMapping.at(cmd).length());
+	val = byte2string(sMapping.at(cmd).length());
 	buf.insert(val.data(), val.length());
 
 	// command
-	const auto command = Command::sMapping.at(cmd);
+	const auto command = sMapping.at(cmd);
 	if (command.empty() == true) {
 		return RES_INVARG;
 	}
@@ -121,8 +135,28 @@ result_t Command::getPayload(const std::string &cmd, parser::Buf &buf)
 	return RES_OK;
 }
 
-} // namespace tc::client::tcp
+uchar* Command::data()
+{
+	return iBuf.data();
+}
 
+const uchar* Command::cdata() const
+{
+	return iBuf.cdata();
+}
+
+size_t Command::size() const
+{
+	return iBuf.size();
+}
+
+const uchar* Command::command()
+{
+	return iBuf.cdata();
+}
+
+
+} // namespace tc::parser::packet
 
 /*
 	// CRC

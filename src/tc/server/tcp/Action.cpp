@@ -1,22 +1,25 @@
 #include <tc/server/tcp/Action.h>
 #include <tc/parser/packet/PacketPayload.h>
-#include <tc/parser/packet/PacketCommand.h>
-#include <tc/parser/packet/PacketRequest.h>
+#include <tc/parser/packet/Command.h>
+#include <tc/parser/packet/InternalRequest.h>
 namespace tc::server::tcp {
+
+using namespace parser;
 
 Action::Type Action::get(const uchar* buffer, size_t size)
 {
-	bool has_imei = parser::Packet::hasImei(buffer, size);
+	bool has_imei = packet::Packet::hasImei(buffer, size);
 
 	if (size == 1) {
 		return Type::standby;
 	}
 
-	if (!has_imei && parser::PacketPayload::hasPayload(buffer, size)) {
+	if (!has_imei && packet::PacketPayload::hasPayload(buffer, size)) {
 		return Type::payload;
 	}
 
-	if (!has_imei && parser::PacketRequest::hasRequest(buffer, size)) {
+	auto has_request = packet::InternalRequest::hasInternalRequest(buffer, size);
+	if (!has_imei && has_request) {
 		return Type::request;
 	}
 
@@ -24,7 +27,7 @@ Action::Type Action::get(const uchar* buffer, size_t size)
 		return Type::imei;
 	}
 
-	if (has_imei && parser::PacketCommand::hasCommand(buffer, size)) {
+	if (has_imei && packet::Command::hasCommand(buffer, size)) {
 		return Type::command;
 	}
 

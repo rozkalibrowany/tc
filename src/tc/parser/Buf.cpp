@@ -69,7 +69,7 @@ void Buf::clear()
 	iBuf.clear();
 }
 
-const uchar *Buf::cdata()
+const uchar *Buf::cdata() const
 {
 	return iBuf.data();
 }
@@ -138,12 +138,12 @@ int64_t Buf::toInt64(int offset)
                 | ((int64_t) (iBuf[offset + 1] & 0xff) << 8) | (iBuf[offset] & 0xff));
 }
 
-const bool Buf::empty()
+bool Buf::empty() const
 {
 	return iBuf.empty();
 }
 
-const size_t Buf::size()
+size_t Buf::size() const
 {
 	return iBuf.size();
 }

@@ -74,6 +74,7 @@ TcAddLibrary(
 	LIBRARIES
 		cppserver
 		tc-asio
+		tc-parser
 		tc-common
 		tc-iot
 	VERSION ${TcVersion}

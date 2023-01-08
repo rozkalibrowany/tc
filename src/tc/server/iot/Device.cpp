@@ -58,7 +58,7 @@ result_t Device::add(const uchar* buffer, size_t size)
 	}
 
 	result_t res = RES_OK;
-	auto packet = std::make_shared< parser::PacketPayload >();
+	auto packet = std::make_shared< parser::packet::PacketPayload >();
 
  	if ((res = packet->parse((uchar*) buffer, size)) != RES_OK) {
 		LG_ERR(this->logger(), "Parse payload packet");
@@ -68,7 +68,7 @@ result_t Device::add(const uchar* buffer, size_t size)
 	return add(std::move(packet));
 }
 
-result_t Device::add(const std::shared_ptr< parser::PacketPayload > packet)
+result_t Device::add(const std::shared_ptr< parser::packet::PacketPayload > packet)
 {
   if (has(packet) == true) {
 		LG_ERR(this->logger(), "Packet already exists.");
@@ -84,10 +84,20 @@ result_t Device::add(const std::shared_ptr< parser::PacketPayload > packet)
 	return RES_OK;
 }
 
-bool Device::has(const std::shared_ptr< parser::PacketPayload > &packet)
+bool Device::has(const std::shared_ptr< parser::packet::PacketPayload > &packet)
 {
 	auto it = std::find(iPayloadPackets.begin(), iPayloadPackets.end(), packet);
 	return it == iPayloadPackets.end() ? false : true;
+}
+
+result_t Device::last(std::shared_ptr< parser::packet::PacketPayload > packet)
+{
+	if (iPayloadPackets.size() == 0) {
+		return RES_NOENT;
+	}
+
+	packet = iPayloadPackets.back();
+	return RES_OK;
 }
 
 result_t Device::fromJsonImpl(const Json::Value &rhs, bool root)
