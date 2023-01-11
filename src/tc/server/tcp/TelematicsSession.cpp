@@ -174,7 +174,11 @@ result_t TelematicsSession::savePacket(const std::shared_ptr<parser::PacketPaylo
 	auto dbclient = telematicsServer()->dbClient();
 	auto coll = dbclient->client()[dbclient->name()][dbclient->collection("collection_packets")];
 	bsoncxx::document::value bsonObj = bsoncxx::from_json(val.toStyledString());
-	coll.insert_one(bsonObj.view());
+	{
+		LockGuard g(iMutex);
+		coll.insert_one(bsonObj.view());
+	}
+
 	return RES_OK;
 }
 
@@ -184,7 +188,9 @@ result_t TelematicsSession::send(const uchar* buffer, size_t size, const bool as
 	auto out = new char[size];
 	tc::hex2bin(buf_str.data(), out);
 
-	return send((const void *)out, size, async);
+	auto res =  send((const void *)out, size, async);
+	delete out;
+	return res;
 }
 
 result_t TelematicsSession::send(int buffer, const bool async)

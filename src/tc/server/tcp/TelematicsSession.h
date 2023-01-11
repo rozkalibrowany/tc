@@ -47,6 +47,7 @@ private:
 
 	std::shared_ptr<TelematicsServer> telematicsServer();
 
+	SysMutex iMutex;
 	SysTime iTimestamp;
 	Action::Type iType{Action::unknown};
 	std::unique_ptr<iot::Device> iDevice{nullptr};
