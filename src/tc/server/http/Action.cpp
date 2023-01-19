@@ -67,12 +67,13 @@ result_t Action::handlePost(const Request &request)
 result_t Action::parseDevice(const Request &request)
 {
 	if (request.method() == Request::ePost) {
-		if (!request.command().compare("set")) {
-			return parseQuery(request);
-		}
 		auto it = Command::sMapping.find(request.command());
 		if (it != Command::sMapping.end()) {
 			return RES_OK;
+		}
+
+		if (request.command().find("?") != std::string::npos) {
+			return parseQuery(request);
 		}
 	}
 
@@ -111,28 +112,18 @@ result_t Action::parseDeviceId(const Request &request)
 result_t Action::parseQuery(const Request &request)
 {
 	auto left = request.command().substr(0, request.command().find({"?"}));
-
-	if (left.compare(Request::type2str(Request::ePackets))) {
+	if (left.empty() || left.compare("set")) {
 		return RES_NOENT;
 	}
 
 	auto right = request.command().substr(request.command().find("?") + 1);
-	auto key = right.substr(0, right.find("="));
-	auto val = right.substr(right.find("=") + 1);
-
-	if (key.compare("id")) {
-		LG_ERR(this->logger(), "Invalid key.");
-		return RES_INVARG;
+	if (right.empty() || right.find("=") == std::string::npos) {
+		return RES_NOENT;
 	}
 
-	// ID shoud have 6 digits
-	if (!key.compare("id") && val.size() != 6) {
-		LG_ERR(this->logger(), "Invalid ID format. Required: '123456'");
-		return RES_INVARG;
+	if (right.substr(0, right.find("=")).compare("id")) {
+		return RES_NOENT;
 	}
-
-	request.iQueryParam.first = key;
-	request.iQueryParam.second = val;
 
 	return RES_OK;
 }

@@ -11,7 +11,6 @@ class HTTPRequest;
 
 class Request : public tc::LogI {
 public:
-
 	enum Type {
 		eUnknown = 0,
 		ePackets,
@@ -36,6 +35,8 @@ public:
 	Type type() const;
 	const std::string id() const;
 	const std::string command() const;
+	const std::string key() const;
+	result_t query(std::string &value);
 
 	result_t toInternal(parser::Buf &buf, bool cr = false);
 
@@ -45,7 +46,6 @@ public:
   static Method str2method(const std::string_view method);
   static Type str2type(const std::string type);
 
-	mutable std::pair<std::string, std::string> iQueryParam;
 private:
 	const size_t depth() const;
 

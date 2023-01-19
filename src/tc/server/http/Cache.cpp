@@ -26,8 +26,8 @@ result_t Cache::handleAction(const Action &action, CppServer::HTTP::HTTPResponse
 			if (action.get()->method() == Request::eGet) {
 				return getDevice(action.get()->id(), response);
 			}
-			if (!action.get()->command().compare("set")) {
-				return set(action.get()->id(), action.get()->iQueryParam, response);
+			if (!action.get()->key().compare("set")) {
+				return set(action.get(), response);
 			} else {
 				return addCommand(action.get()->id(), action.get()->command(), response);
 			}
@@ -97,13 +97,14 @@ result_t Cache::addCommand(const Imei imei, const std::string cmd, CppServer::HT
 	return RES_OK;
 }
 
-result_t Cache::set(const Imei imei, pair< const string, const string > val, CppServer::HTTP::HTTPResponse &response)
+result_t Cache::set(std::shared_ptr< Request > request, CppServer::HTTP::HTTPResponse &response)
 {
 	auto &devices = iDevices.devices();
-	auto it = devices.find(imei);
+	auto it = devices.find(request->id());
 	if (it != devices.end()) {
-		if (!val.first.compare("ID") || !val.first.compare("id")) {
-			(*it).second->iID = val.second;
+		std::string val;
+		if (request->query(val) == RES_OK) {
+			(*it).second->iID = val;
 		} else {
 			response.MakeErrorResponse(400, "Bad Request");
 			return RES_INVARG;

@@ -29,7 +29,7 @@ public:
 
 private:
 	result_t addCommand(const Imei imei, const string cmd, CppServer::HTTP::HTTPResponse &response);
-	result_t set(const Imei imei, pair< const string, const string > val, CppServer::HTTP::HTTPResponse &response);
+	result_t set(std::shared_ptr< Request > request, CppServer::HTTP::HTTPResponse &response);
 	result_t decodeJson(const std::string &data);
 
 	Signal<Imei, std::string> &iSignal;

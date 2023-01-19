@@ -103,6 +103,24 @@ const std::string Request::command() const
 	return depth() != 3 ? std::string() : tc::regex(std::regex{"([^\\/]+$)"}, iRequest.url());
 }
 
+const std::string Request::key() const
+{
+	return command().substr(0, command().find({"?"}));
+}
+
+result_t Request::query(std::string &value)
+{
+	auto right = command().substr(command().find("?") + 1);
+	auto val = right.substr(right.find("=") + 1);
+
+	if (val.size() != 6) {
+		return RES_INVARG;
+	}
+
+	value = val;
+	return RES_OK;
+}
+
 result_t Request::toInternal(parser::Buf &buf, bool cr)
 {
 	result_t res = RES_OK;
