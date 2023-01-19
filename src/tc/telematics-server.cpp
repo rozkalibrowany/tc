@@ -5,9 +5,6 @@
 #include <filesystem>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
-// core dumps may be disallowed by parent of this process; change that
-
-
 int main(int argc, char** argv)
 {
 	using namespace tc;
@@ -51,7 +48,7 @@ int main(int argc, char** argv)
 	size_t cache = static_cast<size_t>(std::stoi(ini["session"]["cache"]));
 
 	// Create a new Asio service
-	const auto service = std::make_shared< server::tcp::AsioService >(10);
+	const auto service = std::make_shared< server::tcp::AsioService >(100);
 	if (service->Start() != true) {
 		LG_ERR(log.logger(), "Unable to start asio service. Exiting...");
 		return 1;
@@ -77,6 +74,8 @@ int main(int argc, char** argv)
 	// Create a new TCP server
 	auto server = std::make_shared< server::tcp::TelematicsServer >(service, db_client, cache, port, addr);
 	server->SetupReusePort(true);
+	server->SetupReuseAddress(true);
+	server->SetupNoDelay(true);
 
 	if (server->Start() != true) {
 		LG_ERR(log.logger(), "Unable to start TCP server. Exiting...");

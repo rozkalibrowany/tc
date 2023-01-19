@@ -94,7 +94,7 @@ tc_conan_build_package(NAME jsoncpp
 )
 
 tc_conan_build_package(NAME mongoc
-	VERSION 1.22.0
+	VERSION 1.23.2
 	DEPENDS conan-profiles conan-tc-build
 	UBUNTU
 )
