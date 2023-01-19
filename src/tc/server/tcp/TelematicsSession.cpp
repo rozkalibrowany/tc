@@ -31,7 +31,7 @@ Action::Type TelematicsSession::type() const
 
 void TelematicsSession::onReceived(const void *buffer, size_t size)
 {
-	LG_NFO(this->logger(), "Session: received buffer[{}]", size);
+	LG_NFO(this->logger(), "[{}] Session: received buffer[{}]", iImei, size);
 
 	return handleDataBuffer((const uchar*) buffer, size, Action::get((const uchar*) buffer, size));
 }
@@ -65,7 +65,7 @@ void TelematicsSession::handleDataBuffer(const uchar* buffer, size_t size, Actio
 	}
 
 	if (res != RES_OK) {
-		LG_DBG(this->logger(), "Unable to handle data buffer[{}]", size);
+		LG_DBG(this->logger(), "[{}] Unable to handle data buffer[{}]", iImei, size);
 	}
 
 	iType = type;
@@ -85,29 +85,30 @@ result_t TelematicsSession::handleImei(const uchar *buffer, size_t size)
 		return res;
 	}
 
-	LG_DBG(this->logger(), "Parse imei OK: {}", imei);
+	LG_NFO(this->logger(), "Parse imei OK: {}", imei);
 
 	iDevice = std::make_unique<iot::Device>(telematicsServer()->cacheSize(), imei);
 	res |= send(eOK);
 
+	iImei = std::move(imei);
 	return res;
 }
 
 result_t TelematicsSession::handlePayload(const uchar *buffer, size_t size)
 {
-	LG_NFO(this->logger(), "Handle payload [{}]", size);
+	LG_NFO(this->logger(), "[{}] Handle payload [{}]", iImei, size);
 
 	result_t res = RES_OK;
 
 	auto packet = std::make_shared< parser::PacketPayload >();
 	if ((res = packet->parse((uchar*) buffer, size)) != RES_OK) {
-		LG_ERR(this->logger(), "Parse payload packet");
+		LG_ERR(this->logger(), "[{}] Parse payload packet", iImei);
 		return res;
 	}
 
 	res = iDevice->add(packet);
 	if (res != RES_OK && res != RES_INVCRC) {
-		LG_ERR(this->logger(), "Unable to add packet, imei[{}]", iDevice->iImei);
+		LG_ERR(this->logger(), "[{}] Unable to add packet", iImei);
 		send(eInvalid);
 		return res;
 	}
@@ -121,7 +122,7 @@ result_t TelematicsSession::handlePayload(const uchar *buffer, size_t size)
 	}
 
 	auto records = (int) iDevice->lastRecords();
-	LG_DBG(this->logger(), "Handle payload succesfull. Imei[{}] records[{}] ", iDevice->iImei, records);
+	LG_DBG(this->logger(), "[{}] Handle payload succesfull. Records[{}] ", iImei, records);
 
 	res |= send(records);
 	return res;
@@ -129,7 +130,7 @@ result_t TelematicsSession::handlePayload(const uchar *buffer, size_t size)
 
 result_t TelematicsSession::handleIncomplete(const uchar *buffer, size_t size)
 {
-	LG_NFO(this->logger(), "Handle incomplete[{}]", size);
+	LG_NFO(this->logger(), "[{}] Handle incomplete[{}]", iImei, size);
 	result_t res = RES_OK;
 
 	if(iBufferIncomplete == nullptr || size >= iBufferIncomplete->size()) {
@@ -139,7 +140,7 @@ result_t TelematicsSession::handleIncomplete(const uchar *buffer, size_t size)
 
 	iBufferIncomplete->iBuf.insert(iBufferIncomplete->iBuf.end(), buffer, buffer + size);
 	if((res = handlePayload((const uchar *)iBufferIncomplete->iBuf.data(), iBufferIncomplete->size())) != RES_OK) {
-		LG_ERR(this->logger(), "Unable to handle payload");
+		LG_ERR(this->logger(), "[{}] Unable to handle payload", iImei);
 	}
 
 	iBufferIncomplete.reset();
@@ -167,13 +168,27 @@ result_t TelematicsSession::savePacket(const std::shared_ptr<parser::PacketPaylo
 	val["datetime"] = systime.getDateTime();
 
 	if (packet->toJson(val, true) != RES_OK) {
-		LG_ERR(this->logger(), "Packet to json.");
+		LG_ERR(this->logger(), "[{}] Packet to json.", iImei);
 		return RES_INVARG;
 	}
 
 	auto dbclient = telematicsServer()->dbClient();
+	if (dbclient == nullptr) {
+		return RES_NOENT;
+	}
+
 	auto coll = dbclient->client()[dbclient->name()][dbclient->collection("collection_packets")];
+	if (!coll) {
+		LG_ERR(this->logger(), "[{}] Unable to get collection from database", iImei);
+		return RES_NOENT;
+	}
+
 	bsoncxx::document::value bsonObj = bsoncxx::from_json(val.toStyledString());
+	if (bsonObj.empty()) {
+		LG_ERR(this->logger(), "[{}] bson object empty", iImei);
+		return RES_NOENT;
+	}
+
 	{
 		LockGuard g(iMutex);
 		coll.insert_one(bsonObj.view());
@@ -201,7 +216,7 @@ result_t TelematicsSession::send(int buffer, const bool async)
 result_t TelematicsSession::send(const void *buffer, size_t size, const bool async)
 {
 	auto res = RES_NOENT;
-	LG_DBG(this->logger(), "Sending: {} size: {}", tc::uchar2string((const uchar*) buffer, size), size);
+	LG_DBG(this->logger(), "[{}] Sending: {} size: {}", iImei, tc::uchar2string((const uchar*) buffer, size), size);
 
 
 	if (async == false) {

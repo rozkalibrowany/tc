@@ -29,7 +29,7 @@ public:
 
 	size_t lastRecords() const;
 
-	Imei iImei;
+	Imei iImei{"unknown"};
 	std::string iID;
 	std::string iType;
 	SysTime iUptime;

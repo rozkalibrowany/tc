@@ -88,7 +88,7 @@ int main(int argc, char** argv)
 		using milliseconds = std::chrono::milliseconds;
 		milliseconds interv = 15000ms;
 		std::this_thread::sleep_for(interv);
-		LG_NFO(log.logger(), "Alive! connected sessions: {} threads: {} IsPolling: {} IsStarted: {}",
+		LG_NFO(log.logger(), "Alive! connected sessions: {} threads: {} polling: {} started: {}",
 		(int) server->connected_sessions(), (int) service->threads(), (int) service->IsPolling(), (int) service->IsStarted());
 	}
 

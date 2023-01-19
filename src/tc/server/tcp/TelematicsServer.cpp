@@ -83,7 +83,7 @@ result_t TelematicsServer::handleCommand(const uchar *buffer, size_t size)
 
 result_t TelematicsServer::handleRequest(const uchar *buffer, size_t size, const CppCommon::UUID id)
 {
-	LG_NFO(this->logger(), "Handle request[{}]", size);
+	LG_NFO(this->logger(), "Handle request[{}] id[{}]", size, id.string());
 
 	auto request = std::make_shared< parser::PacketRequest >();
 	result_t res = request->parse((uchar*) buffer, size);

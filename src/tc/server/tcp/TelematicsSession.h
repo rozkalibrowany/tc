@@ -47,6 +47,7 @@ private:
 
 	std::shared_ptr<TelematicsServer> telematicsServer();
 
+	Imei iImei{"unknown"};
 	SysMutex iMutex;
 	SysTime iTimestamp;
 	Action::Type iType{Action::unknown};
