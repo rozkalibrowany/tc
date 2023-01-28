@@ -125,7 +125,7 @@ result_t Device::toJsonImpl(Json::Value &rhs, bool root) const
 	rhs["Timestamp"] = iTimestamp;
 	rhs["Datetime"] = systime.getDateTime();
 	const auto time = SysTime().timestamp(getUptime());
-	rhs["Uptime"] = fmt::format("{:d}h:{:d}m", time.getHour(), time.getMin());
+	rhs["Uptime"] = fmt::format("{:d}d:{:d}h:{:d}m", (time.getDay() - 1), time.getHour(), time.getMin());
 	rhs["Packets"] = iPacketsCounter;
 
 	return RES_OK;
