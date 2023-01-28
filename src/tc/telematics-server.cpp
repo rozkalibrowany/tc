@@ -64,11 +64,10 @@ int main(int argc, char** argv)
 	}
 
 	if (db_client->enabled()) {
-		/*std::vector<std::string> collections = db_client->client()["db"].list_collection_names();
-		if (std::find(collections.begin(), collections.end(), db_client->collection("collection_packets")) == collections.end()) {
-			db_client->client()["db"].create_collection(db_client->collection("collection_packets"));
-		}*/
-		LG_NFO(log.logger(), "DB enabled and client connected. Database: {}, collection: {}, uri: {}", db_client->name(), db_client->collection("collection_packets"), s_uri);
+		if(!db_client->has(db_client->collection())) {
+			db_client->create(db_client->collection());
+		}
+		LG_NFO(log.logger(), "DB connected. Name: {}, collection: {}, uri: {}", db_client->name(), db_client->collection(), s_uri);
 	}
 
 	// Create a new TCP server

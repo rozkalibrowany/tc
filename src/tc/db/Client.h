@@ -18,17 +18,18 @@ public:
 	Client(std::string &uri);
 
 	result_t load(INIStructure &ini);
-
 	result_t insert(const std::string &json_doc);
-	result_t insert(const std::string &json_doc, const std::string &coll);
 
-	std::string collection(const std::string key) const;
+	result_t create(const std::string &coll_name);
+	bool has(const std::string &coll_name);
+
+	const std::string collection() const;
 	const bool enabled() const;
 
 private:
 	bool iEnabled;
 	std::string iName;
-	std::map<std::string, std::string> iCollection;
+	std::string iCollection;
 };
 
 } // namespace tc::db::mongo
