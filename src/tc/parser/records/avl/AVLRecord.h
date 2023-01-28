@@ -16,8 +16,6 @@ class AVLRecord : public tc::LogI, public parser::JsonI {
 public:
 	AVLRecord(int codec = 142);
 
-	virtual ~AVLRecord() = default;
-
 	result_t read(const std::shared_ptr< Reader > &reader);
 	result_t set(const int codec);
 
@@ -33,8 +31,6 @@ private:
 
 class AVLRecords : public tc::LogI, public parser::JsonI {
 public:
-	~AVLRecords() = default;
-
 	size_t size() const;
 	bool empty() const;
 	void clear();

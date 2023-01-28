@@ -55,7 +55,7 @@ public:
 	virtual bool operator>=(const Packet &rhs) const;
 	virtual bool operator==(const Packet &rhs) const;
 
-	virtual result_t parse(uchar *cbuf, size_t size, size_t offset = 0) = 0;
+	virtual result_t parse(const uchar *cbuf, size_t size, size_t offset = 0) = 0;
 	virtual const size_t size() = 0;
 
 	virtual int codec() const;

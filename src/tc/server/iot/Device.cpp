@@ -68,18 +68,21 @@ result_t Device::add(const uchar* buffer, size_t size)
 	return add(std::move(packet));
 }
 
-result_t Device::add(const std::shared_ptr< parser::PacketPayload > packet)
+result_t Device::add(const std::shared_ptr< parser::PacketPayload > &packet)
 {
   if (has(packet) == true) {
 		LG_ERR(this->logger(), "Packet already exists.");
 		return RES_INVARG;
   }
 
+	auto _packet = std::make_shared<parser::PacketPayload>();
+	_packet = packet;
+
 	++iPacketsCounter;
 	if (iPayloadPackets.size() >= iCacheSize) {
 		iPayloadPackets.pop_front();
 	}
-	iPayloadPackets.push_back(std::move(packet));
+	iPayloadPackets.push_back(std::move(_packet));
 
 	return RES_OK;
 }

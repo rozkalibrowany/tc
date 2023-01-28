@@ -29,8 +29,6 @@ public:
   Request();
   Request(const CppServer::HTTP::HTTPRequest& request);
 
-  virtual ~Request() = default;
-
 	Method method() const;
 	Type type() const;
 	const std::string id() const;

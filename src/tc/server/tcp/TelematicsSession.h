@@ -7,7 +7,6 @@
 #include <tc/server/iot/Device.h>
 #include <tc/parser/packet/PacketRequest.h>
 
-
 namespace tc::server::tcp {
 
 class TelematicsServer;
@@ -43,12 +42,12 @@ private:
 	result_t handlePayload(const uchar *buffer, size_t size);
 	result_t handleStandby(const uchar *buffer, size_t size);
 
-	result_t savePacket(const std::shared_ptr<parser::PacketPayload> &packet);
+	result_t savePacket(std::shared_ptr<parser::PacketPayload> &packet);
 
 	std::shared_ptr<TelematicsServer> telematicsServer();
 
 	Imei iImei{"unknown"};
-	SysMutex iMutex;
+	std::mutex iMutex;
 	SysTime iTimestamp;
 	Action::Type iType{Action::unknown};
 	std::unique_ptr<iot::Device> iDevice{nullptr};

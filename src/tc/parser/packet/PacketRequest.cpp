@@ -25,7 +25,7 @@ bool PacketRequest::contains(const uchar* buf, size_t size, uchar c)
 	return pos != end;
 }
 
-result_t PacketRequest::parse(uchar* cbuf, size_t size, size_t  offset)
+result_t PacketRequest::parse(const uchar* cbuf, size_t size, size_t  offset)
 {
 	if (PacketRequest::hasRequest(cbuf, size) == false) {
 		return RES_NOENT;

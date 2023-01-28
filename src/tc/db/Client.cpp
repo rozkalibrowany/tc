@@ -1,18 +1,21 @@
 #include <tc/db/Client.h>
+#include <tc/db/Instance.h>
+#include <tc/db/Thread.h>
 
-namespace tc::server::db {
+namespace tc::db::mongo {
 
 Client::Client(std::string &uri)
- : iClient(mongocxx::uri{uri})
 {
-	// nothing to do
+	Instance::getInstance()->createPool(uri);
 }
 
-bool Client::load(INIStructure &ini)
+result_t Client::load(INIStructure &ini)
 {
 	if (!ini["db"].has("name"))
-		return false;
-	iName = ini["db"]["name"];
+		return RES_NOENT;
+
+	auto name = ini["db"]["name"];
+	auto enabled = ini["db"]["enabled"] == "true";
 
 	if (ini["db"].has("collection_packets"))
 		iCollection.insert(std::make_pair("collection_packets", ini["db"]["collection_packets"]));
@@ -21,23 +24,30 @@ bool Client::load(INIStructure &ini)
 		iCollection.insert(std::make_pair("collection_devices", ini["db"]["collection_devices"]));
 
 	if (iCollection.empty())
-		return false;
+		return RES_NOENT;
 
 	if (!ini["db"].has("enabled"))
-		return false;
-	iEnabled = ini["db"]["enabled"] == "true";
+		return RES_NOENT;
 
-	return true;
+	iName = name;
+	iEnabled = enabled;
+
+	return RES_OK;
 }
 
-mongocxx::client &Client::client()
+result_t Client::insert(const std::string &json_doc)
 {
-	return iClient;
+	return insert(json_doc, iCollection.at("collection_packets"));
 }
 
-const std::string Client::name() const
+result_t Client::insert(const std::string &json_doc, const std::string &coll)
 {
-	return iName;
+	auto entry = Instance::getInstance()->getClientFromPool();
+
+	std::thread thread{db::mongo::Thread(*entry, iName, coll, json_doc)};
+	thread.join();
+
+	return RES_OK;
 }
 
 std::string Client::collection(const std::string key) const
@@ -50,4 +60,4 @@ const bool Client::enabled() const
 	return iEnabled;
 }
 
-} // namespace tc::server::db
+} // namespace tc::db::::mongo

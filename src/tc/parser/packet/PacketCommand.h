@@ -14,7 +14,7 @@ public:
 	virtual ~PacketCommand() = default;
   static bool hasCommand(const uchar* cbuf, size_t size);
 
-	result_t parse(uchar* cbuf, size_t size, size_t offset = 0) override;
+	result_t parse(const uchar* cbuf, size_t size, size_t offset = 0) override;
 
 	const size_t size() override;
 	const uchar* command();

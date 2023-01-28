@@ -12,6 +12,7 @@ namespace tc::server::tcp {
 
 using namespace parser;
 using namespace asio;
+using namespace db;
 
 class TelematicsSession;
 
@@ -20,18 +21,16 @@ class TelematicsServer : public CppServer::Asio::TCPServer, public tc::LogI
 public:
 	using CppServer::Asio::TCPServer::TCPServer;
 
-	TelematicsServer(const std::shared_ptr<AsioService> &service, std::shared_ptr<db::Client> &client, size_t cache = 10000);
-	TelematicsServer(const std::shared_ptr<AsioService>& service, std::shared_ptr<db::Client>& client, size_t cache, int port);
-	TelematicsServer(const std::shared_ptr<AsioService>& service, std::shared_ptr<db::Client>& client, size_t cache, int port, const std::string& address);
-
-	virtual ~TelematicsServer();
+	TelematicsServer(const std::shared_ptr<AsioService> &service, std::shared_ptr<mongo::Client> &client, size_t cache = 10000);
+	TelematicsServer(const std::shared_ptr<AsioService>& service, std::shared_ptr<mongo::Client>& client, size_t cache, int port);
+	TelematicsServer(const std::shared_ptr<AsioService>& service, std::shared_ptr<mongo::Client>& client, size_t cache, int port, const std::string& address);
 
 	result_t handleCommand(const uchar *buffer, size_t size);
 	result_t dispatchRequest(std::shared_ptr< PacketRequest > &request, const CppCommon::UUID id);
 	result_t handleRequest(const uchar *buffer, size_t size, const CppCommon::UUID id);
 
 	size_t cacheSize() const;
-	const std::shared_ptr<db::Client> dbClient();
+	std::shared_ptr<mongo::Client> dbClient();
 
 protected:
 	std::shared_ptr< CppServer::Asio::TCPSession > CreateSession(const std::shared_ptr<TCPServer> &server) override;
@@ -42,7 +41,7 @@ protected:
 
 private:
 	result_t sendCommand(const Imei &imei, std::shared_ptr<parser::PacketCommand> &command);
-	std::shared_ptr< db::Client > iDbClient;
+	std::shared_ptr< mongo::Client > iDbClient;
 	size_t iCacheSize;
 };
 

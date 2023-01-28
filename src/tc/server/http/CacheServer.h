@@ -7,7 +7,7 @@
 
 namespace tc::server::http {
 
-class HTTPCacheServer : public CppServer::HTTP::HTTPServer
+class HTTPCacheServer : public CppServer::HTTP::HTTPServer, public tc::LogI
 {
 public:
 	using CppServer::HTTP::HTTPServer::HTTPServer;

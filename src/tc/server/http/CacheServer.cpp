@@ -19,7 +19,7 @@ std::shared_ptr<CppServer::Asio::TCPSession> HTTPCacheServer::CreateSession(cons
 
 void HTTPCacheServer::onError(int error, const std::string& category, const std::string& message)
 {
-	//LG_ERR(this->logger(), "HTTPS server caught an error with code: {}, cat: {}, msg: {}", error, category, message)
+	LG_ERR(this->logger(), "HTTPS server caught an error with code: {}, category: {}, msg: {}", error, category, message);
 }
 
 } // tc::server::http {

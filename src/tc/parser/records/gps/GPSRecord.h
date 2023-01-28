@@ -25,7 +25,6 @@ public:
 
 	GPSRecord(const Data &data);
 	GPSRecord();
-	virtual ~GPSRecord() = default;
 
 	GPSRecord &operator=(const GPSRecord &rhs) = default;
 

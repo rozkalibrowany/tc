@@ -14,7 +14,7 @@ public:
 	static bool hasRequest(const uchar *buf, size_t size);
 	static bool contains(const uchar *buf, size_t size, uchar c);
 
-	result_t parse(uchar *cbuf, size_t size, size_t offset = 0) override;
+	result_t parse(const uchar *cbuf, size_t size, size_t offset = 0) override;
 
 	const size_t size() override;
 

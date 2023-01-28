@@ -49,7 +49,7 @@ int PacketPayload::getIdx(const uchar* cbuf, size_t size, const uchar c) {
 	return -1;
 }
 
-result_t PacketPayload::parse(uchar* cbuf, size_t size, size_t /* offset */)
+result_t PacketPayload::parse(const uchar* cbuf, size_t size, size_t /* offset */)
 {
 	if (size < PacketPayload::IMEI_MIN_SIZE) {
 		return RES_NOENT;
@@ -70,7 +70,7 @@ result_t PacketPayload::parse(uchar* cbuf, size_t size, size_t /* offset */)
 			return RES_INVCRC;
 		}
 
-		auto reader = std::make_shared<Reader>(std::move(buf), offset);
+		auto reader = std::make_shared<Reader>(buf, offset);
 		auto codec = reader->readU(1);
 		auto records_total = reader->readU(1);
 
@@ -78,7 +78,7 @@ result_t PacketPayload::parse(uchar* cbuf, size_t size, size_t /* offset */)
 			auto record = std::make_shared< AVLRecord >(codec);
 			if (record->read(reader) != RES_OK)
 				break;
-			iAVLRecords.add(std::move(record));
+			iAVLRecords.add(record);
 		}
 
 		if (static_cast< size_t >(records_total) != iAVLRecords.size()) {
@@ -90,7 +90,7 @@ result_t PacketPayload::parse(uchar* cbuf, size_t size, size_t /* offset */)
 
 		iRecordsSize = records_total;
 		iCodec = codec;
-		iReader = reader;
+		iReader = std::move(reader);
 		return RES_OK;
 	}
 

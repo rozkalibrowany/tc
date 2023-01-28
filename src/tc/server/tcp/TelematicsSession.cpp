@@ -3,6 +3,7 @@
 #include <tc/parser/packet/PacketPayload.h>
 #include <tc/parser/packet/PacketCommand.h>
 #include <tc/parser/packet/PacketRequest.h>
+#include <tc/db/Thread.h>
 #include <bsoncxx/builder/stream/document.hpp>
 #include <bsoncxx/json.hpp>
 #include <iomanip>
@@ -101,7 +102,7 @@ result_t TelematicsSession::handlePayload(const uchar *buffer, size_t size)
 	result_t res = RES_OK;
 
 	auto packet = std::make_shared< parser::PacketPayload >();
-	if ((res = packet->parse((uchar*) buffer, size)) != RES_OK) {
+	if ((res = packet->parse(buffer, size)) != RES_OK) {
 		LG_ERR(this->logger(), "[{}] Parse payload packet", iImei);
 		return res;
 	}
@@ -113,6 +114,7 @@ result_t TelematicsSession::handlePayload(const uchar *buffer, size_t size)
 		return res;
 	}
 
+	std::scoped_lock lock(iMutex);
 	if (telematicsServer()->dbClient()->enabled())
 		res |= savePacket(packet);
 
@@ -155,8 +157,7 @@ result_t TelematicsSession::handleStandby(const uchar *buffer, size_t size)
 	return send(eOK);
 }
 
-
-result_t TelematicsSession::savePacket(const std::shared_ptr<parser::PacketPayload> &packet)
+result_t TelematicsSession::savePacket(std::shared_ptr<parser::PacketPayload> &packet)
 {
 	Json::Value val;
 
@@ -167,31 +168,16 @@ result_t TelematicsSession::savePacket(const std::shared_ptr<parser::PacketPaylo
 	val["timestamp"] = timestamp;
 	val["datetime"] = systime.getDateTime();
 
-	if (packet->toJson(val, true) != RES_OK) {
-		LG_ERR(this->logger(), "[{}] Packet to json.", iImei);
-		return RES_INVARG;
-	}
+	if (result_t res; (res = packet->toJson(val, true)) != RES_OK) {
+			LG_ERR(this->logger(), "[{}] Packet to json.", iImei);
+			return res;
+		}
 
-	auto dbclient = telematicsServer()->dbClient();
-	if (dbclient == nullptr) {
-		return RES_NOENT;
-	}
+	auto dbClient = telematicsServer()->dbClient();
 
-	auto coll = dbclient->client()[dbclient->name()][dbclient->collection("collection_packets")];
-	if (!coll) {
-		LG_ERR(this->logger(), "[{}] Unable to get collection from database", iImei);
-		return RES_NOENT;
-	}
-
-	bsoncxx::document::value bsonObj = bsoncxx::from_json(val.toStyledString());
-	if (bsonObj.empty()) {
-		LG_ERR(this->logger(), "[{}] bson object empty", iImei);
-		return RES_NOENT;
-	}
-
-	{
-		LockGuard g(iMutex);
-		coll.insert_one(bsonObj.view());
+	if(result_t res; (res = dbClient->insert(val.toStyledString())) != RES_OK) {
+		LG_ERR(this->logger(), "[{}] Error inserting data.", iImei);
+		return res;
 	}
 
 	return RES_OK;

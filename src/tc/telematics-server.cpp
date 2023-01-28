@@ -48,7 +48,7 @@ int main(int argc, char** argv)
 	size_t cache = static_cast<size_t>(std::stoi(ini["session"]["cache"]));
 
 	// Create a new Asio service
-	const auto service = std::make_shared< server::tcp::AsioService >(100);
+	const auto service = std::make_shared< server::tcp::AsioService >(10);
 	if (service->Start() != true) {
 		LG_ERR(log.logger(), "Unable to start asio service. Exiting...");
 		return 1;
@@ -57,18 +57,18 @@ int main(int argc, char** argv)
 
 	// Create DB client
 	auto &s_uri = ini["db"]["uri"];
-	auto db_client = std::make_shared< server::db::Client >(s_uri);
-	if (!db_client->load(ini)) {
+	auto db_client = std::make_shared< db::mongo::Client >(s_uri);
+	if (db_client->load(ini) != RES_OK) {
 		LG_ERR(log.logger(), "Unable to parse db client config. Exiting...");
 		return 1;
 	}
 
 	if (db_client->enabled()) {
-		std::vector<std::string> collections = db_client->client()["db"].list_collection_names();
+		/*std::vector<std::string> collections = db_client->client()["db"].list_collection_names();
 		if (std::find(collections.begin(), collections.end(), db_client->collection("collection_packets")) == collections.end()) {
 			db_client->client()["db"].create_collection(db_client->collection("collection_packets"));
-		}
-		LG_NFO(log.logger(), "DB enabled and client connected. Database: {}, collection: {}", db_client->name(), db_client->collection("collection_packets"));
+		}*/
+		LG_NFO(log.logger(), "DB enabled and client connected. Database: {}, collection: {}, uri: {}", db_client->name(), db_client->collection("collection_packets"), s_uri);
 	}
 
 	// Create a new TCP server

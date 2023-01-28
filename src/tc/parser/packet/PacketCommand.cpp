@@ -17,7 +17,7 @@ bool PacketCommand::hasCommand(const uchar* cbuf, size_t size)
 	return (val == IMEI_LENGTH) && size > 17 ? true : false;
 }
 
-result_t PacketCommand::parse(uchar* cbuf, size_t size, size_t offset)
+result_t PacketCommand::parse(const uchar* cbuf, size_t size, size_t offset)
 {
 	result_t res = RES_OK;
 

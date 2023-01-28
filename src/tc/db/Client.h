@@ -1,14 +1,13 @@
-#ifndef D636C7F7_D6B6_414B_B468_0498319874FF
-#define D636C7F7_D6B6_414B_B468_0498319874FF
+#ifndef C6AD8F6C_7B7E_49E7_B0FB_E6CDD1C06BAF
+#define C6AD8F6C_7B7E_49E7_B0FB_E6CDD1C06BAF
 
-#include <mongocxx/v_noabi/mongocxx/instance.hpp>
 #include <tc/common/Common.h>
 #include <mongocxx/client.hpp>
-#include <mongocxx/instance.hpp>
+#include <mongocxx/pool.hpp>
 #include <mini/ini.h>
 #include <list>
 
-namespace tc::server::db {
+namespace tc::db::mongo {
 
 using namespace mINI;
 
@@ -17,23 +16,21 @@ class Client : public tc::LogI
 public:
 
 	Client(std::string &uri);
-	virtual ~Client() = default;
 
-	bool load(INIStructure &ini);
+	result_t load(INIStructure &ini);
 
-	mongocxx::client &client();
+	result_t insert(const std::string &json_doc);
+	result_t insert(const std::string &json_doc, const std::string &coll);
 
-	const std::string name() const;
 	std::string collection(const std::string key) const;
 	const bool enabled() const;
 
 private:
-	mongocxx::client iClient;
-	std::string iName;
 	bool iEnabled;
+	std::string iName;
 	std::map<std::string, std::string> iCollection;
 };
 
-} // namespace tc::server::db
+} // namespace tc::db::mongo
 
-#endif /* D636C7F7_D6B6_414B_B468_0498319874FF */
+#endif /* C6AD8F6C_7B7E_49E7_B0FB_E6CDD1C06BAF */
