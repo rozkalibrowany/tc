@@ -1,14 +1,14 @@
 # Telematics Connector - service for IoT Devices Connectivity
 ![alt text](https://i.ibb.co/hgtM5tt/Screenshot-from-2022-06-22-20-52-34.png)
 
-# Integrated hardware API
- - Teltonika Codec 8/12
+# Supported IoT Devices
+ - Teltonika TST100 (Codec 8/12)
 
 # Stack
  - C++17
- - Tools (CMake, Ansible, Conan)
- - Cppserver 3rd party library based on ASIO
- - MongoDB to backup telemetry (possible to use only RAM Cache)
+ - Build tools (CMake, Ansible, Conan)
+ - Cppserver 3rd party library based on libasio
+ - MongoDB to backup telemetry (or disable and use only app cache)
 
 # Service config files
 tc-telematics-server:
@@ -39,7 +39,7 @@ interval=10000
 port=8443
 ```
 
-# Ansible env setup
+# Ansible environment setup
 ```
 ws-ansible wsr dev
 ws-ansible wsr tc-telematics-server
@@ -65,11 +65,7 @@ Configure tc-vehicle-connector-server as localhost
 ```bask
 * GET
 curl -X GET https://127.0.0.1:8443/devices
-
 curl -X GET https://127.0.0.1:8443/device/<Imei/ID>
-curl -X GET https://127.0.0.1:8443/device/<Imei/ID>/packets
-curl -X GET https://127.0.0.1:8443/device/<Imei/ID>/packets?start=<timestamp>
-curl -X GET https://127.0.0.1:8443/device/<Imei/ID>/packets?start=<timestamp>&end=<timestamp>
 ```
 
 ```bash
