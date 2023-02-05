@@ -1,7 +1,6 @@
 #include <tc/server/http/Cache.h>
 #include <json/json.h>
 #include <tc/parser/Util.h>
-
 namespace tc::server::http {
 
 Cache::Cache(Signal<Imei, std::string> &signal)
@@ -104,7 +103,7 @@ result_t Cache::set(std::shared_ptr< Request > request, CppServer::HTTP::HTTPRes
 	if (it != devices.end()) {
 		std::string val;
 		if (request->query(val) == RES_OK) {
-			(*it).second->iID = val;
+			(*it).second->setID(val);
 		} else {
 			response.MakeErrorResponse(400, "Bad Request");
 			return RES_INVARG;

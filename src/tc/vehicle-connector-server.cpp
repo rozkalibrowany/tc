@@ -7,6 +7,7 @@
 #include <tc/server/http/CacheSession.h>
 #include <tc/server/http/CacheServer.h>
 #include <tc/server/http/Request.h>
+#include <tc/db/Client.h>
 #include <mini/ini.h>
 #include <filesystem>
 #include <chrono>
@@ -57,10 +58,25 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	auto interval = std::stoi(ini["tcp"]["interval"]);
-	if (!ini["tcp"].has("interval")) {
-		LG_ERR(log.logger(), "Invalid or missing interval.");
+	auto pool_interval = std::stoi(ini["tcp"]["pool_interval"]);
+	if (!ini["tcp"].has("pool_interval")) {
+		LG_ERR(log.logger(), "Invalid or missing pool interval.");
 		return 1;
+	}
+
+	// Create DB client
+	auto &s_uri = ini["db"]["uri"];
+	auto db_client = std::make_shared< db::mongo::Client >(s_uri);
+	if (db_client->load(ini) != RES_OK) {
+		LG_ERR(log.logger(), "Unable to parse db client config. Exiting...");
+		return 1;
+	}
+
+	if (db_client->enabled()) {
+		if(!db_client->has(db_client->collection())) {
+			db_client->create(db_client->collection());
+		}
+		LG_NFO(log.logger(), "DB connected. Name: {}, collection: {}, uri: {}", db_client->name(), db_client->collection(), s_uri);
 	}
 
 	// Create Cache for data
@@ -94,7 +110,6 @@ int main(int argc, char** argv)
 	}
 	LG_NFO(log.logger(), "HTTP Server started!");
 
-
 	// Connect client to telematics server
 	if(!client->ConnectAsync()) {
 		LG_ERR(log.logger(), "TCP client connect error.");
@@ -106,7 +121,7 @@ int main(int argc, char** argv)
 		if (client->IsConnected() == false) {
 			LG_NFO(log.logger(), "Retrying connection to telematics server...");
 			client->ConnectAsync();
-			sleep_for(interval);
+			sleep_for(pool_interval);
 			continue;
 		}
 
@@ -123,19 +138,16 @@ int main(int argc, char** argv)
 			client->DisconnectAsync();
 		}
 
-
-		LG_NFO(log.logger(), "Cached: {}", cache->getDevices());
-		sleep_for(interval);
+		LG_DBG(log.logger(), "Cached: {}", cache->getDevices());
+		sleep_for(pool_interval);
 	}
 	// Stop the server
-
+	LG_NFO(log.logger(), "Server stopping...");
 	server->Stop();
-	LG_NFO(log.logger(), "Done!");
 
 	// Stop the Asio service
 	LG_NFO(log.logger(), "Asio service stopping...");
 	service->Stop();
-	LG_NFO(log.logger(), "Done!");
 
 	return 0;
 }

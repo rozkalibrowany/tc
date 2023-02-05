@@ -3,6 +3,7 @@
 
 #include <server/http/https_server.h>
 #include <tc/server/iot/Devices.h>
+#include <tc/server/iot/Vehicle.h>
 #include <tc/parser/Command.h>
 #include <tc/server/http/Action.h>
 #include <tc/common/Signal.h>
@@ -34,7 +35,7 @@ private:
 
 	Signal<Imei, std::string> &iSignal;
 
-	iot::Devices iDevices;
+	iot::Devices<iot::Vehicle> iDevices;
 	std::mutex _cache_lock;
 };
 

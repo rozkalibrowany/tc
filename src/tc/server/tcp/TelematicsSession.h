@@ -23,7 +23,6 @@ public:
 
 	using CppServer::Asio::TCPSession::TCPSession;
 
-	bool hasImei(const Imei imei) const;
 	Action::Type type() const;
 
 	result_t send(int buffer, const bool async = false);

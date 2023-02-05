@@ -16,15 +16,6 @@ std::shared_ptr<TelematicsServer> TelematicsSession::telematicsServer()
 	return server;
 }
 
-bool TelematicsSession::hasImei(const Imei imei) const
-{
-	if (iDevice == nullptr) {
-		return false;
-	}
-
-	return imei.compare(iDevice->iImei) == 0 ? true : false;
-}
-
 Action::Type TelematicsSession::type() const
 {
 	return iType;
@@ -88,7 +79,7 @@ result_t TelematicsSession::handleImei(const uchar *buffer, size_t size)
 
 	LG_NFO(this->logger(), "Parse imei OK: {}", imei);
 
-	iDevice = std::make_unique<iot::Device>(telematicsServer()->cacheSize(), imei);
+	iDevice = std::make_unique<iot::Device>(imei, telematicsServer()->cacheSize());
 	res |= send(eOK);
 
 	iImei = std::move(imei);
@@ -107,24 +98,24 @@ result_t TelematicsSession::handlePayload(const uchar *buffer, size_t size)
 		return res;
 	}
 
-	res = iDevice->add(packet);
+	std::scoped_lock lock(iMutex);
+	if (telematicsServer()->dbClient()->enabled())
+		res |= savePacket(packet);
+
+	auto records = packet->records().size();
+	res = iDevice->add(std::move(packet));
 	if (res != RES_OK && res != RES_INVCRC) {
 		LG_ERR(this->logger(), "[{}] Unable to add packet", iImei);
 		send(eInvalid);
 		return res;
 	}
 
-	std::scoped_lock lock(iMutex);
-	if (telematicsServer()->dbClient()->enabled())
-		res |= savePacket(packet);
-
 	if (res == RES_INVCRC) {
 		iBufferIncomplete = std::make_shared< parser::Buf >(buffer, size);
 		return res;
 	}
 
-	auto records = (int) iDevice->lastRecords();
-	LG_DBG(this->logger(), "[{}] Handle payload succesfull. Records[{}] ", iImei, records);
+	LG_DBG(this->logger(), "[{}] Handle payload succesfull. AVL records[{}] ", iImei, records);
 
 	res |= send(records);
 	return res;
@@ -164,7 +155,7 @@ result_t TelematicsSession::savePacket(std::shared_ptr<parser::PacketPayload> &p
 	auto timestamp = packet->timestamp().timestamp.timestamp();
 	auto systime = SysTime(timestamp);
 
-	val["imei"] = iDevice->iImei;
+	val["imei"] = iDevice->imei();
 	val["timestamp"] = timestamp;
 	val["datetime"] = systime.getDateTime();
 

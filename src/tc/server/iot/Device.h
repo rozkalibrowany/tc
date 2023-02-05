@@ -1,7 +1,6 @@
-#ifndef C57632A5_1AB3_4509_93A8_7BA96D45B603
-#define C57632A5_1AB3_4509_93A8_7BA96D45B603
+#ifndef EAD57CC8_F87B_4E24_B54A_C8E0F992FBE7
+#define EAD57CC8_F87B_4E24_B54A_C8E0F992FBE7
 
-#include <tc/common/Common.h>
 #include <tc/parser/packet/PacketPayload.h>
 #include <tc/common/SysTime.h>
 
@@ -12,42 +11,46 @@ class Device : public tc::LogI, public parser::JsonI
 public:
   using PayloadPackets = std::deque< std::shared_ptr< parser::PacketPayload > >;
 
-	Device() = default;
-	Device(size_t cache, const Imei &imei, const std::string id = "");
+	Device(const Imei &imei);
+	Device(const Imei &imei, size_t cache);
+
 	virtual ~Device() = default;
 
-	bool operator==(const Device &rhs) const;
-	bool operator!=(const Device &rhs) const;
-  Device &operator=(const Device &rhs);
+	virtual bool operator==(const Device &rhs) const;
+	virtual bool operator!=(const Device &rhs) const;
+	virtual Device &operator=(const Device &rhs);
 
-	bool has(const std::shared_ptr< parser::PacketPayload > &packet);
+	virtual bool has(const std::shared_ptr<parser::PacketPayload> packet);
 
-	PayloadPackets &packets();
+	virtual result_t add(const uchar *buffer, size_t size);
+	virtual result_t add(const std::shared_ptr<parser::PacketPayload> packet);
 
-	result_t add(const uchar* buffer, size_t size);
-	result_t add(const std::shared_ptr< parser::PacketPayload > &packet);
+	virtual uint64_t uptime() const;
 
-	size_t lastRecords() const;
+	virtual size_t cached() const;
+	virtual size_t total() const;
+	virtual int64_t timestamp() const;
+	virtual Imei imei() const;
+	virtual std::string type() const;
 
-	Imei iImei{"unknown"};
-	std::string iID;
-	std::string iType;
-	SysTime iUptime;
-	int64_t iTimestamp;
-	int64_t iPacketsCounter;
+	virtual PayloadPackets &packets();
 
 protected:
 	result_t fromJsonImpl(const Json::Value &rhs, bool root) override;
 	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
 
-	PayloadPackets iPayloadPackets;
+	Imei iImei{"unknown"};
 	size_t iCacheSize;
 
-private:
-	uint64_t getUptime() const;
+	std::string iType{"TST100"};
+
+	SysTime iUptime {static_cast<int64_t>(0LL)};
+	int64_t iTimestamp{SysTime(true).timestamp()};
+	int64_t iTotal{0LL};
+
+	PayloadPackets iPayloadPackets;
 };
 
 } // namespace tc::server::iot
 
-
-#endif /* C57632A5_1AB3_4509_93A8_7BA96D45B603 */
+#endif /* EAD57CC8_F87B_4E24_B54A_C8E0F992FBE7 */

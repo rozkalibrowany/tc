@@ -14,7 +14,7 @@ namespace tc::db::mongo {
 class Access : public tc::LogI {
 public:
   Access(mongocxx::client& client, std::string dbName, std::string collName);
-	
+
   result_t insert(std::string jsonDoc);
 	result_t insert(const bsoncxx::document::value &val);
 

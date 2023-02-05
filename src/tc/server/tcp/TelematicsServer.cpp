@@ -90,7 +90,7 @@ result_t TelematicsServer::handleRequest(const uchar *buffer, size_t size, const
 	return dispatchRequest(request, id);
 }
 
-result_t TelematicsServer::dispatchRequest(std::shared_ptr< parser::PacketRequest > &request, const CppCommon::UUID id)
+result_t TelematicsServer::dispatchRequest(std::shared_ptr< parser::PacketRequest > request, const CppCommon::UUID id)
 {
 	using namespace parser;
 
@@ -103,7 +103,8 @@ result_t TelematicsServer::dispatchRequest(std::shared_ptr< parser::PacketReques
 		auto &el = list["devices"] = Json::arrayValue;
 		for (const auto &[key, value] : _sessions) {
 			if (key == id) continue;
-			const auto &session = dynamic_pointer_cast<TelematicsSession>(value);
+			const auto session = dynamic_pointer_cast<TelematicsSession>(value);
+			if (session == nullptr) continue;
 			Json::Value val;
 			session->toJson(val);
 			el.append(val);
@@ -122,11 +123,9 @@ result_t TelematicsServer::sendCommand(const Imei &imei, std::shared_ptr<parser:
 {
 	for (const auto &[key, value] : _sessions) {
 		const auto &session = dynamic_pointer_cast<TelematicsSession>(value);
-		if (session->hasImei(imei)) {
-			auto elem = _sessions.find(key);
-			if (elem != _sessions.end()) {
-				session->send(command->command(), command->size());
-			}
+		auto elem = _sessions.find(key);
+		if (elem != _sessions.end()) {
+			session->send(command->command(), command->size());
 		}
 	}
 	return RES_OK;

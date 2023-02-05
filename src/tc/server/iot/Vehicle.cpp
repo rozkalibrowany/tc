@@ -1,48 +1,49 @@
-#include <tc/server/iot/Device.h>
+#include <tc/server/iot/Vehicle.h>
 
 namespace tc::server::iot {
 
-Device::Device(const Imei &imei)
+Vehicle::Vehicle(const Imei &imei)
  : Device (imei, 1000)
 {
 		// nothing to do
 }
 
-Device::Device(const Imei &imei, size_t cache)
- : iImei(imei)
- , iCacheSize(cache)
+Vehicle::Vehicle(const Imei &imei, size_t cache)
+ : Device(imei, cache)
 {
 		// nothing to do
 }
 
-bool Device::operator==(const Device &rhs) const
+bool Vehicle::operator==(const Device &rhs) const
 {
 	return iImei == rhs.imei();
 }
 
-bool Device::operator!=(const Device &rhs) const
+bool Vehicle::operator!=(const Device &rhs) const
 {
 	return iImei.compare(rhs.imei()) != 0;
 }
 
-Device &Device::operator=(const Device &rhs)
+Vehicle &Vehicle::operator=(const Vehicle &rhs)
 {
 	iImei = rhs.imei();
 	iTimestamp = rhs.timestamp();
 	iTotal = rhs.total();
 	iType = rhs.type();
 	iCacheSize = rhs.cached();
+	iID = rhs.id();
+	iFleet = rhs.fleet();
 
 	return *this;
 }
 
-bool Device::has(const std::shared_ptr< parser::PacketPayload > packet)
+bool Vehicle::has(const std::shared_ptr< parser::PacketPayload > packet)
 {
 	auto it = std::find(iPayloadPackets.begin(), iPayloadPackets.end(), packet);
 	return it == iPayloadPackets.end() ? false : true;
 }
 
-result_t Device::add(const uchar* buffer, size_t size)
+result_t Vehicle::add(const uchar* buffer, size_t size)
 {
 	if (buffer == nullptr) {
 		return RES_INVARG;
@@ -58,14 +59,13 @@ result_t Device::add(const uchar* buffer, size_t size)
 	return add(std::move(packet));
 }
 
-result_t Device::add(const std::shared_ptr< parser::PacketPayload > packet)
+result_t Vehicle::add(const std::shared_ptr< parser::PacketPayload > packet)
 {
   if (has(packet) == true) {
 		LG_ERR(this->logger(), "Packet already exists.");
 		return RES_INVARG;
   }
 
-	++iTotal;
 	if (iPayloadPackets.size() >= iCacheSize) {
 		iPayloadPackets.pop_front();
 	}
@@ -74,42 +74,27 @@ result_t Device::add(const std::shared_ptr< parser::PacketPayload > packet)
 	return RES_OK;
 }
 
-Device::PayloadPackets &Device::packets()
+const std::string Vehicle::id() const
 {
-	return iPayloadPackets;
+	return iID;
 }
 
-Imei Device::imei() const
+const std::string Vehicle::fleet() const
 {
-	return iImei;
+	return iFleet;
 }
 
-size_t Device::total() const
+void Vehicle::setID(const std::string &id)
 {
-	return iTotal;
+	iID = id;
 }
 
-std::string Device::type() const
+void Vehicle::setFleet(const std::string &fleet)
 {
-	return iType;
+	iFleet = fleet;
 }
 
-int64_t Device::timestamp() const
-{
-	return iTimestamp;
-}
-
-size_t Device::cached() const
-{
-	return iPayloadPackets.size();
-}
-
-uint64_t Device::uptime() const
-{
-	return SysTime(true).timestamp() - iTimestamp;
-}
-
-result_t Device::fromJsonImpl(const Json::Value &rhs, bool root)
+result_t Vehicle::fromJsonImpl(const Json::Value &rhs, bool root)
 {
 	if (rhs.getMemberNames().size() == 0) {
 		return RES_INVARG;
@@ -124,16 +109,22 @@ result_t Device::fromJsonImpl(const Json::Value &rhs, bool root)
 			iType = rhs[id].asString();
 		else if (!id.compare("Packets"))
 			iTotal = rhs[id].asInt64();
+		else if (!id.compare("ID"))
+			iID = rhs[id].asString();
+		else if (!id.compare("Fleet"))
+			iFleet = rhs[id].asString();
 	}
 
 	return RES_OK;
 }
 
-result_t Device::toJsonImpl(Json::Value &rhs, bool root) const
+result_t Vehicle::toJsonImpl(Json::Value &rhs, bool root) const
 {
 	auto systime = SysTime(iTimestamp);
 
 	rhs["Imei"] = iImei;
+	rhs["ID"] = iID;
+	rhs["Fleet"] = iFleet;
 	rhs["Type"] = iType;
 	rhs["Timestamp"] = iTimestamp;
 	rhs["Datetime"] = systime.getDateTime();
@@ -143,6 +134,5 @@ result_t Device::toJsonImpl(Json::Value &rhs, bool root) const
 
 	return RES_OK;
 }
-
 
 } // namespace tc::server::iot
