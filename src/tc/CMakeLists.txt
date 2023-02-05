@@ -23,15 +23,6 @@ TcAddLibrary(
 )
 
 TcAddLibrary(
-	TARGET tc-iot
-	SOURCE "${src}/server/iot/*.cpp"
-	INCLUDE "${TcIncludeDir}"
-	LIBRARIES
-	 tc-parser
-	VERSION ${TcVersion}
-)
-
-TcAddLibrary(
 	TARGET tc-db
 	SOURCE "${src}/db/*.cpp"
 	INCLUDE "/usr/local/ws/include" "${TcIncludeDir}"
@@ -39,6 +30,16 @@ TcAddLibrary(
 	 mongocxx::lib
 	 bsoncxx
 	 VERSION ${TcVersion}
+)
+
+TcAddLibrary(
+	TARGET tc-iot
+	SOURCE "${src}/server/iot/*.cpp"
+	INCLUDE "${TcIncludeDir}"
+	LIBRARIES
+	 tc-parser
+	 tc-db
+	VERSION ${TcVersion}
 )
 
 TcAddLibrary(

@@ -18,12 +18,17 @@ public:
 	Client(std::string &uri);
 
 	result_t load(INIStructure &ini);
-	result_t insert(const std::string &json_doc);
 
+	result_t insert(const std::string &json_doc);
 	result_t create(const std::string &coll_name);
+	result_t create(const std::string &coll_name, const std::string &db_name);
+	result_t get(const std::string &id, bsoncxx::document::view &doc);
+
 	bool has(const std::string &coll_name);
+	bool has(const std::string &coll_name, const std::string &db_name);
 
 	const std::string collection() const;
+	const std::string name() const;
 	const bool enabled() const;
 
 private:

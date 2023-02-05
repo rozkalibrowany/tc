@@ -24,6 +24,8 @@ result_t Client::send(const parser::Buf &buf)
 
 result_t Client::send(std::shared_ptr< parser::Command > command)
 {
+	LG_NFO(this->logger(), "Sending command: [{}]", tc::uchar2string(command->iBuf.data(), command->iBuf.size()));
+
 	if (command == nullptr) {
 		return RES_INVARG;
 	}
@@ -49,10 +51,10 @@ result_t Client::send(const Imei &imei, const std::string command)
 		return res;
 	}
 
-	return send(cmd);
+	return send(std::move(cmd));
 }
 
-void Client::onReceived(const void *buffer, size_t size)
+void Client::onReceived(const void* buffer, size_t size)
 {
 	iSignal.emit(buffer, size);
 }

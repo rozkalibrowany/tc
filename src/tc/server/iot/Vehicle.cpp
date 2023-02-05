@@ -84,6 +84,26 @@ const std::string Vehicle::fleet() const
 	return iFleet;
 }
 
+result_t Vehicle::updateDeviceInfo(const bsoncxx::document::view &view)
+{
+	if (view.empty()) {
+		return RES_NOENT;
+	}
+
+	auto id = view["ID"].get_string().value.to_string();
+	auto fleet = view["Fleet"].get_string().value.to_string();
+
+	if(id.compare("unknown") && id.compare(iID)) {
+		iID = id;
+	}
+
+	if(fleet.compare("unknown") && fleet.compare(iID)) {
+		iFleet = fleet;
+	}
+
+	return RES_OK;
+}
+
 void Vehicle::setID(const std::string &id)
 {
 	iID = id;

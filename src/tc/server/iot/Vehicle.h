@@ -2,8 +2,12 @@
 #define AC5BB633_C3DF_423C_9202_CD95401C79B9
 
 #include <tc/server/iot/Device.h>
+#include <bsoncxx/builder/stream/document.hpp>
 
 namespace tc::server::iot {
+
+using bsoncxx::builder::stream::document;
+using bsoncxx::builder::stream::finalize;
 
 class Vehicle : public Device
 {
@@ -18,6 +22,8 @@ class Vehicle : public Device
 		bool has(const std::shared_ptr<parser::PacketPayload> packet) override;
 		result_t add(const uchar *buffer, size_t size) override;
 		result_t add(const std::shared_ptr<parser::PacketPayload> packet) override;
+
+		result_t updateDeviceInfo(const bsoncxx::document::view &view);
 
 		const std::string id() const;
 		const std::string fleet() const;

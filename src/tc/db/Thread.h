@@ -2,18 +2,21 @@
 #define EA4A817F_A54B_417D_8A01_900A95EFF3FE
 
 #include <tc/db/Access.h>
+#include <tc/common/Logger.h>
 
 namespace tc::db::mongo {
 
-class Thread {
+class Thread : public tc::LogI {
 public:
-	Thread(mongocxx::client &client, std::string db_name, std::string coll_name, std::string json_doc);
+	Thread(mongocxx::client& client, std::string &db_name, std::string &coll_name, const std::string &data);
 
 	void operator()();
-	
+	void operator()(const std::string &id, bsoncxx::document::view &val, bool &ok);
+
 private:
-  Access iAccess;
-  std::string iJson;
+	Access::Mode iMode{Access::Write};
+	Access iAccess;
+	std::string iData;
 };
 
 } // namespace tc::db::mongo

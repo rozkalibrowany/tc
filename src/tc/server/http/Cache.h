@@ -26,7 +26,10 @@ public:
 	std::string getDevices();
 
 	result_t handleAction(const Action &action, CppServer::HTTP::HTTPResponse &response);
+	result_t updateDeviceInfo(const Imei &imei, const bsoncxx::document::view &view);
 	void onReceived(const void *buffer, size_t size);
+
+	iot::Devices<iot::Vehicle> &devices();
 
 private:
 	result_t addCommand(const Imei imei, const string cmd, CppServer::HTTP::HTTPResponse &response);

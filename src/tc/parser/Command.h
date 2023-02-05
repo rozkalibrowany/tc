@@ -11,7 +11,7 @@ public:
 	static std::map <std::string, std::string> sMapping;
 
 	Command(const std::string& imei);
-	virtual ~Command() = default;
+	~Command() = default;
 
 	result_t create(const std::string &cmd, bool cr = false);
 

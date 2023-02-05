@@ -84,15 +84,12 @@ int main(int argc, char** argv)
 	auto cache = std::make_shared<server::http::Cache>(signal_cmd);
 
 	// Create a new Asio service
-	auto service = std::make_shared<tc::asio::AsioService>();
+	auto service = std::make_shared<tc::asio::AsioService>(5);
 	service->Start();
 	LG_NFO(log.logger(), "Asio service started!");
 
-	// Create and connect signal from tcp client
+	// Create signal
 	Signal<const void *, size_t> signal;
- 	signal.connect([&](const void * buf, size_t size) {
-    cache->onReceived(buf, size);
-  });
 
 	// Create a new TCP client
 	auto client = std::make_shared< client::tcp::Client >(signal, service, addr, tcp_port);
@@ -103,12 +100,18 @@ int main(int argc, char** argv)
   });
 
 	// Create a new HTTPS server
-	auto server = std::make_shared<server::http::HTTPCacheServer>(service, http_port, cache);
+	auto server = std::make_shared<server::http::HTTPCacheServer>(service, db_client, cache, http_port);
 	if (!server->Start()) {
 		LG_ERR(log.logger(), "Unable to start HTTP server.");
 		return 1;
 	}
 	LG_NFO(log.logger(), "HTTP Server started!");
+	// Connect client signal for syncing device info
+	signal.connect([&](const void * buf, size_t size) {
+		server->syncDevices(true);
+		cache->onReceived(buf, size);
+	});
+
 
 	// Connect client to telematics server
 	if(!client->ConnectAsync()) {
@@ -116,6 +119,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 	LG_NFO(log.logger(), "TCP client connected to [{}][{}].", addr, tcp_port);
+
 
 	while (true) {
 		if (client->IsConnected() == false) {
@@ -138,7 +142,7 @@ int main(int argc, char** argv)
 			client->DisconnectAsync();
 		}
 
-		LG_DBG(log.logger(), "Cached: {}", cache->getDevices());
+		LG_NFO(log.logger(), "Cached: {}", cache->getDevices());
 		sleep_for(pool_interval);
 	}
 	// Stop the server

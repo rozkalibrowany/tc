@@ -39,6 +39,11 @@ result_t Cache::handleAction(const Action &action, CppServer::HTTP::HTTPResponse
 		return RES_NOENT;
 }
 
+iot::Devices<iot::Vehicle> &Cache::devices()
+{
+	return iDevices;
+}
+
 result_t Cache::getDevice(const Imei &imei, CppServer::HTTP::HTTPResponse &response)
 {
 	if ((iDevices.devices().find(imei) == iDevices.devices().end())) {
@@ -59,6 +64,7 @@ std::string Cache::getDevices()
 {
 	return iDevices.toJson().toStyledString();
 }
+
 
 void Cache::onReceived(const void *buffer, size_t size)
 {

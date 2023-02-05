@@ -13,10 +13,16 @@ namespace tc::db::mongo {
 
 class Access : public tc::LogI {
 public:
-  Access(mongocxx::client& client, std::string dbName, std::string collName);
+
+	enum Mode {
+		Read = 0,
+		Write
+	};
+
+  Access(mongocxx::client& client, std::string dbName, std::string collName, Mode mode = Write);
 
   result_t insert(std::string jsonDoc);
-	result_t insert(const bsoncxx::document::value &val);
+	result_t find_one(const std::string &id, bsoncxx::document::view &view);
 
 private:
   mongocxx::client& iClient;
@@ -24,6 +30,7 @@ private:
   std::string iCollectionName;
   mongocxx::database iDb;
   mongocxx::collection iCollection;
+	Mode iMode;
 };
 
 } // namespace tc::db::mongo

@@ -19,6 +19,7 @@ public:
 	result_t add(const std::shared_ptr<T> &device);
 	result_t add(const std::shared_ptr<T> &device, const Imei &imei);
 
+	std::vector<Imei> imeis();
 	DeviceMap& devices();
 
 	size_t size() const;
@@ -61,6 +62,14 @@ template <class T>
 bool Devices<T>::has(const Imei &imei) const
 {
 	return iDevices.find(imei) != iDevices.end();
+}
+
+template <class T>
+std::vector<Imei> Devices<T>::imeis()
+{
+	std::vector<Imei> imeis;
+	transform(iDevices.begin(), iDevices.end(), back_inserter(imeis), [](std::pair<Imei, std::shared_ptr<T>> p) { return p.first;} );
+	return imeis;
 }
 
 template <class T>
