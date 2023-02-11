@@ -21,8 +21,11 @@ public:
 
   Access(mongocxx::client& client, std::string dbName, std::string collName, Mode mode = Write);
 
-  result_t insert(std::string jsonDoc);
-	result_t find_one(const std::string &id, bsoncxx::document::view &view);
+	result_t find_one(const std::string &imei, std::string &json_doc);
+  result_t insert(const std::string &jsonDoc);
+	
+	result_t update(const std::string &key, const int64_t old, const int64_t val);
+	result_t update(const std::string &key, const std::string &old, const std::string &val);
 
 private:
   mongocxx::client& iClient;

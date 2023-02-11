@@ -9,6 +9,11 @@ Client::Client(std::string &uri)
 	Instance::getInstance()->createPool(uri);
 }
 
+/**
+ * It loads the database configuration from the INI file
+ * @param ini The INIStructure object that contains the parsed INI file.
+ * @return RES_OK
+ */
 result_t Client::load(INIStructure &ini)
 {
 	auto ok = ini["db"].has("name") && ini["db"].has("collection");
@@ -29,18 +34,20 @@ result_t Client::load(INIStructure &ini)
 	return RES_OK;
 }
 
-result_t Client::get(const std::string &id, bsoncxx::document::view &doc)
+/* Note: not thread safe! */
+result_t Client::get(const std::string &imei, std::string &json_doc)
 {
 	auto entry = Instance::getInstance()->getClientFromPool();
-	bool ok = false;
+	Access access(*entry, iName, iCollection, Access::Read);
 
-	auto thr = std::make_shared<db::mongo::Thread>(*entry, iName, iCollection, std::string{});
-	std::thread thread((*thr.get()), id, std::ref(doc), std::ref(ok));
-	thread.join();
-
-	return (ok == true ? RES_OK : RES_ERROR);
+	return access.find_one(imei, json_doc);
 }
 
+/**
+ * The function inserts a JSON document into the database
+ * @param json_doc The JSON document to be inserted.
+ * @return RES_OK
+ */
 result_t Client::insert(const std::string &json_doc)
 {
 	auto entry = Instance::getInstance()->getClientFromPool();
@@ -56,6 +63,12 @@ result_t Client::create(const std::string &coll_name)
 	return create(coll_name, iName);
 }
 
+/**
+ * It gets a client from the pool, creates a collection, and returns.
+ * @param coll_name The name of the collection to be created.
+ * @param db_name The name of the database to create the collection in.
+ * @return RES_OK
+ */
 result_t Client::create(const std::string &coll_name, const std::string &db_name)
 {
 	auto entry = Instance::getInstance()->getClientFromPool();
@@ -66,11 +79,50 @@ result_t Client::create(const std::string &coll_name, const std::string &db_name
 	return RES_OK;
 }
 
+/**
+ * It updates the value of a key in the database.
+ * @param key The key to update
+ * @param old The old value of the key.
+ * @param val The value to be updated
+ * @return RES_OK
+ */
+result_t Client::update(const std::string &key, const std::string &old, const std::string &val)
+{
+	auto entry = Instance::getInstance()->getClientFromPool();
+
+	std::thread thread(db::mongo::Thread{*entry, iName, iCollection, std::string{}}, key, old, val);
+	thread.join();
+
+	return RES_OK;
+}
+
+/**
+ * It updates the value of a key in the database.
+ * @param key The key to update
+ * @param old The old value of the key.
+ * @param val The value to be updated
+ * @return RES_OK
+ */
+result_t Client::update(const std::string &key, const int64_t old, const int64_t val)
+{
+	auto entry = Instance::getInstance()->getClientFromPool();
+	std::thread thread(db::mongo::Thread{*entry, iName, iCollection, std::string{}}, key, old, val);
+	thread.join();
+
+	return RES_OK;
+}
+
 bool Client::has(const std::string &coll_name)
 {
 	return has(coll_name, iName);
 }
 
+/**
+ * It checks if a collection exists in a database
+ * @param coll_name The name of the collection to check for.
+ * @param db_name The name of the database to use.
+ * @return A boolean value.
+ */
 bool Client::has(const std::string &coll_name, const std::string &db_name)
 {
 	auto entry = Instance::getInstance()->getClientFromPool();
