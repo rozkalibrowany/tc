@@ -26,7 +26,7 @@ class MongoCxxConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelp
     options, default_options = opts.options, opts.default
 
     def requirements(self):
-        self.requires("mongoc/1.22.0@tc/stable")
+        self.requires("mongoc/1.23.2@tc/stable")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version],
