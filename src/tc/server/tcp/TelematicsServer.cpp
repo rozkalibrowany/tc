@@ -123,8 +123,8 @@ result_t TelematicsServer::sendCommand(const Imei &imei, std::shared_ptr<parser:
 {
 	for (const auto &[key, value] : _sessions) {
 		const auto &session = dynamic_pointer_cast<TelematicsSession>(value);
-		auto elem = _sessions.find(key);
-		if (elem != _sessions.end()) {
+		if (session->imei() == imei) {
+			LG_NFO(this->logger(), "Sending command to session[{}] with imei[{}].", this->id(), imei);
 			session->send(command->command(), command->size());
 		}
 	}

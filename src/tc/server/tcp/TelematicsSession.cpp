@@ -16,6 +16,11 @@ std::shared_ptr<TelematicsServer> TelematicsSession::telematicsServer()
 	return server;
 }
 
+const Imei TelematicsSession::imei() const
+{
+	return iImei;
+}
+
 Action::Type TelematicsSession::type() const
 {
 	return iType;

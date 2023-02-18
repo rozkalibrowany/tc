@@ -29,6 +29,8 @@ public:
 	result_t send(const uchar* buffer, size_t size, const bool async = false);
 	result_t send(const void *buffer, size_t size, const bool async = false);
 
+	const Imei imei() const;
+
 protected:
 	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
 	void onReceived(const void *buffer, size_t size) override;
