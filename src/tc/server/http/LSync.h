@@ -10,7 +10,7 @@ namespace tc::server::http {
 
 using namespace db::mongo;
 
-class Sync : public tc::LogI
+class LSync : public tc::LogI
 {
 public:
 	void execute(std::shared_ptr<CacheHandler> cache, std::shared_ptr<Client> client, int64_t interval);

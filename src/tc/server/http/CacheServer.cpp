@@ -3,13 +3,13 @@
 
 namespace tc::server::http {
 
-HTTPCacheServer::HTTPCacheServer(const std::shared_ptr<AsioService> &service, std::shared_ptr<db::mongo::Client> client, std::shared_ptr<CacheHandler> &cache)
+HTTPCacheServer::HTTPCacheServer(const std::shared_ptr<AsioService> service, std::shared_ptr<db::mongo::Client> client, std::shared_ptr<CacheHandler> &cache)
  : HTTPCacheServer(service, client, cache, 8443)
 {
 	// nothing to do
 }
 
-HTTPCacheServer::HTTPCacheServer(const std::shared_ptr<AsioService> &service, std::shared_ptr<db::mongo::Client> client, std::shared_ptr<CacheHandler> &cache, int port)
+HTTPCacheServer::HTTPCacheServer(const std::shared_ptr<AsioService> service, std::shared_ptr<db::mongo::Client> client, std::shared_ptr<CacheHandler> &cache, int port)
  : CppServer::HTTP::HTTPServer(service, port)
  , iCache(cache)
  , iDbClient(client)

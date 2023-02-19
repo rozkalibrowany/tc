@@ -7,15 +7,15 @@
 #include <tc/server/http/CacheSession.h>
 #include <tc/server/http/CacheServer.h>
 #include <tc/server/http/Request.h>
-#include <tc/server/http/Sync.h>
+#include <tc/server/http/LSync.h>
 #include <tc/db/Client.h>
 #include <mini/ini.h>
 #include <filesystem>
 #include <chrono>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
-#define DEFAULT_ASIO_THREADS 	2
-#define DEFAULT_SYNC_INTERVAL 30000
+#define DEFAULT_ASIO_THREADS 		2
+#define DEFAULT_SYNC_INTERVAL 	30000
 
 void sleep_for(uint64_t time) {
 	std::this_thread::sleep_for(chrono::milliseconds(time));
@@ -80,8 +80,7 @@ int main(int argc, char** argv)
 	auto &s_uri = ini["db"]["uri"];
 
 	int64_t sync_interval;
-	if (!ini["db"].has("sync_interval"))
-	{
+	if (!ini["db"].has("sync_interval")) {
 		sync_interval = DEFAULT_SYNC_INTERVAL;
 	}
 	sync_interval = std::stoi(ini["db"]["sync_interval"]);
@@ -136,11 +135,12 @@ int main(int argc, char** argv)
 		server->onModified(imei);
 	});
 
+	// sync devices from DB
 	server->syncDevices();
 
 	// Sync devices into DB
-	server::http::Sync sync;
-	std::thread thread(&server::http::Sync::execute, &sync, cache_handler, db_client, sync_interval);
+	server::http::LSync sync;
+	std::thread thread(&server::http::LSync::execute, &sync, cache_handler, db_client, sync_interval);
 	thread.detach();
 
 	while (true) {

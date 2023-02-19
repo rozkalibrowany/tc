@@ -1,8 +1,8 @@
-#include <tc/server/http/Sync.h>
+#include <tc/server/http/LSync.h>
 
 namespace tc::server::http {
 
-void Sync::execute(std::shared_ptr<CacheHandler> cache, std::shared_ptr<Client> client, int64_t interval)
+void LSync::execute(std::shared_ptr<CacheHandler> cache, std::shared_ptr<Client> client, int64_t interval)
 {
 	while (true) {
 		std::chrono::milliseconds _interval(interval);

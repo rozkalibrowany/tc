@@ -16,8 +16,8 @@ class HTTPCacheServer : public CppServer::HTTP::HTTPServer, public tc::LogI
 public:
 	using CppServer::HTTP::HTTPServer::HTTPServer;
 
-	HTTPCacheServer(const std::shared_ptr<AsioService> &service, std::shared_ptr<db::mongo::Client> client, std::shared_ptr<CacheHandler> &cache, int port);
-	HTTPCacheServer(const std::shared_ptr<AsioService> &service, std::shared_ptr<db::mongo::Client> client, std::shared_ptr<CacheHandler> &cache);
+	HTTPCacheServer(const std::shared_ptr<AsioService> service, std::shared_ptr<db::mongo::Client> client, std::shared_ptr<CacheHandler> &cache, int port);
+	HTTPCacheServer(const std::shared_ptr<AsioService> service, std::shared_ptr<db::mongo::Client> client, std::shared_ptr<CacheHandler> &cache);
 
 	result_t syncDevices();
 	result_t onModified(const Imei &imei);
