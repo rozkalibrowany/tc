@@ -62,7 +62,7 @@ result_t readTelematicsConfig(INIStructure &ini, LogI &log, std::string &addr, i
 		return RES_NOENT;
 	}
 
-	addr = std::stoi(ini["telematics"]["address"]);
+	addr = ini["telematics"]["address"];
 	if (!vIsAddress(addr)) {
 		LG_ERR(log.logger(), "Invalid TCP address[{}].", addr);
 		return RES_NOENT;
