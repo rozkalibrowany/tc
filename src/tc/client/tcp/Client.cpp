@@ -56,6 +56,7 @@ result_t Client::send(const Imei &imei, const std::string command)
 
 void Client::onReceived(const void* buffer, size_t size)
 {
+	LG_NFO(this->logger(), "Client received: [{}]", size, tc::uchar2string((const uchar*) buffer, size));
 	iSignal.emit(buffer, size);
 }
 

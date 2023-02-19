@@ -17,29 +17,29 @@ namespace defaults {
 
 result_t readTelematicsConfig(INIStructure &ini, LogI &log, std::string &addr, int &port, int &cache)
 {
-	if (!ini["telematics"].has("port")) {
+	if (!ini["server"].has("port")) {
 		LG_ERR(log.logger(), "Missing HTTP port number.");
 		return RES_NOENT;
 	}
 
-	port = std::stoi(ini["telematics"]["port"]);
+	port = std::stoi(ini["server"]["port"]);
 	if (!vIsPortNumber(port)) {
 		LG_ERR(log.logger(), "Invalid TCP port number[{}].", port);
 		return RES_NOENT;
 	}
 
-	if (!ini["telematics"].has("address")) {
+	if (!ini["server"].has("address")) {
 		LG_ERR(log.logger(), "Missing TCP address.");
 		return RES_NOENT;
 	}
 
-	addr = ini["telematics"]["address"];
+	addr = ini["server"]["address"];
 	if (!vIsAddress(addr)) {
 		LG_ERR(log.logger(), "Invalid TCP address[{}].", addr);
 		return RES_NOENT;
 	}
 
-	cache = ini["session"].has("cache") ? std::stoi(ini["session"]["threadcaches"]) : defaults::c_cache;
+	cache = ini["session"].has("cache") ? std::stoi(ini["session"]["cache"]) : defaults::c_cache;
 
 	return RES_OK;
 }
