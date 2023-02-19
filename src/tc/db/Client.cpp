@@ -34,13 +34,30 @@ result_t Client::load(INIStructure &ini)
 	return RES_OK;
 }
 
-/* Note: not thread safe! */
+/** Note: not thread safe!
+ * It gets a client from the pool, creates an access object, and then calls the find_one function.
+ * @param imei The IMEI of the device to be retrieved.
+ * @param json_doc The JSON document to be inserted.
+ * @return The result of the find_one operation.
+ */
 result_t Client::get(const std::string &imei, std::string &json_doc)
 {
 	auto entry = Instance::getInstance()->getClientFromPool();
 	Access access(*entry, iName, iCollection, Access::Read);
 
 	return access.find_one(imei, json_doc);
+}
+
+/** Note: not thread safe!
+ * It gets a client from the pool, creates an access object, and returns the cursor
+ * @return A cursor object.
+ */
+mongocxx::cursor Client::getCursor()
+{
+	auto entry = Instance::getInstance()->getClientFromPool();
+	Access access(*entry, iName, iCollection, Access::Read);
+
+	return access.cursor();
 }
 
 /**
@@ -110,6 +127,22 @@ result_t Client::update(const std::string &key, const int64_t old, const int64_t
 	thread.join();
 
 	return RES_OK;
+}
+
+result_t Client::replace(const std::string &json_old, const std::string &json_new)
+{
+	auto entry = Instance::getInstance()->getClientFromPool();
+	Access access(*entry, iName, iCollection, Access::Read);
+
+	return access.replace(json_old, json_new);
+}
+
+bool Client::hasImei(const Imei &imei)
+{
+	auto entry = Instance::getInstance()->getClientFromPool();
+	Access access(*entry, iName, iCollection, Access::Read);
+
+	return access.has(imei);
 }
 
 bool Client::has(const std::string &coll_name)

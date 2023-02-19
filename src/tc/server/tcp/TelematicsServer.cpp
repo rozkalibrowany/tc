@@ -21,6 +21,13 @@ TelematicsServer::TelematicsServer(const std::shared_ptr<AsioService>& service, 
  , iDbClient(std::move(client))
  , iCacheSize(cache)
 {
+	this->SetupReusePort(true);
+	this->SetupReuseAddress(true);
+	this->SetupNoDelay(true);
+}
+
+TelematicsServer::~TelematicsServer()
+{
 	// nothing to do
 }
 

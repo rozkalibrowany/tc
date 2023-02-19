@@ -31,10 +31,14 @@ public:
 
 	Method method() const;
 	Type type() const;
+	bool hasQuery() const;
+
 	const std::string id() const;
 	const std::string command() const;
 	const std::string key() const;
-	result_t query(std::string &value);
+
+	result_t query(std::string &key);
+	result_t query(std::string &key, std::string &val);
 
 	result_t toInternal(parser::Buf &buf, bool cr = false);
 

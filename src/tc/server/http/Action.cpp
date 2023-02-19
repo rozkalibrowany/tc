@@ -112,7 +112,7 @@ result_t Action::parseDeviceId(const Request &request)
 result_t Action::parseQuery(const Request &request)
 {
 	auto left = request.command().substr(0, request.command().find({"?"}));
-	if (left.empty() || left.compare("set")) {
+	if (left.empty() || (left.compare("set") && left.compare("fleet"))) {
 		return RES_NOENT;
 	}
 
@@ -121,7 +121,9 @@ result_t Action::parseQuery(const Request &request)
 		return RES_NOENT;
 	}
 
-	if (right.substr(0, right.find("=")).compare("id")) {
+	auto id = right.substr(0, right.find("=")).compare("id");
+	auto fleet = right.substr(0, right.find("=")).compare("fleet");
+	if (id && fleet) {
 		return RES_NOENT;
 	}
 

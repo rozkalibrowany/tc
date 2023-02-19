@@ -21,11 +21,17 @@ public:
 
   Access(mongocxx::client& client, std::string dbName, std::string collName, Mode mode = Write);
 
+	mongocxx::cursor cursor();
+
+	bool has(const std::string &imei);
 	result_t find_one(const std::string &imei, std::string &json_doc);
-  result_t insert(const std::string &jsonDoc);
-	
+	result_t insert(const std::string &jsonDoc);
+
 	result_t update(const std::string &key, const int64_t old, const int64_t val);
 	result_t update(const std::string &key, const std::string &old, const std::string &val);
+
+	result_t replace(const bsoncxx::document::view &v_old, const bsoncxx::document::view &v_new);
+	result_t replace(const std::string &json_old, const std::string &json_new);
 
 private:
   mongocxx::client& iClient;

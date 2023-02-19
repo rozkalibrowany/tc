@@ -4,7 +4,7 @@
 
 namespace tc::server::http {
 
-HTTPCacheSession::HTTPCacheSession(const std::shared_ptr<CppServer::HTTP::HTTPServer> &server, const std::shared_ptr<Cache> &cache)
+HTTPCacheSession::HTTPCacheSession(const std::shared_ptr<CppServer::HTTP::HTTPServer> &server, const std::shared_ptr<CacheHandler> &cache)
  : HTTPSession(server)
  , iCache(cache)
 {
@@ -49,15 +49,14 @@ void HTTPCacheSession::onReceivedRequest(const CppServer::HTTP::HTTPRequest& req
 	}
 
 	Action action;
-	result_t res;
-	if ((res = action.parse(request)) != RES_OK) {
+	if (action.parse(request) != RES_OK) {
 		LG_ERR(this->logger(), "Bad {} request[{}]", request.method(), request.url());
 		SendResponseAsync(response().MakeErrorResponse(400, "Bad request"));
 		return;
 	}
 
 	CppServer::HTTP::HTTPResponse resp;
-	if ((res = iCache->handleAction(action, resp)) != RES_OK) {
+	if (result_t res; (res = iCache->handleAction(action, resp)) != RES_OK) {
 		LG_ERR(this->logger(), "Unable to handle action[{}][{}]", request.method(), request.url());
 		resp = res == RES_NOIMPL ? response().MakeErrorResponse(500, "Internal Server Error") : response().MakeErrorResponse(400, "Bad Request");
 		SendResponseAsync(resp);

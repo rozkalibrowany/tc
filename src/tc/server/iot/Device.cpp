@@ -74,6 +74,14 @@ result_t Device::add(const std::shared_ptr< parser::PacketPayload > packet)
 	return RES_OK;
 }
 
+Json::Value Device::toJsonValue(bool active)
+{
+	Json::Value val;
+	toJsonImpl(val, active);
+
+	return val;
+}
+
 Device::PayloadPackets &Device::packets()
 {
 	return iPayloadPackets;

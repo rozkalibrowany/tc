@@ -89,6 +89,7 @@ TcAddLibrary(
 	SOURCE "${src}/server/http/*.cpp"
 	INCLUDE "${TcIncludeDir}"
 	LIBRARIES
+		pthread
 		cppserver
 		fmt::lib
 		tc-asio

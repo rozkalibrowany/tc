@@ -13,20 +13,20 @@ namespace tc::server::http {
 
 using namespace parser;
 
-class Cache : public CppCommon::Singleton<Cache>, public tc::LogI
+class CacheHandler : public CppCommon::Singleton<CacheHandler>, public tc::LogI
 {
-   friend CppCommon::Singleton<Cache>;
+	friend CppCommon::Singleton<CacheHandler>;
 public:
-	Cache(Signal<Imei, std::string> &signal);
+	CacheHandler(Signal<Imei, std::string> &signal, Signal<Imei> &signal_modified);
 
 	bool hasImei(const Imei imei) const;
 
 	result_t getDevice(const Imei &imei, CppServer::HTTP::HTTPResponse &response);
-	result_t getDevices(CppServer::HTTP::HTTPResponse &response);
-	std::string getDevices();
+	result_t getDevices(CppServer::HTTP::HTTPResponse &response, bool active_only = true);
+	result_t getDevices(std::string &devices, bool active_only = true);
 
 	result_t handleAction(const Action &action, CppServer::HTTP::HTTPResponse &response);
-	result_t updateDeviceInfo(const Imei &imei, const bsoncxx::document::view &view);
+	// result_t updateDeviceInfo(const Imei &imei, const bsoncxx::document::view &view);
 	void onReceived(const void *buffer, size_t size);
 
 	iot::Devices<iot::Vehicle> &devices();
@@ -37,6 +37,7 @@ private:
 	result_t decodeJson(const std::string &data);
 
 	Signal<Imei, std::string> &iSignal;
+	Signal<Imei> &iSignalModified;
 
 	iot::Devices<iot::Vehicle> iDevices;
 	std::mutex _cache_lock;

@@ -11,6 +11,8 @@ public:
 	Thread(mongocxx::client& client, std::string &db_name, std::string &coll_name, const std::string &data);
 
 	void operator()();
+	void operator()(const std::string &key, const int64_t old, const int64_t val);
+	void operator()(const std::string &key, const std::string &old, const std::string &val);
 	void operator()(const std::string &id, bsoncxx::document::view &val, bool &ok);
 
 private:

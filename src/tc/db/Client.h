@@ -21,16 +21,21 @@ public:
 
 	/* Not thread safe */
 	result_t get(const std::string &imei, std::string &json_doc);
+	mongocxx::cursor getCursor();
+
 	result_t insert(const std::string &json_doc);
 
 	result_t create(const std::string &coll_name);
 	result_t create(const std::string &coll_name, const std::string &db_name);
-	
+
 	result_t update(const std::string &key, const std::string &old, const std::string &val);
 	result_t update(const std::string &key, const int64_t old, const int64_t val);
 
+	result_t replace(const std::string &json_old, const std::string &json_new);
+
 	bool has(const std::string &coll_name);
 	bool has(const std::string &coll_name, const std::string &db_name);
+	bool hasImei(const Imei &imei);
 
 	const std::string collection() const;
 	const std::string name() const;

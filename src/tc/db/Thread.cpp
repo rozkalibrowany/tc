@@ -17,9 +17,24 @@ void Thread::operator()()
 	}
 }
 
+void Thread::operator()(const std::string &key, const int64_t old, const int64_t val)
+{
+	if (result_t res; (res = iAccess.update(key, old, val)) != RES_OK) {
+		LG_ERR(this->logger(), "Unable to update data.");
+	}
+}
+
+void Thread::operator()(const std::string &key, const std::string &old, const std::string &val)
+{
+	if (result_t res; (res = iAccess.update(key, old, val)) != RES_OK) {
+		LG_ERR(this->logger(), "Unable to update data.");
+	}
+}
+
 void Thread::operator()(const std::string &id, bsoncxx::document::view &val, bool &ok)
 {
-	if (result_t res; (res = iAccess.find_one(id, val)) != RES_OK) {
+	std::string json_doc;
+	if (result_t res; (res = iAccess.find_one(id, json_doc)) != RES_OK) {
 		LG_WRN(this->logger(), "Unable to find: [{}]", id);
 		ok = false;
 		return;

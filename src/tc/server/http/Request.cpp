@@ -86,9 +86,15 @@ Request::Type Request::type() const
 	if (url[0] == '/')
 		url.erase(0, 1);
 	auto it = url.find('/') != std::string::npos ? url.find('/') : url.length();
-	std::string type = url.substr(0, it);
+	auto url_with_qp = url.substr(0, it);
+	std::string type = url_with_qp.substr(0, url_with_qp.find("?"));
 
 	return str2type(type);
+}
+
+bool Request::hasQuery() const
+{
+	return tc::regex(std::regex{"([^\\/]+$)"}, iRequest.url()).find("?") != std::string::npos;
 }
 
 /* /.../id/...  */
@@ -108,16 +114,30 @@ const std::string Request::key() const
 	return command().substr(0, command().find({"?"}));
 }
 
-result_t Request::query(std::string &value)
+result_t Request::query(std::string &key)
 {
-	auto right = command().substr(command().find("?") + 1);
-	auto val = right.substr(right.find("=") + 1);
+	std::string _key;
+	auto after_slash = tc::regex(std::regex{"([^\\/]+$)"}, iRequest.url());
+	auto query = after_slash.substr(after_slash.find("?") + 1);
 
-	if (val.size() != 6) {
-		return RES_INVARG;
-	}
+	if (query.find("=") != std::string::npos)
+		_key = query.substr(0, query.find("="));
+	else
+		_key = query.substr(query.find("?") + 1);
 
-	value = val;
+	key = _key;
+	return RES_OK;
+}
+
+result_t Request::query(std::string &key, std::string &val)
+{
+	auto query = command().substr(command().find("?") + 1);
+	auto _val = query.substr(query.find("=") + 1);
+	auto _key = query.substr(0, query.find("="));
+
+
+	key = _key;
+	val = _val;
 	return RES_OK;
 }
 

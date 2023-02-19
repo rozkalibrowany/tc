@@ -3,15 +3,19 @@
 
 #include <tc/client/tcp/Client.h>
 #include <tc/asio/AsioService.h>
-#include <tc/server/http/Cache.h>
+#include <tc/server/http/CacheHandler.h>
 #include <tc/server/http/CacheSession.h>
 #include <tc/server/http/CacheServer.h>
 #include <tc/server/http/Request.h>
+#include <tc/server/http/Sync.h>
 #include <tc/db/Client.h>
 #include <mini/ini.h>
 #include <filesystem>
 #include <chrono>
 #include <spdlog/sinks/stdout_color_sinks.h>
+
+#define DEFAULT_ASIO_THREADS 	2
+#define DEFAULT_SYNC_INTERVAL 30000
 
 void sleep_for(uint64_t time) {
 	std::this_thread::sleep_for(chrono::milliseconds(time));
@@ -40,56 +44,77 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	auto http_port = std::stoi(ini["http"]["port"]);
-	if (!ini["http"].has("port") || !vIsPortNumber(http_port)) {
+	auto http_port = std::stoi(ini["server"]["port"]);
+	if (!ini["server"].has("port") || !vIsPortNumber(http_port)) {
 		LG_ERR(log.logger(), "Invalid or missing HTTP port number.");
 		return 1;
 	}
 
-	auto tcp_port = std::stoi(ini["tcp"]["port"]);
-	if (!ini["tcp"].has("port") || !vIsPortNumber(tcp_port)) {
+	auto threads = std::stoi(ini["server"]["threads"]);
+	if (!ini["server"].has("threads")) {
+		threads = DEFAULT_ASIO_THREADS;
+	}
+
+	auto tcp_port = std::stoi(ini["telematics"]["port"]);
+	if (!ini["telematics"].has("port") || !vIsPortNumber(tcp_port)) {
 		LG_ERR(log.logger(), "Invalid or missing TCP port number.");
 		return 1;
 	}
 
-	auto &addr = ini["tcp"]["address"];
-	if (!ini["tcp"].has("address") || !vIsAddress(addr)) {
+	auto &addr = ini["telematics"]["address"];
+	if (!ini["telematics"].has("address") || !vIsAddress(addr)) {
 		LG_ERR(log.logger(), "Invalid or missing server address.");
 		return 1;
 	}
 
-	auto pool_interval = std::stoi(ini["tcp"]["pool_interval"]);
-	if (!ini["tcp"].has("pool_interval")) {
+	if (!ini["telematics"].has("pool_interval")) {
 		LG_ERR(log.logger(), "Invalid or missing pool interval.");
 		return 1;
 	}
+	auto pool_interval = std::stoi(ini["telematics"]["pool_interval"]);
+
+	if (!ini["db"].has("uri")) {
+		LG_ERR(log.logger(), "Missing database URI.");
+		return 1;
+	}
+	auto &s_uri = ini["db"]["uri"];
+
+	int64_t sync_interval;
+	if (!ini["db"].has("sync_interval"))
+	{
+		sync_interval = DEFAULT_SYNC_INTERVAL;
+	}
+	sync_interval = std::stoi(ini["db"]["sync_interval"]);
 
 	// Create DB client
-	auto &s_uri = ini["db"]["uri"];
-	auto db_client = std::make_shared< db::mongo::Client >(s_uri);
+	auto db_client = std::make_shared<db::mongo::Client>(s_uri);
 	if (db_client->load(ini) != RES_OK) {
 		LG_ERR(log.logger(), "Unable to parse db client config. Exiting...");
 		return 1;
 	}
 
 	if (db_client->enabled()) {
-		if(!db_client->has(db_client->collection())) {
-			db_client->create(db_client->collection());
-		}
+		if(!db_client->has(db_client->collection())) db_client->create(db_client->collection());
 		LG_NFO(log.logger(), "DB connected. Name: {}, collection: {}, uri: {}", db_client->name(), db_client->collection(), s_uri);
 	}
 
-	// Create Cache for data
+	// Prepare signals
 	Signal<Imei, std::string> signal_cmd;
-	auto cache = std::make_shared<server::http::Cache>(signal_cmd);
+	Signal<Imei> signal_modified;
+
+	// Create Cache for data
+	auto cache_handler = std::make_shared<server::http::CacheHandler>(signal_cmd, signal_modified);
 
 	// Create a new Asio service
-	auto service = std::make_shared<tc::asio::AsioService>(5);
+	auto service = std::make_shared<tc::asio::AsioService>(threads);
 	service->Start();
 	LG_NFO(log.logger(), "Asio service started!");
 
-	// Create signal
+	// Connect client signal for syncing device info
 	Signal<const void *, size_t> signal;
+	signal.connect([&](const void * buf, size_t size) {
+		cache_handler->onReceived(buf, size);
+	});
 
 	// Create a new TCP client
 	auto client = std::make_shared< client::tcp::Client >(signal, service, addr, tcp_port);
@@ -100,26 +125,23 @@ int main(int argc, char** argv)
   });
 
 	// Create a new HTTPS server
-	auto server = std::make_shared<server::http::HTTPCacheServer>(service, db_client, cache, http_port);
+	auto server = std::make_shared<server::http::HTTPCacheServer>(service, db_client, cache_handler, http_port);
 	if (!server->Start()) {
 		LG_ERR(log.logger(), "Unable to start HTTP server.");
 		return 1;
 	}
 	LG_NFO(log.logger(), "HTTP Server started!");
-	// Connect client signal for syncing device info
-	signal.connect([&](const void * buf, size_t size) {
-		server->syncDevices(true);
-		cache->onReceived(buf, size);
+
+	signal_modified.connect([&](Imei imei) {
+		server->onModified(imei);
 	});
 
+	server->syncDevices();
 
-	// Connect client to telematics server
-	if(!client->ConnectAsync()) {
-		LG_ERR(log.logger(), "TCP client connect error.");
-		return 1;
-	}
-	LG_NFO(log.logger(), "TCP client connected to [{}][{}].", addr, tcp_port);
-
+	// Sync devices into DB
+	server::http::Sync sync;
+	std::thread thread(&server::http::Sync::execute, &sync, cache_handler, db_client, sync_interval);
+	thread.detach();
 
 	while (true) {
 		if (client->IsConnected() == false) {
@@ -142,9 +164,12 @@ int main(int argc, char** argv)
 			client->DisconnectAsync();
 		}
 
-		LG_NFO(log.logger(), "Cached: {}", cache->getDevices());
+		std::string devices;
+		cache_handler->getDevices(devices);
+		LG_NFO(log.logger(), "Size: {} Cached: {}", cache_handler->devices().size(), devices);
 		sleep_for(pool_interval);
 	}
+
 	// Stop the server
 	LG_NFO(log.logger(), "Server stopping...");
 	server->Stop();

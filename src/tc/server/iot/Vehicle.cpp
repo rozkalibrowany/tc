@@ -1,17 +1,24 @@
 #include <tc/server/iot/Vehicle.h>
-
+#include <ostream>
 namespace tc::server::iot {
 
 Vehicle::Vehicle(const Imei &imei)
- : Device (imei, 1000)
+ : Vehicle(imei, 1000)
 {
-		// nothing to do
+	// nothing to do
 }
 
 Vehicle::Vehicle(const Imei &imei, size_t cache)
- : Device(imei, cache)
+ : Vehicle(imei, cache, eTelematics)
 {
-		// nothing to do
+	// nothing to do
+}
+
+Vehicle::Vehicle(const Imei &imei, size_t cache, Source source)
+ : Device(imei, cache)
+ , iSource(source)
+{
+	// nothing to do
 }
 
 bool Vehicle::operator==(const Device &rhs) const
@@ -31,8 +38,20 @@ Vehicle &Vehicle::operator=(const Vehicle &rhs)
 	iTotal = rhs.total();
 	iType = rhs.type();
 	iCacheSize = rhs.cached();
-	iID = rhs.id();
-	iFleet = rhs.fleet();
+
+	if (rhs.fleet().compare("unknown")) {
+		iFleet = rhs.fleet();
+	}
+
+	if (rhs.id().compare("unknown")) {
+		iID = rhs.id();
+	}
+
+	if (rhs.iModified > iModified) {
+		iModified = rhs.iModified;
+	}
+
+	iSource = rhs.iSource;
 
 	return *this;
 }
@@ -62,6 +81,7 @@ result_t Vehicle::add(const uchar* buffer, size_t size)
 result_t Vehicle::add(const std::shared_ptr< parser::PacketPayload > packet)
 {
   if (has(packet) == true) {
+		/* Logging an error message. */
 		LG_ERR(this->logger(), "Packet already exists.");
 		return RES_INVARG;
   }
@@ -74,6 +94,26 @@ result_t Vehicle::add(const std::shared_ptr< parser::PacketPayload > packet)
 	return RES_OK;
 }
 
+result_t Vehicle::set(const std::string &json_doc)
+{
+	if (json_doc.empty()) {
+		return RES_NOENT;
+	}
+
+	Json::Value root;
+	if (result_t res; (res = fromJsonString(json_doc, root)) != RES_OK) {
+		return res;
+	}
+
+	auto modified = root["Modified"].asInt64();
+
+	if(iModified > modified) {
+		return RES_OK;
+	}
+
+	return fromJsonImpl(root, true);
+}
+
 const std::string Vehicle::id() const
 {
 	return iID;
@@ -84,37 +124,31 @@ const std::string Vehicle::fleet() const
 	return iFleet;
 }
 
-result_t Vehicle::updateDeviceInfo(const bsoncxx::document::view &view)
+const Vehicle::Source Vehicle::source() const
 {
-	if (view.empty()) {
-		return RES_NOENT;
-	}
-
-	auto id = view["ID"].get_string().value.to_string();
-	auto fleet = view["Fleet"].get_string().value.to_string();
-
-	if(id.compare("unknown") && id.compare(iID)) {
-		iID = id;
-	}
-
-	if(fleet.compare("unknown") && fleet.compare(iID)) {
-		iFleet = fleet;
-	}
-
-	return RES_OK;
+	return iSource;
 }
 
 void Vehicle::setID(const std::string &id)
 {
 	iID = id;
+	return updateModified(SysTime(true).timestamp());
 }
 
 void Vehicle::setFleet(const std::string &fleet)
 {
 	iFleet = fleet;
+	return updateModified(SysTime(true).timestamp());
 }
 
-result_t Vehicle::fromJsonImpl(const Json::Value &rhs, bool root)
+result_t Vehicle::fromJsonString(const std::string &json_doc, Json::Value &rhs)
+{
+	Json::Reader reader;
+	bool ok = reader.parse(json_doc.c_str(), rhs);
+	return ok ? RES_OK : RES_ERROR;
+}
+
+result_t Vehicle::fromJsonImpl(const Json::Value &rhs, bool active)
 {
 	if (rhs.getMemberNames().size() == 0) {
 		return RES_INVARG;
@@ -123,23 +157,31 @@ result_t Vehicle::fromJsonImpl(const Json::Value &rhs, bool root)
 	for (auto const& id : rhs.getMemberNames()) {
 		if (!id.compare("Imei"))
 			iImei = rhs[id].asString();
-		else if (!id.compare("Timestamp"))
-			iTimestamp = rhs[id].asInt64();
+		else if (!id.compare("ID") && rhs[id].asString().compare("unknown"))
+			iID = rhs[id].asString();
+		else if (!id.compare("Fleet") && rhs[id].asString().compare("unknown"))
+			iFleet = rhs[id].asString();
 		else if (!id.compare("Type"))
 			iType = rhs[id].asString();
+		else if (!id.compare("Timestamp"))
+			iTimestamp = rhs[id].asInt64();
+		else if (!id.compare("Modified") && rhs[id].asInt64() > iModified)
+			iModified = rhs[id].asInt64();
 		else if (!id.compare("Packets"))
 			iTotal = rhs[id].asInt64();
-		else if (!id.compare("ID"))
-			iID = rhs[id].asString();
-		else if (!id.compare("Fleet"))
-			iFleet = rhs[id].asString();
 	}
+
+	iSource = active ? eTelematics : eDatabase;
 
 	return RES_OK;
 }
 
-result_t Vehicle::toJsonImpl(Json::Value &rhs, bool root) const
+result_t Vehicle::toJsonImpl(Json::Value &rhs, bool active_only) const
 {
+	if (active_only && iSource == eDatabase) {
+		return RES_NOENT;
+	}
+
 	auto systime = SysTime(iTimestamp);
 
 	rhs["Imei"] = iImei;
@@ -147,12 +189,19 @@ result_t Vehicle::toJsonImpl(Json::Value &rhs, bool root) const
 	rhs["Fleet"] = iFleet;
 	rhs["Type"] = iType;
 	rhs["Timestamp"] = iTimestamp;
+	rhs["Modified"] = iModified;
 	rhs["Datetime"] = systime.getDateTime();
+	rhs["Online"] = iSource == eTelematics ? "True" : "False";
 	const auto time = SysTime().timestamp(uptime());
 	rhs["Uptime"] = fmt::format("{:d}d:{:d}h:{:d}m", (time.getDay() - 1), time.getHour(), time.getMin());
 	rhs["Packets"] = iTotal;
 
 	return RES_OK;
+}
+
+void Vehicle::updateModified(int64_t timestamp)
+{
+	iModified = timestamp;
 }
 
 } // namespace tc::server::iot

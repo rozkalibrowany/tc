@@ -11,8 +11,8 @@ class Device : public tc::LogI, public parser::JsonI
 public:
   using PayloadPackets = std::deque< std::shared_ptr< parser::PacketPayload > >;
 
-	Device(const Imei &imei);
-	Device(const Imei &imei, size_t cache);
+	explicit Device(const Imei &imei);
+	explicit Device(const Imei &imei, size_t cache);
 
 	virtual ~Device() = default;
 
@@ -24,6 +24,8 @@ public:
 
 	virtual result_t add(const uchar *buffer, size_t size);
 	virtual result_t add(const std::shared_ptr<parser::PacketPayload> packet);
+
+	virtual Json::Value toJsonValue(bool active = true);
 
 	virtual uint64_t uptime() const;
 

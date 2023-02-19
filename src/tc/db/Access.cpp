@@ -2,6 +2,7 @@
 #include <libbson-1.0/bson.h>
 #include <bsoncxx/builder/stream/document.hpp>
 #include <mongocxx/exception/query_exception.hpp>
+#include <mongocxx/exception/operation_exception.hpp>
 #include <mongocxx/exception/logic_error.hpp>
 
 namespace tc::db::mongo {
@@ -19,6 +20,31 @@ Access::Access(mongocxx::client& client, std::string dbName, std::string collNam
 {
 	iDb = iClient[dbName];
 	iCollection = iDb[collName];
+}
+
+/**
+ * It returns a cursor to the collection
+ * @return A cursor object.
+ */
+mongocxx::cursor Access::cursor()
+{
+	return iCollection.find({});
+}
+
+/**
+ * It checks if a given IMEI is in the database
+ * @param imei The IMEI of the device to check for.
+ * @return A bool
+ */
+bool Access::has(const std::string &imei)
+{
+	auto doc = document{} << "Imei" << imei << finalize;
+	bsoncxx::stdx::optional<bsoncxx::document::value> opt_value = iCollection.find_one(doc.view());
+	if(!opt_value) {
+		return false;
+	}
+
+	return true;
 }
 
 /**
@@ -50,15 +76,16 @@ result_t Access::insert(const std::string &jsonDoc) {
  */
 result_t Access::find_one(const std::string &imei, std::string &json_doc)
 {
-	try {
-		auto doc = document{} << "Imei" << imei << finalize;
-		auto value = iCollection.find_one(doc.view());
-		auto doc_value = bsoncxx::to_json(value.value());
-		json_doc = doc_value;
-	} catch(const mongocxx::query_exception &e) {
-		LG_ERR(this->logger(), "Error on find data in DB, {}", e.what());
+	auto doc = document{} << "Imei" << imei << finalize;
+	bsoncxx::stdx::optional<bsoncxx::document::value> opt_value = iCollection.find_one(doc.view());
+	if(!opt_value) {
 		return RES_NOENT;
-	}	catch(const bsoncxx::exception &e) {
+	}
+
+	try {
+		auto doc_value = bsoncxx::to_json(opt_value->view());
+		json_doc = doc_value;
+	} catch(const bsoncxx::exception &e) {
 		LG_ERR(this->logger(), "Error converting JSON, {}", e.what());
 		return RES_NOENT;
   }
@@ -102,8 +129,25 @@ result_t Access::update(const std::string &key, const std::string &old, const st
 		LG_ERR(this->logger(), "Error on update data in DB, {}", e.what());
 		return RES_NOENT;
 	}
-	
+
 	return RES_OK;
+}
+
+result_t Access::replace(const bsoncxx::document::view &v_old, const bsoncxx::document::view &v_new)
+{
+	try {
+		iCollection.replace_one(v_old, v_new);
+	} catch(const mongocxx::logic_error &e) {
+		LG_ERR(this->logger(), "Error on replace document in DB, {}", e.what());
+		return RES_NOENT;
+	}
+
+	return RES_OK;
+}
+
+result_t Access::replace(const std::string &json_old, const std::string &json_new)
+{
+	return replace(bsoncxx::from_json(json_old).view(), bsoncxx::from_json(json_new).view());
 }
 
 } // namespace tc::db::mongo

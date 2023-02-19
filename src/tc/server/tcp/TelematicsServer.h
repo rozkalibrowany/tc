@@ -25,6 +25,8 @@ public:
 	TelematicsServer(const std::shared_ptr<AsioService>& service, std::shared_ptr<mongo::Client>& client, size_t cache, int port);
 	TelematicsServer(const std::shared_ptr<AsioService>& service, std::shared_ptr<mongo::Client>& client, size_t cache, int port, const std::string& address);
 
+	~TelematicsServer();
+
 	result_t handleCommand(const uchar *buffer, size_t size);
 	result_t dispatchRequest(std::shared_ptr< PacketRequest > request, const CppCommon::UUID id);
 	result_t handleRequest(const uchar *buffer, size_t size, const CppCommon::UUID id);

@@ -14,6 +14,17 @@ class Devices : public tc::LogI, public parser::JsonI
 {
 public:
 	using DeviceMap = std::map<Imei, std::shared_ptr<T>>;
+	using iterator = Devices::DeviceMap::iterator;
+	using const_iterator = Devices::DeviceMap::const_iterator;
+
+  iterator begin();
+	iterator end();
+	iterator find(const Imei &imei);
+
+	const_iterator cbegin() const;
+	const_iterator cend() const;
+
+	bool operator==(const Devices<T> &rhs) const;
 
 	bool has(const Imei &imei) const;
 	result_t add(const std::shared_ptr<T> &device);
@@ -21,18 +32,52 @@ public:
 
 	std::vector<Imei> imeis();
 	DeviceMap& devices();
-
 	size_t size() const;
-	Json::Value toJson();
+
+	Json::Value toJson(bool active = true);
 
 protected:
-	result_t fromJsonImpl(const Json::Value &rhs, bool root) override;
-	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
+	result_t fromJsonImpl(const Json::Value &rhs, bool active) override;
+	result_t toJsonImpl(Json::Value &rhs, bool active_only) const override;
 
-private:
 	DeviceMap iDevices;
 };
 
+template <class T>
+Devices<T>::iterator Devices<T>::begin()
+{
+	return iDevices.begin();
+}
+
+template <class T>
+Devices<T>::iterator Devices<T>::end()
+{
+	return iDevices.end();
+}
+
+template <class T>
+Devices<T>::const_iterator Devices<T>::cbegin() const
+{
+	return iDevices.begin();
+}
+
+template <class T>
+Devices<T>::const_iterator Devices<T>::cend() const
+{
+	return iDevices.end();
+}
+
+template <class T>
+bool Devices<T>::operator==(const Devices<T> &rhs) const
+{
+	return iDevices == rhs.iDevices;
+}
+
+template <class T>
+Devices<T>::iterator Devices<T>::find(const Imei &imei)
+{
+	return iDevices.find(imei);
+}
 
 template <class T>
 result_t Devices<T>::add(const std::shared_ptr<T> &device)
@@ -79,16 +124,16 @@ size_t Devices<T>::size() const
 }
 
 template <class T>
-Json::Value Devices<T>::toJson()
+Json::Value Devices<T>::toJson(bool active)
 {
 	Json::Value list;
-	toJsonImpl(list, true);
+	toJsonImpl(list, active);
 
 	return list;
 }
 
 template <class T>
-result_t Devices<T>::fromJsonImpl(const Json::Value &rhs, bool root)
+result_t Devices<T>::fromJsonImpl(const Json::Value &rhs, bool active)
 {
 	auto &devices = rhs["devices"];
 	auto size = devices.size();
@@ -102,13 +147,13 @@ result_t Devices<T>::fromJsonImpl(const Json::Value &rhs, bool root)
 		auto imei = dev["Imei"].asString();
 		if (has(imei) == false) {
 			auto device = std::make_shared < T >(imei);
-			if (device->fromJson(dev) != RES_OK) {
+			if (device->fromJson(dev, active) != RES_OK) {
 				continue;
 			}
 			add(std::move(device));
 		} else {
 			auto &device = iDevices.at(dev["Imei"].asString());
-			device->fromJson(dev);
+			device->fromJson(dev, active);
 		}
 	}
 
@@ -116,14 +161,16 @@ result_t Devices<T>::fromJsonImpl(const Json::Value &rhs, bool root)
 }
 
 template <class T>
-result_t Devices<T>::toJsonImpl(Json::Value &rhs, bool root) const
+result_t Devices<T>::toJsonImpl(Json::Value &rhs, bool active_only) const
 {
 	auto &el = rhs["devices"] = Json::arrayValue;
 	for (auto &d : iDevices) {
 		Json::Value val;
-		d.second->toJson(val);
-		el.append(val);
+		if (d.second->toJson(val, active_only) == RES_OK)
+			el.append(val);
 	}
+	rhs["length"] = el.size();
+
 	return RES_OK;
 }
 

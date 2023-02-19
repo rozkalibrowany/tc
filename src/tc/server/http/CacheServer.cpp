@@ -1,45 +1,87 @@
 #include <tc/server/http/CacheServer.h>
 #include <tc/server/http/CacheSession.h>
-#include <tc/server/http/Cache.h>
 
 namespace tc::server::http {
 
-HTTPCacheServer::HTTPCacheServer(const std::shared_ptr<AsioService> &service, const std::shared_ptr<Client> &client, const std::shared_ptr<Cache> &cache)
+HTTPCacheServer::HTTPCacheServer(const std::shared_ptr<AsioService> &service, std::shared_ptr<db::mongo::Client> client, std::shared_ptr<CacheHandler> &cache)
  : HTTPCacheServer(service, client, cache, 8443)
 {
 	// nothing to do
 }
 
-HTTPCacheServer::HTTPCacheServer(const std::shared_ptr<AsioService> &service, const std::shared_ptr<Client> &client, const std::shared_ptr<Cache> &cache, int port)
+HTTPCacheServer::HTTPCacheServer(const std::shared_ptr<AsioService> &service, std::shared_ptr<db::mongo::Client> client, std::shared_ptr<CacheHandler> &cache, int port)
  : CppServer::HTTP::HTTPServer(service, port)
  , iCache(cache)
- , iDbClient(std::move(client))
+ , iDbClient(client)
 {
-	// nothing to do
+	this->SetupReusePort(true);
+	this->SetupReuseAddress(true);
+	this->SetupNoDelay(true);
 }
 
-result_t HTTPCacheServer::syncDevices(bool sync)
+/**
+ * It iterates over all the documents in the database and adds them to the cache
+ * @return A result code.
+ */
+result_t HTTPCacheServer::syncDevices()
 {
-	LG_NFO(this->logger(), "syncDevices");
-	auto imeis = iCache->devices().imeis();
+	using namespace iot;
 
-	for (auto &i : imeis) {
-		bsoncxx::document::view doc;
-		if (iDbClient->get(i, doc) != RES_OK) {
-			LG_NFO(this->logger(), "Unable to get device info from database.");
-			Json::Value val;
-			auto it = iCache->devices().devices().find(i);
-			if (it != iCache->devices().devices().end()) {
-				it->second->toJson(val);
-				iDbClient->insert(val.toStyledString());
-			}
+	if(!iDbClient->enabled()) {
+		return RES_NOENT;
+	}
+
+	auto cursor = iDbClient->getCursor();
+	if (cursor.begin() == cursor.end()) {
+		return RES_NOENT;
+	}
+
+	auto &devices = iCache->devices();
+	for(auto doc : cursor) {
+		Json::Value root;
+		auto json_doc = bsoncxx::to_json(doc);
+		if (Vehicle::fromJsonString(json_doc, root) != RES_OK) {
+			continue;
 		}
-		// TODO ADD MODIFICATION TIMESTAMP
-		auto it = iCache->devices().devices().find(i);
-		if (it != iCache->devices().devices().end()) {
-			auto res = it->second->updateDeviceInfo(doc);
+
+		auto vehicle = std::make_shared<iot::Vehicle>(std::string{"unknown"}, 1000, Vehicle::eDatabase);
+		if (vehicle->fromJson(root) != RES_OK) {
+			return RES_ERROR;
+		}
+		if (devices.add(std::move(vehicle)) != RES_OK) {
+			LG_WRN(this->logger(), "Unable to add vehicle.");
+			return RES_ERROR;
 		}
 	}
+
+	return RES_OK;
+}
+
+result_t HTTPCacheServer::onModified(const Imei &imei)
+{
+	if(imei.empty() || !imei.compare("unknown")) {
+		return RES_NOENT;
+	}
+
+	std::string json_doc;
+	if (iDbClient->get(imei, json_doc) != RES_OK) {
+		return RES_NOENT;
+	}
+	LG_WRN(this->logger(), "json_doc {}", json_doc);
+
+	auto &devices = iCache->devices();
+	auto it = devices.find(imei);
+	if(it == devices.end()) {
+		return RES_NOENT;
+	}
+
+	{
+		std::scoped_lock lock(iMutex);
+		if(iDbClient->replace(json_doc, it->second->toJsonValue(it->second->source() == iot::Vehicle::eTelematics).toStyledString()) != RES_OK) {
+			return RES_NOENT;
+		}
+	}
+
 	return RES_OK;
 }
 
