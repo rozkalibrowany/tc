@@ -92,7 +92,7 @@ int main(int argc, char** argv)
 	spdlog::set_default_logger(log.logger());
 
 	if(!std::filesystem::exists(argv[1])) {
-		LG_ERR(log.logger(), "Config file not exists. Exiting...");
+		LG_ERR(log.logger(), "Config file not exists. Exit...");
 		return 1;
 	}
 

@@ -6,11 +6,60 @@
 #include <filesystem>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
+using namespace tc;
+using namespace mINI;
+
+namespace defaults {
+	constexpr int c_cache									 = 5000;
+	constexpr int c_default_clean_interval = 90000;
+	constexpr int c_packets_days_lifetime  = 3;
+};
+
+result_t readTelematicsConfig(INIStructure &ini, LogI &log, std::string &addr, int &port, int &cache)
+{
+	if (!ini["telematics"].has("port")) {
+		LG_ERR(log.logger(), "Missing HTTP port number.");
+		return RES_NOENT;
+	}
+
+	port = std::stoi(ini["telematics"]["port"]);
+	if (!vIsPortNumber(port)) {
+		LG_ERR(log.logger(), "Invalid TCP port number[{}].", port);
+		return RES_NOENT;
+	}
+
+	if (!ini["telematics"].has("address")) {
+		LG_ERR(log.logger(), "Missing TCP address.");
+		return RES_NOENT;
+	}
+
+	addr = ini["telematics"]["address"];
+	if (!vIsAddress(addr)) {
+		LG_ERR(log.logger(), "Invalid TCP address[{}].", addr);
+		return RES_NOENT;
+	}
+
+	cache = ini["session"].has("cache") ? std::stoi(ini["session"]["threadcaches"]) : defaults::c_cache;
+
+	return RES_OK;
+}
+
+result_t readDatabaseConfig(INIStructure &ini, LogI &log, std::string &uri, int &clean_interval, int &packets_days_lifetime)
+{
+	if (!ini["db"].has("uri")) {
+		LG_WRN(log.logger(), "Missing DB URI address.");
+	} else {
+		uri = ini["db"]["uri"];
+	}
+
+	clean_interval = ini["db"].has("clean_interval") ? std::stoi(ini["db"]["clean_interval"]) : defaults::c_default_clean_interval;
+	packets_days_lifetime = ini["db"].has("packets_days_lifetime") ? std::stoi(ini["db"]["packets_days_lifetime"]) : defaults::c_packets_days_lifetime;
+
+	return RES_OK;
+}
+
 int main(int argc, char** argv)
 {
-	using namespace tc;
-	using namespace mINI;
-
 	auto logger = spdlog::stdout_color_mt("console");
 	logger->set_level(spdlog::level::debug);
 
@@ -18,7 +67,7 @@ int main(int argc, char** argv)
 	spdlog::set_default_logger(log.logger());
 
 	if(!std::filesystem::exists(argv[1])) {
-		LG_ERR(log.logger(), "Config file not exists. Exiting...");
+		LG_ERR(log.logger(), "Config file not exists. Exit...");
 		return 1;
 	}
 
@@ -30,32 +79,16 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	auto port = std::stoi(ini["server"]["port"]);
-	if (!ini["server"].has("port") || !vIsPortNumber(port)) {
-		LG_ERR(log.logger(), "Invalid or missing port number. Exiting...");
+	std::string addr;
+	int tcp_port, cache;
+	if (readTelematicsConfig(ini, log, addr, tcp_port, cache) != RES_OK) {
 		return 1;
 	}
 
-	auto &addr = ini["server"]["address"];
-	if (!ini["server"].has("address") || !vIsAddress(addr)) {
-		LG_ERR(log.logger(), "Invalid or missing server address. Exiting...");
+	std::string uri;
+	int clean_interval, packets_days_lifetime;
+	if (readDatabaseConfig(ini, log, uri, clean_interval, packets_days_lifetime) != RES_OK) {
 		return 1;
-	}
-
-	if (!ini["session"].has("cache")) {
-		LG_ERR(log.logger(), "Missing session cache size. Exiting...");
-		return 1;
-	}
-	size_t cache = static_cast<size_t>(std::stoi(ini["session"]["cache"]));
-
-	auto clean_interval = std::stoi(ini["db"]["clean_interval"]);
-	if (!ini["db"].has("clean_interval")) {
-		clean_interval = 1800000;
-	}
-
-	auto packets_lifetime = std::stoi(ini["db"]["packets_days_lifetime"]);
-	if (!ini["db"].has("packets_days_lifetime")) {
-		packets_lifetime = 3;
 	}
 
 	// Create a new Asio service
@@ -78,16 +111,16 @@ int main(int argc, char** argv)
 		LG_NFO(log.logger(), "DB connected. Name: {}, collection: {}, uri: {}", db_client->name(), (std::string) db_client->collection(), s_uri);
 
 	// Create a new TCP server
-	auto server = std::make_shared< server::tcp::TelematicsServer >(service, db_client, cache, port, addr);
+	auto server = std::make_shared< server::tcp::TelematicsServer >(service, db_client, cache, tcp_port, addr);
 	if (server->Start() != true) {
 		LG_ERR(log.logger(), "Unable to start TCP server. Exiting...");
 		return 1;
 	}
-	LG_NFO(log.logger(), "TCP server running on port {}", port);
+	LG_NFO(log.logger(), "TCP server running on port {}", tcp_port);
 
 	// Sync devices into DB
 	server::tcp::Clean clean;
-	std::thread thread(&server::tcp::Clean::execute, &clean, db_client, clean_interval, packets_lifetime);
+	std::thread thread(&server::tcp::Clean::execute, &clean, db_client, clean_interval, packets_days_lifetime);
 	thread.detach();
 
 	while (true) {
