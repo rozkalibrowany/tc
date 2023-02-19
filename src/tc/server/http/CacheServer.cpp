@@ -67,7 +67,6 @@ result_t HTTPCacheServer::onModified(const Imei &imei)
 	if (iDbClient->get(imei, json_doc) != RES_OK) {
 		return RES_NOENT;
 	}
-	LG_WRN(this->logger(), "json_doc {}", json_doc);
 
 	auto &devices = iCache->devices();
 	auto it = devices.find(imei);

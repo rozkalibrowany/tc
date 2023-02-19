@@ -121,9 +121,23 @@ result_t Action::parseQuery(const Request &request)
 		return RES_NOENT;
 	}
 
-	auto id = right.substr(0, right.find("=")).compare("id");
-	auto fleet = right.substr(0, right.find("=")).compare("fleet");
-	if (id && fleet) {
+	auto id = right.substr(0, right.find("="));
+	auto cmp_id = id.compare("id");
+	auto id_val = right.substr(right.find("=") + 1);
+
+	auto fleet = right.substr(0, right.find("="));
+	auto cmp_fleet = fleet.compare("fleet");
+	auto fleet_val = right.substr(right.find("=") + 1);
+
+	if (cmp_id && cmp_fleet) {
+		return RES_NOENT;
+	}
+
+	if (!cmp_id && id_val.length() != 6) {
+		return RES_NOENT;
+	}
+
+	if (!cmp_fleet && fleet_val.length() > 50) {
 		return RES_NOENT;
 	}
 

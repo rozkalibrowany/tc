@@ -14,18 +14,78 @@
 #include <chrono>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
-#define DEFAULT_ASIO_THREADS 		2
-#define DEFAULT_SYNC_INTERVAL 	30000
+using namespace mINI;
+using namespace tc;
+
+namespace defaults {
+	constexpr int c_default_threads 			= 2;
+	constexpr int c_default_pool_interval = 10000;
+	constexpr int c_default_sync_interval = 30000;
+};
 
 void sleep_for(uint64_t time) {
 	std::this_thread::sleep_for(chrono::milliseconds(time));
 }
 
+result_t readServerConfig(INIStructure &ini, LogI &log, int &port, int &threads)
+{
+	if (!ini["server"].has("port")) {
+		LG_ERR(log.logger(), "Missing HTTP port number.");
+		return RES_NOENT;
+	}
+
+	port = std::stoi(ini["server"]["port"]);
+	if (!vIsPortNumber(port)) {
+		LG_ERR(log.logger(), "Invalid HTTP port number[{}].", port);
+		return RES_NOENT;
+	}
+
+	threads = ini["server"].has("threads") ? std::stoi(ini["server"]["threads"]) : defaults::c_default_threads;
+	return RES_OK;
+}
+
+result_t readTelematicsConfig(INIStructure &ini, LogI &log, std::string &addr, int &port, int &pool_interval)
+{
+	if (!ini["telematics"].has("port")) {
+		LG_ERR(log.logger(), "Missing HTTP port number.");
+		return RES_NOENT;
+	}
+
+	port = std::stoi(ini["telematics"]["port"]);
+	if (!vIsPortNumber(port)) {
+		LG_ERR(log.logger(), "Invalid TCP port number[{}].", port);
+		return RES_NOENT;
+	}
+
+	if (!ini["telematics"].has("address")) {
+		LG_ERR(log.logger(), "Missing TCP address.");
+		return RES_NOENT;
+	}
+
+	addr = std::stoi(ini["telematics"]["address"]);
+	if (!vIsAddress(addr)) {
+		LG_ERR(log.logger(), "Invalid TCP address[{}].", addr);
+		return RES_NOENT;
+	}
+
+	pool_interval = ini["telematics"].has("pool_interval") ? std::stoi(ini["telematics"]["pool_interval"]) : defaults::c_default_pool_interval;
+	return RES_OK;
+}
+
+result_t readDatabaseConfig(INIStructure &ini, LogI &log, std::string &uri, int &sync_interval)
+{
+	if (!ini["db"].has("uri")) {
+		LG_WRN(log.logger(), "Missing DB URI address.");
+	} else {
+		uri = ini["db"]["uri"];
+	}
+
+	sync_interval = ini["db"].has("sync_interval") ? std::stoi(ini["db"]["sync_interval"]) : defaults::c_default_sync_interval;
+	return RES_OK;
+}
+
 int main(int argc, char** argv)
 {
-	using namespace tc;
-	using namespace mINI;
-
 	auto logger = spdlog::stdout_color_mt("console");
 
 	LogI log(logger);
@@ -44,49 +104,25 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	auto http_port = std::stoi(ini["server"]["port"]);
-	if (!ini["server"].has("port") || !vIsPortNumber(http_port)) {
-		LG_ERR(log.logger(), "Invalid or missing HTTP port number.");
+	int http_port, threads;
+	if (readServerConfig(ini, log, http_port, threads) != RES_OK) {
 		return 1;
 	}
 
-	auto threads = std::stoi(ini["server"]["threads"]);
-	if (!ini["server"].has("threads")) {
-		threads = DEFAULT_ASIO_THREADS;
-	}
-
-	auto tcp_port = std::stoi(ini["telematics"]["port"]);
-	if (!ini["telematics"].has("port") || !vIsPortNumber(tcp_port)) {
-		LG_ERR(log.logger(), "Invalid or missing TCP port number.");
+	std::string addr;
+	int tcp_port, pool_interval;
+	if (readTelematicsConfig(ini, log, addr, tcp_port, pool_interval) != RES_OK) {
 		return 1;
 	}
 
-	auto &addr = ini["telematics"]["address"];
-	if (!ini["telematics"].has("address") || !vIsAddress(addr)) {
-		LG_ERR(log.logger(), "Invalid or missing server address.");
+	std::string uri;
+	int sync_interval;
+	if (readDatabaseConfig(ini, log, uri, sync_interval) != RES_OK) {
 		return 1;
 	}
-
-	if (!ini["telematics"].has("pool_interval")) {
-		LG_ERR(log.logger(), "Invalid or missing pool interval.");
-		return 1;
-	}
-	auto pool_interval = std::stoi(ini["telematics"]["pool_interval"]);
-
-	if (!ini["db"].has("uri")) {
-		LG_ERR(log.logger(), "Missing database URI.");
-		return 1;
-	}
-	auto &s_uri = ini["db"]["uri"];
-
-	int64_t sync_interval;
-	if (!ini["db"].has("sync_interval")) {
-		sync_interval = DEFAULT_SYNC_INTERVAL;
-	}
-	sync_interval = std::stoi(ini["db"]["sync_interval"]);
 
 	// Create DB client
-	auto db_client = std::make_shared<db::mongo::Client>(s_uri, db::mongo::Client::eDevices);
+	auto db_client = std::make_shared<db::mongo::Client>(uri, db::mongo::Client::eDevices);
 	if (db_client->load(ini) != RES_OK) {
 		LG_ERR(log.logger(), "Unable to parse db client config. Exiting...");
 		return 1;
@@ -94,7 +130,7 @@ int main(int argc, char** argv)
 
 	if (db_client->enabled()) {
 		if(!db_client->has(db_client->collection())) db_client->create(db_client->collection());
-		LG_NFO(log.logger(), "DB connected. Name: {}, collection: {}, uri: {}", db_client->name(), (std::string) db_client->collection(), s_uri);
+		LG_NFO(log.logger(), "DB connected. Name: {}, collection: {}, uri: {}", db_client->name(), (std::string) db_client->collection(), uri);
 	}
 
 	// Prepare signals
@@ -106,7 +142,8 @@ int main(int argc, char** argv)
 
 	// Create a new Asio service
 	auto service = std::make_shared<tc::asio::AsioService>(threads);
-	service->Start();
+	if (!service->Start())
+		return 1;
 	LG_NFO(log.logger(), "Asio service started!");
 
 	// Connect client signal for syncing device info

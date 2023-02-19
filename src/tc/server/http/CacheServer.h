@@ -10,9 +10,9 @@ namespace tc::server::http {
 
 using namespace db;
 using namespace asio;
+
 class HTTPCacheServer : public CppServer::HTTP::HTTPServer, public tc::LogI
 {
-
 public:
 	using CppServer::HTTP::HTTPServer::HTTPServer;
 
