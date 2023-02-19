@@ -1,5 +1,6 @@
 #include <tc/server/tcp/TelematicsServer.h>
 #include <tc/asio/AsioService.h>
+#include <tc/server/tcp/Clean.h>
 #include <tc/db/Client.h>
 #include <mini/ini.h>
 #include <filesystem>
@@ -47,6 +48,16 @@ int main(int argc, char** argv)
 	}
 	size_t cache = static_cast<size_t>(std::stoi(ini["session"]["cache"]));
 
+	auto clean_interval = std::stoi(ini["db"]["clean_interval"]);
+	if (!ini["db"].has("clean_interval")) {
+		clean_interval = 1800000;
+	}
+
+	auto packets_lifetime = std::stoi(ini["db"]["packets_days_lifetime"]);
+	if (!ini["db"].has("packets_days_lifetime")) {
+		packets_lifetime = 3;
+	}
+
 	// Create a new Asio service
 	const auto service = std::make_shared< server::tcp::AsioService >(10);
 	if (service->Start() != true) {
@@ -57,18 +68,14 @@ int main(int argc, char** argv)
 
 	// Create DB client
 	auto &s_uri = ini["db"]["uri"];
-	auto db_client = std::make_shared< db::mongo::Client >(s_uri);
+	auto db_client = std::make_shared< db::mongo::Client >(s_uri, db::mongo::Client::ePackets);
 	if (db_client->load(ini) != RES_OK) {
 		LG_ERR(log.logger(), "Unable to parse db client config. Exiting...");
 		return 1;
 	}
 
-	if (db_client->enabled()) {
-		if(!db_client->has(db_client->collection())) {
-			db_client->create(db_client->collection());
-		}
-		LG_NFO(log.logger(), "DB connected. Name: {}, collection: {}, uri: {}", db_client->name(), db_client->collection(), s_uri);
-	}
+	if (db_client->enabled())
+		LG_NFO(log.logger(), "DB connected. Name: {}, collection: {}, uri: {}", db_client->name(), (std::string) db_client->collection(), s_uri);
 
 	// Create a new TCP server
 	auto server = std::make_shared< server::tcp::TelematicsServer >(service, db_client, cache, port, addr);
@@ -78,6 +85,10 @@ int main(int argc, char** argv)
 	}
 	LG_NFO(log.logger(), "TCP server running on port {}", port);
 
+	// Sync devices into DB
+	server::tcp::Clean clean;
+	std::thread thread(&server::tcp::Clean::execute, &clean, db_client, clean_interval, packets_lifetime);
+	thread.detach();
 
 	while (true) {
 		using milliseconds = std::chrono::milliseconds;
@@ -85,6 +96,13 @@ int main(int argc, char** argv)
 		std::this_thread::sleep_for(interv);
 		LG_NFO(log.logger(), "Alive! connected sessions: {} threads: {} polling: {} started: {}",
 		 server->connected_sessions(), service->threads(), service->IsPolling(), service->IsStarted());
+
+		if (db_client->enabled()) {
+			db_client->synchronizeTime(SysTime(true).timestamp());
+			if(!db_client->has(db_client->collection())) {
+				db_client->create(db_client->collection());
+			}
+		}
 	}
 
 	// Stop the server

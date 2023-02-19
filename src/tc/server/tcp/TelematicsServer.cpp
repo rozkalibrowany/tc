@@ -4,21 +4,21 @@
 
 namespace tc::server::tcp {
 
-TelematicsServer::TelematicsServer(const std::shared_ptr<AsioService>& service, std::shared_ptr<mongo::Client>& client, size_t cache)
+TelematicsServer::TelematicsServer(const std::shared_ptr<AsioService>& service, std::shared_ptr<mongo::Client> client, size_t cache)
  : TelematicsServer(service, client, cache, 8881)
 {
 	// nothing to do
 }
 
-TelematicsServer::TelematicsServer(const std::shared_ptr<AsioService>& service, std::shared_ptr<mongo::Client>& client, size_t cache, int port)
+TelematicsServer::TelematicsServer(const std::shared_ptr<AsioService>& service, std::shared_ptr<mongo::Client> client, size_t cache, int port)
  : TelematicsServer(service, client, cache, port, "127.0.0.1")
 {
 	// nothing to do
 }
 
-TelematicsServer::TelematicsServer(const std::shared_ptr<AsioService>& service, std::shared_ptr<mongo::Client>& client, size_t cache, int port, const std::string& address)
+TelematicsServer::TelematicsServer(const std::shared_ptr<AsioService>& service, std::shared_ptr<mongo::Client> client, size_t cache, int port, const std::string& address)
  : CppServer::Asio::TCPServer(service, address, port)
- , iDbClient(std::move(client))
+ , iDbClient(client)
  , iCacheSize(cache)
 {
 	this->SetupReusePort(true);

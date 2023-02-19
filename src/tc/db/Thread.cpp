@@ -4,7 +4,7 @@ namespace tc::db::mongo {
 
 #include <tc/db/Thread.h>
 
-Thread::Thread(mongocxx::client& client, std::string &db_name, std::string &coll, const std::string &data)
+Thread::Thread(mongocxx::client& client, std::string db_name, std::string coll, const std::string &data)
 	: iAccess(client, db_name, coll)
 	, iData(data)
 {

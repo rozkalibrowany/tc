@@ -56,6 +56,7 @@ TcAddLibrary(
 	SOURCE "${src}/server/tcp/*.cpp"
 	INCLUDE "${TcIncludeDir}"
 	LIBRARIES
+		pthread
 		cppserver
 		tc-asio
 		tc-db

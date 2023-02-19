@@ -14,10 +14,46 @@ using namespace mINI;
 class Client : public tc::LogI
 {
 public:
+	enum CollType
+	{
+		eDevices = 0,
+		ePackets
+	};
 
-	Client(std::string &uri);
+	struct Collection{
+		std::string iName;
+		SysTime iTime;
+		CollType iType;
+
+		Collection(const std::string &name, CollType type, bool now)
+			: iName(name)
+			, iTime(now)
+			, iType(type) {}
+
+		Collection(const std::string &name, CollType type, int64_t timestamp)
+			: iName(name)
+			, iTime(timestamp)
+			, iType(type) {}
+
+		Collection(const std::string &name, CollType type)
+			: Collection(name, type, true) {}
+
+		Collection(CollType type = ePackets)
+			: Collection(type == ePackets ? std::string{"Packets"} : std::string{"Devices"}, type, true) {}
+
+		~Collection() {}
+
+		operator std::string() const {
+			if (iType == ePackets)
+				return fmt::format("{}_{}_{}_{}", iName, iTime.getDay(), iTime.getMonth(), iTime.getYear());
+			return iName;
+		}
+	};
+
+	Client(std::string &uri, CollType type);
 
 	result_t load(INIStructure &ini);
+	void synchronizeTime(int64_t timestamp);
 
 	/* Not thread safe */
 	result_t get(const std::string &imei, std::string &json_doc);
@@ -33,18 +69,22 @@ public:
 
 	result_t replace(const std::string &json_old, const std::string &json_new);
 
+	void drop(const std::string &collection);
+	void setCollection(const std::string &coll);
+
 	bool has(const std::string &coll_name);
 	bool has(const std::string &coll_name, const std::string &db_name);
 	bool hasImei(const Imei &imei);
 
-	const std::string collection() const;
+	Collection collection();
+	std::string collection_str();
 	const std::string name() const;
 	const bool enabled() const;
 
 private:
-	bool iEnabled;
+	bool iEnabled {false};
 	std::string iName;
-	std::string iCollection;
+	Collection iCollection;
 };
 
 } // namespace tc::db::mongo

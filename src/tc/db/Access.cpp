@@ -48,6 +48,15 @@ bool Access::has(const std::string &imei)
 }
 
 /**
+ * It drops the collection
+ * @param collection The name of the collection to drop.
+ */
+void Access::drop(const std::string &collection)
+{
+	iDb[collection].drop();
+}
+
+/**
  * It converts the JSON string to a BSON document, and then inserts it into the database
  * @param jsonDoc The JSON document to be inserted into the database.
  * @return The result of the insert operation.

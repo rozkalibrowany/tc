@@ -21,9 +21,9 @@ class TelematicsServer : public CppServer::Asio::TCPServer, public tc::LogI
 public:
 	using CppServer::Asio::TCPServer::TCPServer;
 
-	TelematicsServer(const std::shared_ptr<AsioService> &service, std::shared_ptr<mongo::Client> &client, size_t cache = 10000);
-	TelematicsServer(const std::shared_ptr<AsioService>& service, std::shared_ptr<mongo::Client>& client, size_t cache, int port);
-	TelematicsServer(const std::shared_ptr<AsioService>& service, std::shared_ptr<mongo::Client>& client, size_t cache, int port, const std::string& address);
+	TelematicsServer(const std::shared_ptr<AsioService> &service, std::shared_ptr<mongo::Client> client, size_t cache = 10000);
+	TelematicsServer(const std::shared_ptr<AsioService>& service, std::shared_ptr<mongo::Client> client, size_t cache, int port);
+	TelematicsServer(const std::shared_ptr<AsioService>& service, std::shared_ptr<mongo::Client> client, size_t cache, int port, const std::string& address);
 
 	~TelematicsServer();
 

@@ -8,7 +8,7 @@ namespace tc::db::mongo {
 
 class Thread : public tc::LogI {
 public:
-	Thread(mongocxx::client& client, std::string &db_name, std::string &coll_name, const std::string &data);
+	Thread(mongocxx::client& client, std::string db_name, std::string coll_name, const std::string &data);
 
 	void operator()();
 	void operator()(const std::string &key, const int64_t old, const int64_t val);

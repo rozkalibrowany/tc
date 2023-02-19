@@ -4,7 +4,8 @@
 
 namespace tc::db::mongo {
 
-Client::Client(std::string &uri)
+Client::Client(std::string &uri, CollType type)
+	: iCollection(type)
 {
 	Instance::getInstance()->createPool(uri);
 }
@@ -29,9 +30,14 @@ result_t Client::load(INIStructure &ini)
 
 	iName = name;
 	iEnabled = enabled;
-	iCollection = collection;
+	setCollection(collection);
 
 	return RES_OK;
+}
+
+void Client::synchronizeTime(int64_t timestamp)
+{
+	iCollection.iTime.timestamp(timestamp);
 }
 
 /** Note: not thread safe!
@@ -137,6 +143,19 @@ result_t Client::replace(const std::string &json_old, const std::string &json_ne
 	return access.replace(json_old, json_new);
 }
 
+void Client::drop(const std::string &collection)
+{
+	auto entry = Instance::getInstance()->getClientFromPool();
+	Access access(*entry, iName, iCollection, Access::Read);
+
+	return access.drop(collection);
+}
+
+void Client::setCollection(const std::string &coll)
+{
+	iCollection.iName = coll;
+}
+
 bool Client::hasImei(const Imei &imei)
 {
 	auto entry = Instance::getInstance()->getClientFromPool();
@@ -165,9 +184,14 @@ bool Client::has(const std::string &coll_name, const std::string &db_name)
 	return std::find(collections.begin(), collections.end(), coll_name) != collections.end();
 }
 
-const std::string Client::collection() const
+Client::Collection Client::collection()
 {
 	return iCollection;
+}
+
+std::string Client::collection_str()
+{
+	return (std::string) iCollection;
 }
 
 const std::string Client::name() const

@@ -87,7 +87,7 @@ int main(int argc, char** argv)
 	sync_interval = std::stoi(ini["db"]["sync_interval"]);
 
 	// Create DB client
-	auto db_client = std::make_shared<db::mongo::Client>(s_uri);
+	auto db_client = std::make_shared<db::mongo::Client>(s_uri, db::mongo::Client::eDevices);
 	if (db_client->load(ini) != RES_OK) {
 		LG_ERR(log.logger(), "Unable to parse db client config. Exiting...");
 		return 1;
@@ -95,7 +95,7 @@ int main(int argc, char** argv)
 
 	if (db_client->enabled()) {
 		if(!db_client->has(db_client->collection())) db_client->create(db_client->collection());
-		LG_NFO(log.logger(), "DB connected. Name: {}, collection: {}, uri: {}", db_client->name(), db_client->collection(), s_uri);
+		LG_NFO(log.logger(), "DB connected. Name: {}, collection: {}, uri: {}", db_client->name(), (std::string) db_client->collection(), s_uri);
 	}
 
 	// Prepare signals

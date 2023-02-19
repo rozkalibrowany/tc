@@ -24,6 +24,8 @@ public:
 	mongocxx::cursor cursor();
 
 	bool has(const std::string &imei);
+	void drop(const std::string &collection);
+
 	result_t find_one(const std::string &imei, std::string &json_doc);
 	result_t insert(const std::string &jsonDoc);
 

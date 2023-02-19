@@ -64,7 +64,10 @@ cmake ../ && make
 Configure tc-vehicle-connector-server as localhost
 ```bask
 * GET
+* Online
 curl -X GET https://127.0.0.1:8443/devices
+* Offline and online
+curl -X GET https://127.0.0.1:8443/devices?all
 curl -X GET https://127.0.0.1:8443/device/<Imei/ID>
 ```
 
@@ -79,6 +82,7 @@ curl -X POST --data '{}' https://127.0.0.1:8443/device/<Imei/ID>/engine_on
 
 * POST (settings)
 curl -X POST --data '{}' https://127.0.0.1:8443/device/<IMEI>/set?id=123456
+curl -X POST --data '{}' https://127.0.0.1:8443/device/<IMEI>/set?fleet=Abc
 ```
 
 ```bash
