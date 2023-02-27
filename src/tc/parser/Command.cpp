@@ -10,9 +10,19 @@
 
 namespace tc::parser {
 
- std::map <std::string, std::string> Command::sMapping = {{"unlock", "sclockctrl 0"}, {"lock", "sclockctrl 1"}, {"engine_on", "scenginectrl 1"},
-	{"engine_off", "scenginectrl 0"}, {"led_on", "scledctrl 1"}, {"led_off", "scledctrl 0"},
-	{"led_sw_on", "scsetledswitch 1"}, {"led_sw_off", "scsetledswitch 0"}, {"restart", "screbootsys"}};
+ std::map <std::string, std::string> Command::sMapping = {
+	{"unlock", "sclockctrl 0"},
+	{"lock", "sclockctrl 1"},
+	{"engine_on", "scenginectrl 1"},
+	{"engine_off", "scenginectrl 0"},
+	{"led_on", "scledctrl 1"},
+	{"led_off", "scledctrl 0"},
+	{"led_sw_on", "scsetledswitch 1"},
+	{"led_sw_off", "scsetledswitch 0"},
+	{"mode_normal", "scsetmode 0"},
+	{"mode_eco", "scsetmode 1"},
+	{"mode_sport", "scsetmode 2"},
+	{"restart", "screbootsys"}};
 
 Command::Command(const std::string &imei)
 	: tc::LogI("console")
@@ -76,13 +86,6 @@ result_t Command::create(const std::string &cmd, bool cr)
 
 	return res;
 }
-
-/*std::vector<char> Command::asBin()
-{
-	std::vector<char> bin(iBuf.size() / 2);
-	tc::hex2bin((char*) iBuf.data(), (char*) bin.data());
-	return bin;
-}*/
 
 result_t Command::getPayload(const std::string &cmd, parser::Buf &buf)
 {

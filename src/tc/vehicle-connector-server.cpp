@@ -207,6 +207,9 @@ int main(int argc, char** argv)
 		sleep_for(pool_interval);
 	}
 
+	// Join thread
+	thread.join();
+
 	// Stop the server
 	LG_NFO(log.logger(), "Server stopping...");
 	server->Stop();

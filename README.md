@@ -21,22 +21,32 @@ port=8881
 cache=1000
 
 [db]
+packets_days_lifetime=3
+clean_interval=1800000
 enabled=true
 name=cluster0
-collection_packets=Packets
-collection_devices=Devices
+collection=Packets
 uri=mongodb+srv://login:pass@cluster.12345.mongodb.net
 ```
 
 tc-vehicle-connector-server:
 ```
-[tcp]
+[server]
+port=8443
+threads=4
+
+[telematics]
 address=127.0.0.1
 port=8881
-interval=10000
+pool_interval=6000
 
-[http]
-port=8443
+[db]
+sync_interval=120000
+enabled=true
+name=cluster0
+collection=Devices
+uri=mongodb+srv://login:pass@cluster.12345.mongodb.net
+
 ```
 
 # Ansible environment setup
@@ -75,10 +85,20 @@ curl -X GET https://127.0.0.1:8443/device/<Imei/ID>
 * POST (device)
 curl -X POST --data '{}' https://127.0.0.1:8443/device/<Imei/ID>/unlock
 curl -X POST --data '{}' https://127.0.0.1:8443/device/<Imei/ID>/lock
+
 curl -X POST --data '{}' https://127.0.0.1:8443/device/<Imei/ID>/led_off
 curl -X POST --data '{}' https://127.0.0.1:8443/device/<Imei/ID>/led_on
+curl -X POST --data '{}' https://127.0.0.1:8443/device/<Imei/ID>/led_sw_on
+curl -X POST --data '{}' https://127.0.0.1:8443/device/<Imei/ID>/led_sw_off
+
 curl -X POST --data '{}' https://127.0.0.1:8443/device/<Imei/ID>/engine_off
 curl -X POST --data '{}' https://127.0.0.1:8443/device/<Imei/ID>/engine_on
+
+curl -X POST --data '{}' https://127.0.0.1:8443/device/<Imei/ID>/mode_eco
+curl -X POST --data '{}' https://127.0.0.1:8443/device/<Imei/ID>/mode_normal
+curl -X POST --data '{}' https://127.0.0.1:8443/device/<Imei/ID>/mode_sport
+
+curl -X POST --data '{}' https://127.0.0.1:8443/device/<Imei/ID>/restart
 
 * POST (settings)
 curl -X POST --data '{}' https://127.0.0.1:8443/device/<IMEI>/set?id=123456
