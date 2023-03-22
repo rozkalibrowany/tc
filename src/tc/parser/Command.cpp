@@ -22,6 +22,10 @@ namespace tc::parser {
 	{"mode_normal", "scsetmode 0"},
 	{"mode_eco", "scsetmode 1"},
 	{"mode_sport", "scsetmode 2"},
+	{"buzz_ctrl_off", "scbuzzerctrl 0 1"},
+	{"buzz_ctrl_on", "scbuzzerctrl 1 1"},
+	{"alarm_sw_on", "scsetalarmswitch 1"},
+	{"alarm_sw_off", "scsetalarmswitch 0"},
 	{"restart", "screbootsys"}};
 
 Command::Command(const std::string &imei)
