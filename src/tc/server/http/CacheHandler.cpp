@@ -138,6 +138,21 @@ result_t CacheHandler::decodeJson(const std::string &data)
 
 result_t CacheHandler::addCommand(const Imei imei, const std::string cmd, CppServer::HTTP::HTTPResponse &response)
 {
+	if (imei.length() < IMEI_LENGTH) {
+		for (const auto& device : iDevices) {
+			if (device.second->id() == imei) {
+				iSignal.emit(device.second->imei(), cmd);
+				response.MakeOKResponse();
+				return RES_OK;
+			}
+		}
+	}
+
+	if (imei.length() < IMEI_LENGTH) {
+		response.MakeErrorResponse(400, fmt::format("Device with ID: {} not found", imei));
+		return RES_NOENT;
+	}
+
 	iSignal.emit(imei, cmd);
 	response.MakeOKResponse();
 	return RES_OK;

@@ -203,7 +203,7 @@ int main(int argc, char** argv)
 
 		std::string devices;
 		cache_handler->getDevices(devices);
-		LG_NFO(log.logger(), "Size: {} Cached: {}", cache_handler->devices().size(), devices);
+		// LG_NFO(log.logger(), "Size: {} Cached: {}", cache_handler->devices().size(), devices);
 		sleep_for(pool_interval);
 	}
 
