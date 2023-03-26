@@ -49,7 +49,10 @@ void Client::synchronizeTime(int64_t timestamp)
 result_t Client::get(const std::string &imei, std::string &json_doc)
 {
 	auto entry = Instance::getInstance()->getClientFromPool();
-	Access access(*entry, iName, iCollection, Access::Read);
+	if (!entry)
+		return RES_NOENT;
+
+	Access access(**entry, iName, iCollection, Access::Read);
 
 	return access.find_one(imei, json_doc);
 }
@@ -58,10 +61,13 @@ result_t Client::get(const std::string &imei, std::string &json_doc)
  * It gets a client from the pool, creates an access object, and returns the cursor
  * @return A cursor object.
  */
-mongocxx::cursor Client::getCursor()
+std::optional< mongocxx::cursor > Client::getCursor()
 {
 	auto entry = Instance::getInstance()->getClientFromPool();
-	Access access(*entry, iName, iCollection, Access::Read);
+	if (!entry)
+		return {};
+
+	Access access(**entry, iName, iCollection, Access::Read);
 
 	return access.cursor();
 }
@@ -74,8 +80,10 @@ mongocxx::cursor Client::getCursor()
 result_t Client::insert(const std::string &json_doc)
 {
 	auto entry = Instance::getInstance()->getClientFromPool();
+	if (!entry)
+		return RES_NOENT;
 
-	std::thread thread(db::mongo::Thread{*entry, iName, iCollection, json_doc});
+	std::thread thread(db::mongo::Thread{**entry, iName, iCollection, json_doc});
 	thread.join();
 
 	return RES_OK;
@@ -95,7 +103,10 @@ result_t Client::create(const std::string &coll_name)
 result_t Client::create(const std::string &coll_name, const std::string &db_name)
 {
 	auto entry = Instance::getInstance()->getClientFromPool();
-	auto &client = *entry;
+	if (!entry)
+		return RES_NOENT;
+	
+	auto &client = **entry;
 
 	client[db_name].create_collection(coll_name);
 
@@ -112,8 +123,10 @@ result_t Client::create(const std::string &coll_name, const std::string &db_name
 result_t Client::update(const std::string &key, const std::string &old, const std::string &val)
 {
 	auto entry = Instance::getInstance()->getClientFromPool();
-
-	std::thread thread(db::mongo::Thread{*entry, iName, iCollection, std::string{}}, key, old, val);
+	if (!entry)
+		return RES_NOENT;
+	
+	std::thread thread(db::mongo::Thread{**entry, iName, iCollection, std::string{}}, key, old, val);
 	thread.join();
 
 	return RES_OK;
@@ -129,7 +142,10 @@ result_t Client::update(const std::string &key, const std::string &old, const st
 result_t Client::update(const std::string &key, const int64_t old, const int64_t val)
 {
 	auto entry = Instance::getInstance()->getClientFromPool();
-	std::thread thread(db::mongo::Thread{*entry, iName, iCollection, std::string{}}, key, old, val);
+	if (!entry)
+		return RES_NOENT;
+	
+	std::thread thread(db::mongo::Thread{**entry, iName, iCollection, std::string{}}, key, old, val);
 	thread.join();
 
 	return RES_OK;
@@ -138,17 +154,23 @@ result_t Client::update(const std::string &key, const int64_t old, const int64_t
 result_t Client::replace(const std::string &json_old, const std::string &json_new)
 {
 	auto entry = Instance::getInstance()->getClientFromPool();
-	Access access(*entry, iName, iCollection, Access::Read);
+	if (!entry)
+		return RES_NOENT;
+	
+	Access access(**entry, iName, iCollection, Access::Read);
 
 	return access.replace(json_old, json_new);
 }
 
-void Client::drop(const std::string &collection)
+result_t Client::drop(const std::string &collection)
 {
 	auto entry = Instance::getInstance()->getClientFromPool();
-	Access access(*entry, iName, iCollection, Access::Read);
+	if (!entry)
+		return RES_NOENT;
 
-	return access.drop(collection);
+	Access access(**entry, iName, iCollection, Access::Read);
+	access.drop(collection);
+	return RES_OK;
 }
 
 void Client::setCollection(const std::string &coll)
@@ -159,7 +181,10 @@ void Client::setCollection(const std::string &coll)
 bool Client::hasImei(const Imei &imei)
 {
 	auto entry = Instance::getInstance()->getClientFromPool();
-	Access access(*entry, iName, iCollection, Access::Read);
+	if (!entry)
+		return false;
+	
+	Access access(**entry, iName, iCollection, Access::Read);
 
 	return access.has(imei);
 }
@@ -178,7 +203,7 @@ bool Client::has(const std::string &coll_name)
 bool Client::has(const std::string &coll_name, const std::string &db_name)
 {
 	auto entry = Instance::getInstance()->getClientFromPool();
-	auto &client = *entry;
+	auto &client = **entry;
 	auto collections = client[db_name].list_collection_names();
 
 	return std::find(collections.begin(), collections.end(), coll_name) != collections.end();

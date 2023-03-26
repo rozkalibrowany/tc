@@ -51,9 +51,17 @@ bool Access::has(const std::string &imei)
  * It drops the collection
  * @param collection The name of the collection to drop.
  */
-void Access::drop(const std::string &collection)
+result_t Access::drop(const std::string &collection)
 {
-	iDb[collection].drop();
+	try {
+		iCollection.drop();
+		LG_DBG(this->logger(), "Dropping outdated collection[{}]", collection);
+	} catch (mongocxx::operation_exception &e) {
+		LG_DBG(this->logger(), "Exception while dropping collection: {}", e.what());
+		return RES_ERROR;
+	}
+
+	return RES_OK;
 }
 
 /**

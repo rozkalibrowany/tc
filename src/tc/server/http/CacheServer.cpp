@@ -32,12 +32,12 @@ result_t HTTPCacheServer::syncDevices()
 	}
 
 	auto cursor = iDbClient->getCursor();
-	if (cursor.begin() == cursor.end()) {
+	if (!cursor || ((*cursor).begin() == (*cursor).end())) {
 		return RES_NOENT;
 	}
 
 	auto &devices = iCache->devices();
-	for(auto doc : cursor) {
+	for(auto doc : *cursor) {
 		Json::Value root;
 		auto json_doc = bsoncxx::to_json(doc);
 		if (Vehicle::fromJsonString(json_doc, root) != RES_OK) {

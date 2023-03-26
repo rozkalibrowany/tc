@@ -57,7 +57,7 @@ public:
 
 	/* Not thread safe */
 	result_t get(const std::string &imei, std::string &json_doc);
-	mongocxx::cursor getCursor();
+	std::optional< mongocxx::cursor > getCursor();
 
 	result_t insert(const std::string &json_doc);
 
@@ -69,7 +69,7 @@ public:
 
 	result_t replace(const std::string &json_old, const std::string &json_new);
 
-	void drop(const std::string &collection);
+	result_t drop(const std::string &collection);
 	void setCollection(const std::string &coll);
 
 	bool has(const std::string &coll_name);
