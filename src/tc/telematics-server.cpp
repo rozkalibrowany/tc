@@ -97,7 +97,6 @@ int main(int argc, char** argv)
 		LG_ERR(log.logger(), "Unable to start asio service. Exiting...");
 		return 1;
 	}
-	LG_NFO(log.logger(), "Asio service running!");
 
 	// Create DB client
 	auto &s_uri = ini["db"]["uri"];

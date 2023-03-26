@@ -168,7 +168,7 @@ result_t Client::drop(const std::string &collection)
 	if (!entry)
 		return RES_NOENT;
 
-	Access access(**entry, iName, iCollection, Access::Read);
+	Access access(**entry, iName, collection, Access::Write);
 	access.drop(collection);
 	return RES_OK;
 }
