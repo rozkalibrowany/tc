@@ -208,14 +208,24 @@ result_t CacheHandler::addCommand(const Imei imei, const std::string cmd, CppSer
 	if (imei.length() < IMEI_LENGTH) {
 		for (const auto& vehicle : iVehicles) {
 			if (vehicle.second->id() == imei) {
-				iSignal.emit(vehicle.second->imei(), cmd);
-				response.MakeOKResponse();
-				return RES_OK;
+				if (vehicle.second->online()) {
+					iSignal.emit(vehicle.second->imei(), cmd);
+					response.MakeOKResponse();
+					return RES_OK;
+				} else {
+					response.MakeErrorResponse(400, fmt::format("Device with ID: {} not found", imei));
+					return RES_NOENT;
+				}
 			}
 		}
 	}
 
 	if (imei.length() < IMEI_LENGTH) {
+		response.MakeErrorResponse(400, fmt::format("Device with ID: {} not found", imei));
+		return RES_NOENT;
+	}
+
+	if (iVehicles.find(imei) == iVehicles.end()) {
 		response.MakeErrorResponse(400, fmt::format("Device with ID: {} not found", imei));
 		return RES_NOENT;
 	}

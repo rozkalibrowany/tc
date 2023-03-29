@@ -26,8 +26,6 @@ public:
 
 	bool operator==(const Devices<T> &rhs) const;
 
-	void setCacheSize(size_t size);
-
 	bool has(const Imei &imei) const;
 	result_t add(const std::shared_ptr<T> &device);
 	result_t add(const std::shared_ptr<T> &device, const Imei &imei);

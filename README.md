@@ -79,6 +79,9 @@ curl -X GET https://127.0.0.1:8443/devices
 * Offline and online
 curl -X GET https://127.0.0.1:8443/devices?all
 curl -X GET https://127.0.0.1:8443/device/<Imei/ID>
+* Packet
+curl -X GET https://127.0.0.1:8443/device/<Imei/ID>/packets
+
 ```
 
 ```bash
@@ -97,6 +100,12 @@ curl -X POST --data '{}' https://127.0.0.1:8443/device/<Imei/ID>/engine_on
 curl -X POST --data '{}' https://127.0.0.1:8443/device/<Imei/ID>/mode_eco
 curl -X POST --data '{}' https://127.0.0.1:8443/device/<Imei/ID>/mode_normal
 curl -X POST --data '{}' https://127.0.0.1:8443/device/<Imei/ID>/mode_sport
+
+curl -X POST --data '{}' https://127.0.0.1:8443/device/<Imei/ID>/buzz_ctrl_on
+curl -X POST --data '{}' https://127.0.0.1:8443/device/<Imei/ID>/buzz_ctrl_off
+
+curl -X POST --data '{}' https://127.0.0.1:8443/device/<Imei/ID>/alarm_sw_on
+curl -X POST --data '{}' https://127.0.0.1:8443/device/<Imei/ID>/alarm_sw_off
 
 curl -X POST --data '{}' https://127.0.0.1:8443/device/<Imei/ID>/restart
 

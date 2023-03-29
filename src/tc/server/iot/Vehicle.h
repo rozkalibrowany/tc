@@ -42,7 +42,7 @@ public:
 
 	const std::string id() const;
 	const std::string fleet() const;
-	const Source source() const;
+	bool online() const;
 
 	void setID(const std::string &id);
 	void setFleet(const std::string &id);

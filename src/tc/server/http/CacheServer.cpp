@@ -76,7 +76,7 @@ result_t HTTPCacheServer::onModified(const Imei &imei)
 
 	{
 		std::scoped_lock lock(iMutex);
-		if(iDbClient->replace(json_doc, it->second->toJsonValue(it->second->source() == iot::Vehicle::eTelematics).toStyledString()) != RES_OK) {
+		if(iDbClient->replace(json_doc, it->second->toJsonValue(it->second->online()).toStyledString()) != RES_OK) {
 			return RES_NOENT;
 		}
 	}

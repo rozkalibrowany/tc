@@ -15,8 +15,6 @@ public:
 	HTTPCacheSession(const std::shared_ptr<CppServer::HTTP::HTTPServer> &server, const std::shared_ptr<CacheHandler> &cache);
 
 protected:
-	result_t handle(const Action &action);
-
 	void onReceivedRequest(const CppServer::HTTP::HTTPRequest &request) override;
 	void onReceivedRequestError(const CppServer::HTTP::HTTPRequest &request, const std::string &error) override;
 	void onError(int error, const std::string &category, const std::string &message) override;

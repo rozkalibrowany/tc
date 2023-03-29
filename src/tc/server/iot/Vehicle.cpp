@@ -124,9 +124,9 @@ const std::string Vehicle::fleet() const
 	return iFleet;
 }
 
-const Vehicle::Source Vehicle::source() const
+bool Vehicle::online() const
 {
-	return iSource;
+	return iSource == eTelematics ? true : false;
 }
 
 void Vehicle::setID(const std::string &id)
@@ -191,7 +191,7 @@ result_t Vehicle::toJsonImpl(Json::Value &rhs, bool active_only) const
 	rhs["Timestamp"] = iTimestamp;
 	rhs["Modified"] = iModified;
 	rhs["Datetime"] = systime.getDateTime();
-	rhs["Online"] = iSource == eTelematics ? "True" : "False";
+	rhs["Online"] = online() ? "True" : "False";
 	const auto time = SysTime().timestamp(uptime());
 	rhs["Uptime"] = fmt::format("{:d}d:{:d}h:{:d}m", (time.getDay() - 1), time.getHour(), time.getMin());
 	rhs["Packets"] = iTotal;
