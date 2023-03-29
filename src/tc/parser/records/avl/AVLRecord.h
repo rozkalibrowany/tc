@@ -8,25 +8,26 @@
 
 namespace tc::parser::records::avl {
 
-class AVLRecord;
-using AVLRecordSPtr = std::shared_ptr< AVLRecord >;
-using AVLRecordList = std::vector< AVLRecordSPtr >;
-
 class AVLRecord : public tc::LogI, public parser::JsonI {
 public:
 	AVLRecord(int codec = 142);
+	AVLRecord(AVLRecord&& rhs);
 
-	result_t read(const std::shared_ptr< Reader > &reader);
+	result_t read(Reader &reader);
 	result_t set(const int codec);
 
-protected:
-	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
+	Json::Value toJsonValue();
 
-private:
-	int iCodec;
 	AVLRecordHeader iRecordHeader;
 	gps::GPSRecord iGPSRecord;
 	io::IoRecord iRecordIo;
+
+protected:
+	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
+	result_t fromJsonImpl(const Json::Value &rhs, bool root) override;
+	
+private:
+	int iCodec;
 };
 
 class AVLRecords : public tc::LogI, public parser::JsonI {
@@ -35,31 +36,29 @@ public:
 	bool empty() const;
 	void clear();
 
-	AVLRecordSPtr &first();
-	AVLRecordSPtr &last();
+	AVLRecord &first();
+	AVLRecord &last();
 
-	const AVLRecordSPtr &first() const;
-	const AVLRecordSPtr &last() const;
+	const AVLRecord &first() const;
+	const AVLRecord &last() const;
 
-	AVLRecordList::const_iterator begin() const;
-	AVLRecordList::const_iterator end() const;
+	std::vector< AVLRecord >::const_iterator begin() const;
+	std::vector< AVLRecord >::const_iterator end() const;
 
-	AVLRecordList::iterator begin();
-	AVLRecordList::iterator end();
+	std::vector< AVLRecord >::iterator begin();
+	std::vector< AVLRecord >::iterator end();
 
-	void add(const AVLRecordSPtr &rhs);
-	void add(const AVLRecord &rhs);
+	void add(AVLRecord &&rhs);
 
-	AVLRecordList &data();
-	const AVLRecordList &cdata() const;
+	std::vector< AVLRecord > &data();
+	const std::vector< AVLRecord > &cdata() const;
 
 protected:
 	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
+	result_t fromJsonImpl(const Json::Value &rhs, bool root) override;
 
-	AVLRecordList iData;
-	AVLRecordSPtr cInvalidEl {std::make_shared< AVLRecord >()};
+	std::vector< AVLRecord > iRecords;
 };
-
 
 } // namespace tc::parser::records::avl
 

@@ -23,17 +23,16 @@ public:
 	static int getIdx(const uchar* cbuf, size_t size, const uchar c);
 
 	result_t parse(const uchar* cbuf, size_t size, size_t offset = 0) override;
-
 	const size_t size() override;
-	std::shared_ptr< Reader > reader();
-
 	AVLRecords &records();
+
+	Json::Value toJsonValue();
 
 protected:
 	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
+	result_t fromJsonImpl(const Json::Value &rhs, bool root) override;
 
 private:
-	std::shared_ptr< Reader > iReader;
 	size_t iRecordsSize;
 	AVLRecords iAVLRecords;
 };

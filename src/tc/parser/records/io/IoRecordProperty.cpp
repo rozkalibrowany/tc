@@ -9,48 +9,40 @@ IoRecordProperty::IoRecordProperty(int id, int64_t val)
 	// nothing to do
 }
 
-void IoRecordProperty::clear()
-{
-	iID = 0;
-	iValue = 0;
-	iData.clear();
-}
-
 bool IoRecordProperty::empty() const
 {
 	return iID == 0 && iValue == 0;
 }
 
-result_t IoRecordProperty::parse(const std::shared_ptr< Reader > &reader)
+result_t IoRecordProperty::parse(Reader &reader)
 {
 	return RES_NOIMPL;
 }
 
-result_t IoRecordProperty::parse(const std::shared_ptr< Reader > &reader, int id_size)
+result_t IoRecordProperty::parse(Reader &reader, int id_size)
 {
 	return RES_NOIMPL;
-}
-
-std::string IoRecordProperty::toString()
-{
-	if (empty()) {
-		return std::string();
-	}
-
-	auto s = fmt::format("************ Io Record Property ************\n");
-	s += fmt::format("\tID: {}\n\tValue: {}\n", iID, iValue);
-
-	if (iData.empty() == false) {
-		s += fmt::format("\tData: {}", iData);
-	}
-
-	return s;
 }
 
 result_t IoRecordProperty::toJsonImpl(Json::Value &rhs, bool root) const
 {
 	rhs["ID"] = iID;
 	rhs["value"] = iValue;
+
+	return RES_OK;
+}
+
+result_t IoRecordProperty::fromJsonImpl(const Json::Value &rhs, bool root)
+{
+	if (rhs.size() == 0) {
+		return RES_INVARG;
+	}
+
+	if (rhs.isMember("ID"))
+		iID = rhs["ID"].asInt();
+
+	if (rhs.isMember("value"))
+		iValue = rhs["value"].asInt64();
 
 	return RES_OK;
 }
@@ -70,6 +62,21 @@ result_t McanIo::toJsonImpl(Json::Value &rhs, bool root) const
 	return RES_OK;
 }
 
+result_t McanIo::fromJsonImpl(const Json::Value &rhs, bool root)
+{
+	if (rhs.size() == 0) {
+		return RES_INVARG;
+	}
+
+	if (rhs.isMember("ID"))
+		id = rhs["ID"].asInt();
+
+	if (rhs.isMember("value"))
+		value = rhs["value"].asInt64();
+
+	return RES_OK;
+}
+
 IoMcanProperty::IoMcanProperty(int id)
  : IoRecordProperty(id)
 {
@@ -81,46 +88,27 @@ bool IoMcanProperty::empty() const
 	return iIoElements.empty();
 }
 
-result_t IoMcanProperty::parse(const std::shared_ptr< Reader > &reader)
+result_t IoMcanProperty::parse(Reader &reader)
 {
 	return RES_NOIMPL;
 }
 
-result_t IoMcanProperty::parse(const std::shared_ptr< Reader > &reader, int id_size)
+result_t IoMcanProperty::parse(Reader &reader, int id_size)
 {
-	if (reader == nullptr) {
-		return RES_INVARG;
-	}
-
 	// auto num_of_elements = reader->read(1);
 	auto byte_sizes = std::vector< int >{1, 2, 4, 8};
 
 	for (int b = 0; b < (int) byte_sizes.size(); b++) {
-		auto num_of_lists = reader->read(4);
+		auto num_of_lists = reader.read(4);
 		for (int i = 0; i < num_of_lists; i++) {
-			auto id = reader->read(4);
+			auto id = reader.read(4);
 			auto size = byte_sizes[i];
-			auto value = reader->read(size);
+			auto value = reader.read(size);
 			iIoElements.emplace_back(McanIo{id, value, size});
 		}
 	}
 
 	return RES_OK;
-}
-
-std::string IoMcanProperty::toString()
-{
-	if (empty()) {
-		return std::string();
-	}
-
-	auto s = fmt::format("************ Io Mcan Property ************\n");
-
-	for (auto &e : iIoElements) {
-		s += fmt::format("\tElement size: {} \n\t\tid: {}, value: {}", e.size, e.id, e.value);
-	}
-
-	return s;
 }
 
 result_t IoMcanProperty::toJsonImpl(Json::Value &rhs, bool root) const
@@ -131,6 +119,22 @@ result_t IoMcanProperty::toJsonImpl(Json::Value &rhs, bool root) const
 		e.toJson(val);
 		el.append(val);
 	}
+	return RES_OK;
+}
+
+result_t IoMcanProperty::fromJsonImpl(const Json::Value &rhs, bool root)
+{
+	if (rhs.getMemberNames().size() == 0) {
+		return RES_INVARG;
+	}
+
+	for (auto const& prop : rhs.getMemberNames()) {
+		McanIo mcan;
+		if (mcan.fromJson(prop) != RES_OK)
+			continue;
+		iIoElements.push_back(std::move(mcan));
+	}
+
 	return RES_OK;
 }
 

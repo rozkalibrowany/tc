@@ -81,6 +81,10 @@ result_t Action::parseDevice(const Request &request)
 		if(parseDeviceId(request) == RES_OK && request.command().empty()) {
 			return RES_OK;
 		}
+
+		if (!request.key().empty() && !request.key().compare("packets")) {
+			return RES_OK;
+		}
 	}
 
 	return RES_NOENT;

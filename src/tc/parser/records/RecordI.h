@@ -12,13 +12,10 @@ public:
   RecordI() : tc::LogI("console") {}
   virtual ~RecordI() = default;
 
-  virtual result_t parse(const std::shared_ptr< Reader > &reader, int codec) = 0;
-  virtual result_t parse(const std::shared_ptr< Reader > &reader) = 0;
+  virtual result_t parse(Reader &reader, int codec) = 0;
+  virtual result_t parse(Reader &reader) = 0;
 
-	virtual void clear() = 0;
 	virtual bool empty() const = 0;
-	virtual std::string toString() = 0;
-
 };
 
 } // namespace tc::parser::records

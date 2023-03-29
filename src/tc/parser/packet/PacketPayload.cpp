@@ -70,27 +70,24 @@ result_t PacketPayload::parse(const uchar* cbuf, size_t size, size_t /* offset *
 			return RES_INVCRC;
 		}
 
-		auto reader = std::make_shared<Reader>(buf, offset);
-		auto codec = reader->readU(1);
-		auto records_total = reader->readU(1);
+		Reader reader(buf, offset);
+		auto codec = reader.read(1);
+		auto records_total = reader.read(1);
 
-		for (uint i = 0; i < records_total; i++) {
-			auto record = std::make_shared< AVLRecord >(codec);
-			if (record->read(reader) != RES_OK)
+		for (int i = 0; i < records_total; i++) {
+			AVLRecord record(codec);
+			if (record.read(reader) != RES_OK)
 				break;
-			iAVLRecords.add(record);
+			iAVLRecords.add(std::move(record));
 		}
 
 		if (static_cast< size_t >(records_total) != iAVLRecords.size()) {
-			LG_WRN(this->logger(), "AVL records[{}] size not equal to read value[{}]", iAVLRecords.size(), records_total);
+			LG_WRN(this->logger(), "Could not read some AVL. Read[{}] expected[{}]", iAVLRecords.size(), records_total);
 			return RES_NOENT;
 		}
 
-		LG_DBG(this->logger(), "Packet Payload parse. Codec: int {} char {} offset {} size{}", (int)codec, std::to_string(codec), offset, size);
-
 		iRecordsSize = records_total;
 		iCodec = codec;
-		iReader = std::move(reader);
 		return RES_OK;
 	}
 
@@ -103,24 +100,27 @@ const size_t PacketPayload::size()
 	return iRecordsSize;
 }
 
-std::shared_ptr< Reader > PacketPayload::reader()
-{
-	return iReader;
-}
-
 AVLRecords &PacketPayload::records()
 {
 	return iAVLRecords;
 }
 
-result_t PacketPayload::toJsonImpl(Json::Value &rhs, bool root) const
+Json::Value PacketPayload::toJsonValue()
 {
 	Json::Value val;
-	if (result_t res; (res = iAVLRecords.toJson(rhs, root)) != RES_OK) {
-		return res;
-	}
+	toJsonImpl(val, true);
 
-	return RES_OK;
+	return val;
+}
+
+result_t PacketPayload::toJsonImpl(Json::Value &rhs, bool root) const
+{
+	return iAVLRecords.toJson(rhs, root);
+}
+
+result_t PacketPayload::fromJsonImpl(const Json::Value &rhs, bool root)
+{
+	return iAVLRecords.fromJson(rhs, root);
 }
 
 } // namespace tc::parser

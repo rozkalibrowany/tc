@@ -27,7 +27,9 @@ public:
 	};
 
   Request();
-  Request(const CppServer::HTTP::HTTPRequest& request);
+  Request(Method method, Type type);
+	Request(std::string_view method, std::string_view type);
+	Request(const CppServer::HTTP::HTTPRequest &request);
 
 	Method method() const;
 	Type type() const;

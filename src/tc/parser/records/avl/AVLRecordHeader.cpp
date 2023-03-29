@@ -10,12 +10,6 @@ AVLRecordHeader::AVLRecordHeader(int64_t timestamp, int priority)
   // nothing to do
 }
 
-AVLRecordHeader::AVLRecordHeader()
- : AVLRecordHeader(0LL, 0)
-{
-  // nothing to do
-}
-
 AVLRecordHeader& AVLRecordHeader::operator=(const AVLRecordHeader &rhs)
 {
   iTimestamp = rhs.iTimestamp;
@@ -23,47 +17,54 @@ AVLRecordHeader& AVLRecordHeader::operator=(const AVLRecordHeader &rhs)
   return *this;
 }
 
-void AVLRecordHeader::clear()
-{
-	iTimestamp = 0LL;
-	iPriority = 0;
-}
-
 bool AVLRecordHeader::empty() const
 {
-	return (iTimestamp == 0LL && iPriority == 0);
+	return (!iTimestamp.has_value() && !iPriority.has_value());
 }
 
-result_t AVLRecordHeader::parse(const std::shared_ptr< Reader > &reader)
+result_t AVLRecordHeader::parse(Reader &reader)
 {
-  if (reader == nullptr) {
-    return RES_INVARG;
-  }
+	auto timestamp = reader.readL(8);
+	if (timestamp != 0)
+		iTimestamp = timestamp;
 
-  iTimestamp = reader->readL(8);
-  iPriority = reader->read(1);
-
-  return RES_OK;
-}
-
-result_t AVLRecordHeader::parse(const std::shared_ptr< Reader > &reader, int codec)
-{
-  return RES_NOIMPL;
-}
-
-std::string AVLRecordHeader::toString()
-{
-  return !empty() ? fmt::format("************ Header Record ************\
-  	\n\tTimestamp: {}\n\tPriority: {}\n\t", iTimestamp, iPriority) : fmt::format("************ Header Record EMPTY ************\n");
-}
-
-result_t AVLRecordHeader::toJsonImpl(Json::Value &rhs, bool root) const
-{
-	rhs["Timestamp"] = iTimestamp;
-	rhs["Priority"] = iPriority;
+	auto priority = reader.read(1);
+	iPriority = priority;
 
 	return RES_OK;
 }
 
+result_t AVLRecordHeader::parse(Reader &reader, int codec)
+{
+  return RES_NOIMPL;
+}
+
+result_t AVLRecordHeader::toJsonImpl(Json::Value &rhs, bool root) const
+{
+	Json::Value header;
+	if (iTimestamp.has_value())
+		header["Timestamp"] = iTimestamp.value();
+	
+	if (iPriority.has_value())
+		header["Priority"] = iPriority.value();
+
+	rhs["Header"] = header;
+
+	return RES_OK;
+}
+
+result_t AVLRecordHeader::fromJsonImpl(const Json::Value &rhs, bool root)
+{
+	const auto& header = rhs["Header"];
+	if (header.size() == 0) {
+		LG_WRN(this->logger(), "Header record object empty");
+		return RES_INVARG;
+	}
+	
+	iTimestamp = header["Timestamp"].asInt64();
+	iPriority = header["Priority"].asInt();
+
+	return RES_OK;
+}
 
 } // namespace tc::parser::records::avl

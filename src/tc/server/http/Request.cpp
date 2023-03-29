@@ -5,14 +5,27 @@
 namespace tc::server::http {
 
 Request::Request()
- : Request(CppServer::HTTP::HTTPRequest("GET", "/devices", "HTTP/1.1"))
+ : Request(eGet, eDevices)
 {
  // nothing to do
 }
 
-Request::Request(const CppServer::HTTP::HTTPRequest& request)
+Request::Request(Method method, Type type)
+ : Request(method2str(method), type2str(type))
+{
+ // nothing to do
+}
+
+Request::Request(std::string_view method, std::string_view type)
   : tc::LogI("console")
-	, iRequest(std::move(request))
+	, iRequest(CppServer::HTTP::HTTPRequest(method, type))
+{
+  // nothing to do
+}
+
+Request::Request(const CppServer::HTTP::HTTPRequest &request)
+	: tc::LogI("console")
+	, iRequest(request)
 {
   // nothing to do
 }
@@ -64,11 +77,11 @@ const std::string Request::type2str(Type type)
 {
   switch (type) {
     case eDevice:
-    return "device";
+    return "/device";
     case eDevices:
-    return "devices";
+    return "/devices";
 		case ePackets:
-    return "packets";
+    return "/packets";
     default:
     return "unknown";
   }

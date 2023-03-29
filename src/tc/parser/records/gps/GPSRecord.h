@@ -2,47 +2,35 @@
 #define D426066F_F3EE_412F_864E_4D6726173ECE
 
 #include <tc/parser/records/RecordI.h>
-
+#include <tc/common/SysMutex.h>
+#include <mutex>
 namespace tc::parser::records::gps {
 
 class GPSRecord : public RecordI {
 public:
-
-	struct Data {
-		Data &operator=(const Data &rhs) = default;
-
-		bool empty() const {
-			return !iLongitude && !iLatitude && !iAltitude && !iAngle && !iSatellites;
-		}
-
-		uint32_t iLongitude {0U};
-		uint32_t iLatitude {0U};
-		int iAltitude {0};
-		int iAngle {0};
-		int iSatellites {0};
-		int iSpeed {0};
-	};
-
-	GPSRecord(const Data &data);
 	GPSRecord();
+	GPSRecord(const GPSRecord& rhs) = default;
+	GPSRecord(GPSRecord&& rhs) = default;
 
-	GPSRecord &operator=(const GPSRecord &rhs) = default;
+	~GPSRecord() = default;
 
-	void clear() override;
+	GPSRecord &operator=(const GPSRecord &rhs);
+
+	result_t parse(Reader &reader) override;
+	result_t parse(Reader &reader, int codec) override;
+
 	bool empty() const override;
-	Data &data();
-	const Data &cdata() const;
-
-  result_t parse(const std::shared_ptr< Reader > &reader) override;
-	result_t parse(const std::shared_ptr< Reader > &reader, int codec) override;
-
-	std::string toString() override;
 
 protected:
 	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
-
-private:
-	Data iData;
+	result_t fromJsonImpl(const Json::Value &rhs, bool root) override;
+	
+	std::optional<int> iLongitude;
+	std::optional<int> iLatitude;
+	std::optional<int> iAltitude;
+	std::optional<int> iAngle;
+	std::optional<int> iSatellites;
+	std::optional<int> iSpeed;
 };
 
 } // namespace tc::parser::records::avl

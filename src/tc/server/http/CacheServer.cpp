@@ -36,7 +36,7 @@ result_t HTTPCacheServer::syncDevices()
 		return RES_NOENT;
 	}
 
-	auto &devices = iCache->devices();
+	auto &vehicles = iCache->vehicles();
 	for(auto doc : *cursor) {
 		Json::Value root;
 		auto json_doc = bsoncxx::to_json(doc);
@@ -44,11 +44,11 @@ result_t HTTPCacheServer::syncDevices()
 			continue;
 		}
 
-		auto vehicle = std::make_shared<iot::Vehicle>(std::string{"unknown"}, 1000, Vehicle::eDatabase);
+		auto vehicle = std::make_shared<iot::Vehicle>(std::string{"unknown"}, 100, Vehicle::eDatabase);
 		if (vehicle->fromJson(root) != RES_OK) {
 			return RES_ERROR;
 		}
-		if (devices.add(std::move(vehicle)) != RES_OK) {
+		if (vehicles.add(std::move(vehicle)) != RES_OK) {
 			LG_WRN(this->logger(), "Unable to add vehicle.");
 			return RES_ERROR;
 		}
@@ -68,9 +68,9 @@ result_t HTTPCacheServer::onModified(const Imei &imei)
 		return RES_NOENT;
 	}
 
-	auto &devices = iCache->devices();
-	auto it = devices.find(imei);
-	if(it == devices.end()) {
+	auto &vehicles = iCache->vehicles();
+	auto it = vehicles.find(imei);
+	if(it == vehicles.end()) {
 		return RES_NOENT;
 	}
 

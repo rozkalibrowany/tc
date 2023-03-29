@@ -8,6 +8,7 @@
 #include <tc/server/http/CacheServer.h>
 #include <tc/server/http/Request.h>
 #include <tc/server/http/LSync.h>
+#include <tc/server/http/Updater.h>
 #include <tc/db/Client.h>
 #include <mini/ini.h>
 #include <filesystem>
@@ -18,16 +19,18 @@ using namespace mINI;
 using namespace tc;
 
 namespace defaults {
-	constexpr int c_default_threads 			= 2;
-	constexpr int c_default_pool_interval = 10000;
-	constexpr int c_default_sync_interval = 30000;
+	constexpr int c_default_threads 								= 2;
+	constexpr int c_default_db_sync_interval 				= 30000;
+	constexpr int c_default_pool_interval 					= 2000;
+	constexpr int c_default_devices_update_interval	= 6000;
+	constexpr int c_default_packets_update_interval	= 5000;
 };
 
 void sleep_for(uint64_t time) {
 	std::this_thread::sleep_for(chrono::milliseconds(time));
 }
 
-result_t readServerConfig(INIStructure &ini, LogI &log, int &port, int &threads)
+result_t readServerConfig(INIStructure &ini, LogI &log, int &port, int &threads, int &pool_interval)
 {
 	if (!ini["server"].has("port")) {
 		LG_ERR(log.logger(), "Missing HTTP port number.");
@@ -41,10 +44,12 @@ result_t readServerConfig(INIStructure &ini, LogI &log, int &port, int &threads)
 	}
 
 	threads = ini["server"].has("threads") ? std::stoi(ini["server"]["threads"]) : defaults::c_default_threads;
+	pool_interval = ini["server"].has("pool_interval") ? std::stoi(ini["server"]["pool_interval"]) : defaults::c_default_pool_interval;
+
 	return RES_OK;
 }
 
-result_t readTelematicsConfig(INIStructure &ini, LogI &log, std::string &addr, int &port, int &pool_interval)
+result_t readTelematicsConfig(INIStructure &ini, LogI &log, std::string &addr, int &port, int &devices_update_interval, int &packets_update_interval)
 {
 	if (!ini["telematics"].has("port")) {
 		LG_ERR(log.logger(), "Missing HTTP port number.");
@@ -68,7 +73,9 @@ result_t readTelematicsConfig(INIStructure &ini, LogI &log, std::string &addr, i
 		return RES_NOENT;
 	}
 
-	pool_interval = ini["telematics"].has("pool_interval") ? std::stoi(ini["telematics"]["pool_interval"]) : defaults::c_default_pool_interval;
+	devices_update_interval = ini["telematics"].has("devices_update_interval") ? std::stoi(ini["telematics"]["devices_update_interval"]) : defaults::c_default_devices_update_interval;
+	packets_update_interval = ini["telematics"].has("packets_update_interval") ? std::stoi(ini["telematics"]["packets_update_interval"]) : defaults::c_default_packets_update_interval;
+
 	return RES_OK;
 }
 
@@ -80,12 +87,14 @@ result_t readDatabaseConfig(INIStructure &ini, LogI &log, std::string &uri, int 
 		uri = ini["db"]["uri"];
 	}
 
-	sync_interval = ini["db"].has("sync_interval") ? std::stoi(ini["db"]["sync_interval"]) : defaults::c_default_sync_interval;
+	sync_interval = ini["db"].has("sync_interval") ? std::stoi(ini["db"]["sync_interval"]) : defaults::c_default_db_sync_interval;
 	return RES_OK;
 }
 
 int main(int argc, char** argv)
 {
+	using namespace tc::server::http;
+
 	auto logger = spdlog::stdout_color_mt("console");
 
 	LogI log(logger);
@@ -104,14 +113,14 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	int http_port, threads;
-	if (readServerConfig(ini, log, http_port, threads) != RES_OK) {
+	int http_port, threads, pool_interval;
+	if (readServerConfig(ini, log, http_port, threads, pool_interval) != RES_OK) {
 		return 1;
 	}
 
 	std::string addr;
-	int tcp_port, pool_interval;
-	if (readTelematicsConfig(ini, log, addr, tcp_port, pool_interval) != RES_OK) {
+	int tcp_port, devices_update_interval, packets_update_interval;
+	if (readTelematicsConfig(ini, log, addr, tcp_port, devices_update_interval, packets_update_interval) != RES_OK) {
 		return 1;
 	}
 
@@ -138,7 +147,7 @@ int main(int argc, char** argv)
 	Signal<Imei> signal_modified;
 
 	// Create Cache for data
-	auto cache_handler = std::make_shared<server::http::CacheHandler>(signal_cmd, signal_modified);
+	auto cache_handler = std::make_shared<CacheHandler>(signal_cmd, signal_modified);
 
 	// Create a new Asio service
 	auto service = std::make_shared<tc::asio::AsioService>(threads);
@@ -161,7 +170,7 @@ int main(int argc, char** argv)
   });
 
 	// Create a new HTTPS server
-	auto server = std::make_shared<server::http::HTTPCacheServer>(service, db_client, cache_handler, http_port);
+	auto server = std::make_shared<HTTPCacheServer>(service, db_client, cache_handler, http_port);
 	if (!server->Start()) {
 		LG_ERR(log.logger(), "Unable to start HTTP server.");
 		return 1;
@@ -175,40 +184,39 @@ int main(int argc, char** argv)
 	// sync devices from DB
 	server->syncDevices();
 
+	while (true) {
+		if (client->IsConnected()) {
+			break;
+		}
+		LG_NFO(log.logger(), "Retrying connection to telematics server...");
+		client->ConnectAsync();
+		sleep_for(pool_interval);
+	}
+
 	// Sync devices into DB
 	server::http::LSync sync;
-	std::thread thread(&server::http::LSync::execute, &sync, cache_handler, db_client, sync_interval);
-	thread.detach();
+	std::thread lsync_thread(&LSync::execute, &sync, cache_handler, db_client, sync_interval);
+	lsync_thread.detach();
+
+	// Sync packets from telematics server
+	server::http::Updater packets_updater(Request::eGet, Request::ePackets);
+	std::thread packets_updater_thread(&Updater::execute, &packets_updater, client, packets_update_interval);
+	packets_updater_thread.detach();
+
+	// Sync devices from telematics server
+	server::http::Updater device_updater(Request::eGet, Request::eDevices);
+	std::thread devices_updater_thread(&Updater::execute, &device_updater, client, devices_update_interval);
+	devices_updater_thread.detach();
 
 	while (true) {
-		if (client->IsConnected() == false) {
-			LG_NFO(log.logger(), "Retrying connection to telematics server...");
-			client->ConnectAsync();
-			sleep_for(pool_interval);
-			continue;
-		}
+		LG_NFO(log.logger(), "HTTP server, connected sessions[{}] bytes sent[{}] bytes received[{}]", server->connected_sessions(), server->bytes_sent(), server->bytes_received());
 
-		CppServer::HTTP::HTTPRequest req("GET", "/devices", "HTTP/1.1");
-		server::http::Request request(req);
-		parser::Buf buf;
-		if (request.toInternal(buf) != RES_OK) {
-			LG_ERR(log.logger(), "Unable to convert to internal request");
-			continue;
-		}
-
-		if (client->send(buf) != RES_OK)	{
-			LG_ERR(log.logger(), "Unable to send buffer");
-			client->DisconnectAsync();
-		}
-
-		std::string devices;
-		cache_handler->getDevices(devices);
-		// LG_NFO(log.logger(), "Size: {} Cached: {}", cache_handler->devices().size(), devices);
 		sleep_for(pool_interval);
 	}
 
 	// Join thread
-	thread.join();
+	lsync_thread.join();
+	packets_updater_thread.join();
 
 	// Stop the server
 	LG_NFO(log.logger(), "Server stopping...");
@@ -220,6 +228,5 @@ int main(int argc, char** argv)
 
 	return 0;
 }
-
 
 #endif /* D8AB2E39_84B7_48C6_9D5F_3015EF5742CF */

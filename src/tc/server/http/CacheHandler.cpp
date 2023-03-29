@@ -13,7 +13,7 @@ CacheHandler::CacheHandler(Signal<Imei, std::string> &signal, Signal<Imei> &sign
 
 bool CacheHandler::hasImei(const Imei imei) const
 {
-	return iDevices.has(imei);
+	return iVehicles.has(imei);
 }
 
 /**
@@ -34,16 +34,16 @@ result_t CacheHandler::handleAction(const Action &action, CppServer::HTTP::HTTPR
 			}
 			return getDevices(response);
 		}
-		case Request::eDevice:
+		case Request::eDevice: {
 			if (action.get()->method() == Request::eGet) {
-				return getDevice(action.get()->id(), response);
+				return getDevice(action.get(), response);
 			}
 			if (!action.get()->key().compare("set")) {
 				return set(action.get(), response);
 			} else {
 				return addCommand(action.get()->id(), action.get()->command(), response);
 			}
-
+		}
 		case Request::ePackets:
 		default:
 			LG_NFO(this->logger(), "ePackets");
@@ -53,9 +53,9 @@ result_t CacheHandler::handleAction(const Action &action, CppServer::HTTP::HTTPR
 		return RES_NOENT;
 }
 
-iot::Devices<iot::Vehicle> &CacheHandler::devices()
+iot::Devices<iot::Vehicle> &CacheHandler::vehicles()
 {
-	return iDevices;
+	return iVehicles;
 }
 
 /**
@@ -64,13 +64,33 @@ iot::Devices<iot::Vehicle> &CacheHandler::devices()
  * @param response The response object that will be sent back to the client.
  * @return A device object.
  */
-result_t CacheHandler::getDevice(const Imei &imei, CppServer::HTTP::HTTPResponse &response)
+result_t CacheHandler::getDevice(std::shared_ptr< Request > request, CppServer::HTTP::HTTPResponse &response)
 {
-	if ((iDevices.devices().find(imei) == iDevices.devices().end())) {
-		response.MakeErrorResponse(400, "Bad request");
+		std::string id;
+		if (request->id().length() < IMEI_LENGTH) {
+			for (const auto& vehicle : iVehicles) {
+				if (vehicle.second->id() == request->id())
+					id = vehicle.second->imei();
+			}
+		}
+
+		if (id.empty())
+			id = request->id();
+
+	if ((iVehicles.devices().find(id) == iVehicles.devices().end())) {
+		response.MakeErrorResponse(400, fmt::format("Device {} not found", id));
 		return RES_NOENT;
 	}
-	response.MakeGetResponse(iDevices.devices().at(imei)->toJson().toStyledString(), "application/json; charset=UTF-8");
+	if (!request->key().compare("packets")) {
+		const auto& vehicle = iVehicles.devices().at(id);
+		if (vehicle->packets().empty()) {
+			response.MakeErrorResponse(400, fmt::format("Packet data empty for {}", id));
+			return RES_NOENT;
+		}
+		return getPacket(vehicle, response);
+	} else {
+		response.MakeGetResponse(iVehicles.devices().at(id)->toJson().toStyledString(), "application/json; charset=UTF-8");
+	}
 	return RES_OK;
 }
 
@@ -82,17 +102,60 @@ result_t CacheHandler::getDevice(const Imei &imei, CppServer::HTTP::HTTPResponse
 result_t CacheHandler::getDevices(CppServer::HTTP::HTTPResponse &response, bool active_only)
 {
 
-	if (iDevices.devices().empty()) {
+	if (iVehicles.devices().empty()) {
 		response.MakeErrorResponse(500, "Internal Server Error");
 		return RES_NOENT;
 	}
-	response.MakeGetResponse(iDevices.toJson(active_only).toStyledString(), "application/json; charset=UTF-8");
+	response.MakeGetResponse(iVehicles.toJson(active_only).toStyledString(), "application/json; charset=UTF-8");
 	return RES_OK;
 }
 
 result_t CacheHandler::getDevices(std::string &devices, bool active_only)
 {
-	devices = iDevices.toJson(active_only).toStyledString();
+	devices = iVehicles.toJson(active_only).toStyledString();
+	return RES_OK;
+}
+
+result_t CacheHandler::getPacket(const std::shared_ptr< iot::Vehicle > vehicle, CppServer::HTTP::HTTPResponse &response)
+{
+	auto payload_packet = vehicle->packets().back();
+
+	Json::Value packet;
+	try {
+		auto json = payload_packet->toJsonValue();
+		for (const auto& records : json["Records"]) {
+			const auto &rec = records["Record"][0];
+			if (rec.isMember("Header")) {
+				packet["Priority"] = rec["Header"]["Priority"];
+				packet["Timestamp"] = rec["Header"]["Timestamp"];
+			}
+			if (rec.isMember("GPS")) {
+				packet["Longitude"] = rec["GPS"]["Longitude"];
+				packet["Latitude"] = rec["GPS"]["Latitude"];
+				packet["Altitude"] = rec["GPS"]["Altitude"];
+				packet["Angle"] = rec["GPS"]["Angle"];
+				packet["Satellites"] = rec["GPS"]["Satellites"];
+				packet["Speed"] = rec["GPS"]["Speed"];
+			}
+			if (rec.isMember("IoRecords")) {
+				for (const auto& io : rec["IoRecords"]) {
+					if (io["ID"].asInt() == 113) 
+						packet["Battery"] = io["value"].asInt();
+					else if (io["ID"].asInt() == 16)
+						 packet["Odometer"] = io["value"].asInt();
+				}
+			}
+		}
+	} catch (...) {
+		response.MakeErrorResponse(500, "Internal Server Error");
+		LG_NFO(this->logger(), "Unable to serialize packet JSON for vehicle[{}]", vehicle->imei());
+		return RES_NOENT;
+	}
+
+	packet["Imei"] = vehicle->imei();
+	packet["ID"] = vehicle->id();
+
+	response.MakeGetResponse(packet.toStyledString(), "application/json; charset=UTF-8");
 	return RES_OK;
 }
 
@@ -110,9 +173,7 @@ void CacheHandler::onReceived(const void *buffer, size_t size)
 	}
 
 	auto str = std::string((const char*) buffer, size);
-	auto fromHex = tc::hex2string(str);
-
-	if (decodeJson(fromHex) != RES_OK) {
+	if (decodeJson(tc::hex2string(str)) != RES_OK) {
 		LG_ERR(this->logger(), "Unable to decode string");
 		return;
 	}
@@ -127,21 +188,27 @@ result_t CacheHandler::decodeJson(const std::string &data)
 {
 	Json::Value root;
 	Json::Reader reader;
+
 	bool parsing_ok = reader.parse(data, root, false);
 	if (!parsing_ok) {
 		LG_ERR(this->logger(), "Unable to parse json");
 		return RES_INVARG;
 	}
 
-	return iDevices.fromJson(root, true);
+	if (root.isMember("devices"))
+		return iVehicles.fromJson(root, true);
+	else if (root.isMember("packets"))
+		return iVehicles.fromJsonPacket(root);
+
+	return RES_NOENT;
 }
 
 result_t CacheHandler::addCommand(const Imei imei, const std::string cmd, CppServer::HTTP::HTTPResponse &response)
 {
 	if (imei.length() < IMEI_LENGTH) {
-		for (const auto& device : iDevices) {
-			if (device.second->id() == imei) {
-				iSignal.emit(device.second->imei(), cmd);
+		for (const auto& vehicle : iVehicles) {
+			if (vehicle.second->id() == imei) {
+				iSignal.emit(vehicle.second->imei(), cmd);
 				response.MakeOKResponse();
 				return RES_OK;
 			}
@@ -166,9 +233,9 @@ result_t CacheHandler::addCommand(const Imei imei, const std::string cmd, CppSer
  */
 result_t CacheHandler::set(std::shared_ptr< Request > request, CppServer::HTTP::HTTPResponse &response)
 {
-	auto &devices = iDevices.devices();
-	auto it = devices.find(request->id());
-	if (it != devices.end()) {
+	auto &vehicles = iVehicles.devices();
+	auto it = vehicles.find(request->id());
+	if (it != vehicles.end()) {
 		std::string key, val;
 		if (request->query(key, val) == RES_OK) {
 			if (!key.compare("id"))

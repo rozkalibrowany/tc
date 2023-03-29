@@ -44,8 +44,11 @@ public:
 	virtual ~Packet() = default;
 
 	static result_t parseImei(const uchar *cbuf, size_t size, Imei &imei);
-	static const std::string toImei(const uchar *cbuf, int len);
 	static Type str2req(const std::string &req);
+	static const char* type2string(Type type);
+	static const char* method2string(Method method);
+	static const std::string toImei(const uchar *cbuf, int len);
+
 
 	static bool hasImei(const uchar *cbuf, size_t size);
 

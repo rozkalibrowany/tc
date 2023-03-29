@@ -21,15 +21,15 @@ public:
 
 	bool hasImei(const Imei imei) const;
 
-	result_t getDevice(const Imei &imei, CppServer::HTTP::HTTPResponse &response);
+	result_t getDevice(std::shared_ptr< Request > request, CppServer::HTTP::HTTPResponse &response);
 	result_t getDevices(CppServer::HTTP::HTTPResponse &response, bool active_only = true);
 	result_t getDevices(std::string &devices, bool active_only = true);
+	result_t getPacket(const std::shared_ptr< iot::Vehicle > vehicle, CppServer::HTTP::HTTPResponse &response);
 
 	result_t handleAction(const Action &action, CppServer::HTTP::HTTPResponse &response);
-	// result_t updateDeviceInfo(const Imei &imei, const bsoncxx::document::view &view);
 	void onReceived(const void *buffer, size_t size);
 
-	iot::Devices<iot::Vehicle> &devices();
+	iot::Devices<iot::Vehicle> &vehicles();
 
 private:
 	result_t addCommand(const Imei imei, const string cmd, CppServer::HTTP::HTTPResponse &response);
@@ -39,7 +39,7 @@ private:
 	Signal<Imei, std::string> &iSignal;
 	Signal<Imei> &iSignalModified;
 
-	iot::Devices<iot::Vehicle> iDevices;
+	iot::Devices<iot::Vehicle> iVehicles;
 	std::mutex _cache_lock;
 };
 

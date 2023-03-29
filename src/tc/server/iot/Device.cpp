@@ -3,7 +3,7 @@
 namespace tc::server::iot {
 
 Device::Device(const Imei &imei)
- : Device (imei, 1000)
+ : Device (imei, 100)
 {
 		// nothing to do
 }

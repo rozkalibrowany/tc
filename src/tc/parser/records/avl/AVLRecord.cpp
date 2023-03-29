@@ -9,11 +9,17 @@ AVLRecord::AVLRecord(int codec)
   // nothing to do
 }
 
-result_t AVLRecord::read(const std::shared_ptr< Reader > &reader)
+AVLRecord::AVLRecord(AVLRecord&& rhs)
+ : tc::LogI("console")
+ , iRecordHeader(std::move(rhs.iRecordHeader))
+ , iGPSRecord(std::move(rhs.iGPSRecord))
+ , iRecordIo(std::move(rhs.iRecordIo))
 {
-	if (reader == nullptr) {
-    return RES_NOENT;
-  }
+  // nothing to do
+}
+
+result_t AVLRecord::read(Reader &reader)
+{
   result_t res = RES_OK;
   if((res = iRecordHeader.parse(reader)) != RES_OK) {
 		return res;
@@ -25,11 +31,6 @@ result_t AVLRecord::read(const std::shared_ptr< Reader > &reader)
 		return res;
 	}
 
-	/*LG_NFO(this->logger(), "\nSTRING: {}{}{}", iRecordHeader.toString(), iGPSRecord.toString(), iRecordIo.toString());
-  Json::Value val;
-  toJsonImpl(val, true);
-  LG_NFO(this->logger(), "\n JSON: {}", val.toStyledString()); */
-
   return res;
 }
 
@@ -39,44 +40,137 @@ result_t AVLRecord::set(const int codec)
   return RES_OK;
 }
 
+Json::Value AVLRecord::toJsonValue()
+{
+	Json::Value val;
+	toJsonImpl(val, true);
+
+	return val;
+}
+
 result_t AVLRecord::toJsonImpl(Json::Value &rhs, bool root) const
 {
 	auto &arr = rhs["Record"] = Json::arrayValue;
 
-  Json::Value val;
-	iRecordHeader.toJson(val, root);
-	arr.append(val);
-  iGPSRecord.toJson(val, root);
-  arr.append(val);
-	iRecordIo.toJson(val, root);
-  arr.append(val);
+	if (!iRecordHeader.empty()) {
+ 		Json::Value val;
+		iRecordHeader.toJson(val, root);
+		arr.append(val);
+	}
+
+	if (!iGPSRecord.empty()) {
+		Json::Value val;
+		iGPSRecord.toJson(val, root);
+		arr.append(val);
+	}
+  
+	if (!iRecordIo.empty()) {
+		Json::Value val;
+		iRecordIo.toJson(val, root);
+		arr.append(val);
+	}
 
 	return RES_OK;
 }
 
+result_t AVLRecord::fromJsonImpl(const Json::Value &rhs, bool root)
+{
+	if (rhs.size() == 0) {
+		return RES_INVARG;
+	}
+
+	bool res = false;
+	if (rhs.isMember("Header")) {
+		res |= iRecordHeader.fromJson(rhs) == RES_OK ? true : false;
+	}
+
+	if (rhs.isMember("GPS")) {
+		res |= iGPSRecord.fromJson(rhs) == RES_OK ? true : false;
+	}
+		
+	if (rhs.isMember("IoRecords")) {
+		res |= iRecordIo.fromJson(rhs) == RES_OK ? true : false;
+	}
+
+	return res ? RES_OK : RES_NOENT;
+}
 
 size_t AVLRecords::size() const
 {
-  return iData.size();
+  return iRecords.size();
 }
 
 bool AVLRecords::empty() const
 {
-  return iData.empty();
+  return iRecords.empty();
 }
 
 void AVLRecords::clear()
 {
-  iData.clear();
+  iRecords.clear();
+}
+
+AVLRecord &AVLRecords::first()
+{
+  return iRecords.front();
+}
+
+AVLRecord &AVLRecords::last()
+{
+	return iRecords.back();
+}
+
+const AVLRecord &AVLRecords::first() const
+{
+	return iRecords.front();
+}
+
+const AVLRecord &AVLRecords::last() const
+{
+  return iRecords.back();
+}
+
+std::vector< AVLRecord >::const_iterator AVLRecords::begin() const
+{
+  return iRecords.begin();
+}
+
+std::vector< AVLRecord >::const_iterator AVLRecords::end() const
+{
+  return iRecords.end();
+}
+
+std::vector< AVLRecord >::iterator AVLRecords::begin()
+{
+  return iRecords.begin();
+}
+
+std::vector< AVLRecord >::iterator AVLRecords::end()
+{
+  return iRecords.end();
+}
+
+void AVLRecords::add(AVLRecord &&rhs)
+{
+  iRecords.emplace_back(std::move(rhs));
+}
+
+std::vector< AVLRecord > &AVLRecords::data()
+{
+  return iRecords;
+}
+
+const std::vector< AVLRecord > &AVLRecords::cdata() const
+{
+  return iRecords;
 }
 
 result_t AVLRecords::toJsonImpl(Json::Value &rhs, bool root) const
 {
 	auto &arr = rhs["Records"] = Json::arrayValue;
-
 	Json::Value val;
-  for (auto rec : iData) {
-		if (rec->toJson(val, root) != RES_OK)
+  for (const auto& rec : iRecords) {
+		if (rec.toJson(val, root) != RES_OK)
 			continue;
 		arr.append(val);
 	}
@@ -84,66 +178,22 @@ result_t AVLRecords::toJsonImpl(Json::Value &rhs, bool root) const
 	return RES_OK;
 }
 
-AVLRecordSPtr &AVLRecords::first()
+result_t AVLRecords::fromJsonImpl(const Json::Value &rhs, bool root)
 {
-  return size() > 0 ? iData.front() : cInvalidEl;
+	if (rhs.size() == 0) {
+		return RES_INVARG;
+	}
+	for (auto const& rec : rhs) {
+		AVLRecord record;
+		if (record.fromJson(rec) != RES_OK) {
+			LG_ERR(this->logger(), "Error reading AVL records from json.");
+			continue;
+		}
+
+		add(std::move(record));
+	}
+
+	return RES_OK;
 }
-
-AVLRecordSPtr &AVLRecords::last()
-{
-  return size() > 0 ? iData.back() : cInvalidEl;
-}
-
-
-const AVLRecordSPtr &AVLRecords::first() const
-{
-  return size() > 0 ? iData.front() : cInvalidEl;
-}
-
-const AVLRecordSPtr &AVLRecords::last() const
-{
-  return size() > 0 ? iData.back() : cInvalidEl;
-}
-
-AVLRecordList::const_iterator AVLRecords::begin() const
-{
-  return iData.begin();
-}
-
-AVLRecordList::const_iterator AVLRecords::end() const
-{
-  return iData.end();
-}
-
-AVLRecordList::iterator AVLRecords::begin()
-{
-  return iData.begin();
-}
-
-AVLRecordList::iterator AVLRecords::end()
-{
-  return iData.end();
-}
-
-void AVLRecords::add(const AVLRecordSPtr &rhs)
-{
-  iData.push_back(rhs);
-}
-
-void AVLRecords::add(const AVLRecord &rhs)
-{
-  add(std::make_shared< AVLRecord >(rhs));
-}
-
-AVLRecordList &AVLRecords::data()
-{
-  return iData;
-}
-
-const AVLRecordList &AVLRecords::cdata() const
-{
-  return iData;
-}
-
 
 } // namespace tc::parser::AVLRecords::avl

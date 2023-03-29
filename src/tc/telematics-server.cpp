@@ -10,7 +10,7 @@ using namespace tc;
 using namespace mINI;
 
 namespace defaults {
-	constexpr int c_cache									 = 5000;
+	constexpr int c_cache									 = 100;
 	constexpr int c_default_clean_interval = 90000;
 	constexpr int c_packets_days_lifetime  = 3;
 };
@@ -39,7 +39,7 @@ result_t readTelematicsConfig(INIStructure &ini, LogI &log, std::string &addr, i
 		return RES_NOENT;
 	}
 
-	cache = ini["session"].has("cache") ? std::stoi(ini["session"]["cache"]) : defaults::c_cache;
+	cache = ini["server"].has("cache") ? std::stoi(ini["server"]["cache"]) : defaults::c_cache;
 
 	return RES_OK;
 }

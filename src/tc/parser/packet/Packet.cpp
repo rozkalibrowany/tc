@@ -14,12 +14,34 @@ Packet::Type Packet::str2req(const std::string &req)
 {
 	if (req.compare("devices") == 0) {
 		return Type::eDevices;
-	} else if (req.compare("data") == 0) {
-		return Type::eDevice;
+	} else if (req.compare("packets") == 0) {
+		return Type::ePackets;
 	} else {
 		return Type::eUnknown;
 	}
 }
+
+const char* Packet::type2string(Type type)
+{
+	switch (type) {
+		case ePackets: return "Packets";
+		case eDevice: return "Device";
+		case eDevices: return "Devices";
+		default: return "Unknown";
+	}
+}
+
+const char* Packet::method2string(Method method)
+{
+	switch (method) {
+		case eGet: return "GET";
+		case eHead: return "HEAD";
+		case ePost: return "POST";
+		case eDelete: return "DELETE";
+		default: return "None";
+	}
+}
+
 
 bool Packet::hasImei(const uchar *cbuf, size_t size)
 {

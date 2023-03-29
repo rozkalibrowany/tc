@@ -3,7 +3,7 @@
 namespace tc::server::iot {
 
 Vehicle::Vehicle(const Imei &imei)
- : Vehicle(imei, 1000)
+ : Vehicle(imei, 10)
 {
 	// nothing to do
 }

@@ -24,32 +24,22 @@ int IoRecord::getIdSize(int codec)
   }
 }
 
-void IoRecord::clear()
-{
-	iEventID = 0;
-	iElements = 0;
-	iRecordsMap.clear();
-}
-
 bool IoRecord::empty() const
 {
 	return iRecordsMap.empty();
 }
 
-result_t IoRecord::parse(const std::shared_ptr< Reader > &reader)
+result_t IoRecord::parse(Reader &reader)
 {
   return RES_NOIMPL;
 }
 
-result_t IoRecord::parse(const std::shared_ptr< Reader > &reader, int codec)
+result_t IoRecord::parse(Reader &reader, int codec)
 {
-  if (reader == nullptr) {
-    return RES_INVARG;
-  }
   auto ioIdSize = getIdSize(codec);
 
-  auto eventID = reader->readU(ioIdSize);
-  auto elements = reader->readU(ioIdSize);
+  auto eventID = reader.readU(ioIdSize);
+  auto elements = reader.readU(ioIdSize);
 
 	result_t res = RES_OK;
 
@@ -70,98 +60,52 @@ result_t IoRecord::parse(const std::shared_ptr< Reader > &reader, int codec)
 	return res;
 }
 
-result_t IoRecord::parseFixedSize(const std::shared_ptr< Reader > &reader, int ioIdSize, int byteSize)
+result_t IoRecord::parseFixedSize(Reader &reader, int ioIdSize, int byteSize)
 {
 	//LockGuard g(iMutex);
-	auto recordsCount = reader->readU(ioIdSize);
+	auto recordsCount = reader.readU(ioIdSize);
 	for (uint i = 0; i < recordsCount; i++) {
-		auto id = reader->readU(ioIdSize);
-		auto value = reader->read(byteSize);
+		auto id = reader.readU(ioIdSize);
+		auto value = reader.read(byteSize);
 		iRecordsMap.insert(std::make_pair(byteSize, IoRecordsPropertyList()));
 		iRecordsMap.at(byteSize).push_back(std::make_shared<IoRecordProperty>(id, value));
 	}
 	return RES_OK;
 }
 
-result_t IoRecord::parseVariableSize(const std::shared_ptr< Reader > &reader, int ioIdSize)
+result_t IoRecord::parseVariableSize(Reader &reader, int ioIdSize)
 {
-	//LockGuard g(iMutex);
-	auto recordsCount = reader->readU(ioIdSize);
+	auto recordsCount = reader.readU(ioIdSize);
 
 	for (unsigned int i = 0; i < recordsCount; i++) {
-		auto id = reader->readU(ioIdSize);
-		auto length = reader->readU(2);
+		auto id = reader.readU(ioIdSize);
+		auto length = reader.readU(2);
 
-		if (reader->offset() >= static_cast<int>(reader->buf()->size()) || (reader->offset() + length) >= static_cast<uint>(reader->buf()->size())) {
-			LG_ERR(this->logger(), "Unable to create copy buffer. Offset[{}], length[{}]", reader->offset(), length);
+		if (reader.offset() >= static_cast<int>(reader.buf()->size()) || (reader.offset() + length) >= static_cast<uint>(reader.buf()->size())) {
+			LG_ERR(this->logger(), "Unable to create copy buffer. Offset[{}], length[{}]", reader.offset(), length);
 			return RES_NOENT;
 		}
 
-		///LG_NFO(this->logger(), "Io Record parseVariableSize iOffset {} length {} buf size {}", reader->offset(), length, reader->buf()->size());
-
-		auto beg = reader->buf()->begin() + reader->offset();
-		auto end = reader->buf()->begin() + reader->offset() + length;
+		auto beg = reader.buf()->begin() + reader.offset();
+		auto end = reader.buf()->begin() + reader.offset() + length;
 		iRecordsMap.insert(std::make_pair(BYTE_X, IoRecordsPropertyList()));
 
 		if (id == 10358) {
 			auto property = std::make_shared< IoRecordProperty >(id);
 			auto buf = std::make_unique<Buf>(beg, end);
-			auto readerMcan = std::make_shared<Reader>(std::move(buf));
+			Reader readerMcan(std::move(buf));
 			if (property->parse(readerMcan) != RES_OK) {
-				LG_ERR(this->logger(), "Unable to parse Mcan. Offset[{}], length[{}] buf size {}", readerMcan->offset(), length, readerMcan->buf()->size());
+				LG_ERR(this->logger(), "Unable to parse Mcan. Offset[{}], length[{}] buf size {}", readerMcan.offset(), length, readerMcan.buf()->size());
 				return RES_NOENT;
 			}
 			iRecordsMap.at(BYTE_X).push_back(std::make_shared<IoRecordProperty>());
 		} else {
 			iRecordsMap.at(BYTE_X).push_back(std::make_shared< IoRecordProperty >(id, std::distance(beg, end)));
-			reader->skip(std::distance(beg, end));
+			reader.skip(std::distance(beg, end));
 		}
 	}
 
 	return RES_OK;
-}
-
-std::string IoRecord::toString()
-{
-	if (empty()) {
-		return std::string();
-	}
-
-	auto s = fmt::format("*************** Io Record ***************\
-  \n\tEvent ID: {}\n", iEventID);
-
-  if (iRecordsMap[ByteSize::BYTE_1].size() > 0) {
-    s += std::string("\tByte 1");
-    for (auto r : iRecordsMap[ByteSize::BYTE_1]) {
-      s += fmt::format("\n\t\tID: {}, val: {}", r->iID, r->iValue);
-    }
-  }
-  if (iRecordsMap[ByteSize::BYTE_2].size() > 0) {
-    s += std::string("\n\tByte 2");
-    for (auto r : iRecordsMap[ByteSize::BYTE_2]) {
-      s += fmt::format("\n\t\tID: {}, val: {}", r->iID, r->iValue);
-    }
-  }
-  if (iRecordsMap[ByteSize::BYTE_4].size() > 0) {
-    s += std::string("\n\tByte 4");
-    for (auto r : iRecordsMap[ByteSize::BYTE_4]) {
-      s += fmt::format("\n\t\tID: {}, val: {}", r->iID, r->iValue);
-    }
-  }
-  if (iRecordsMap[ByteSize::BYTE_8].size() > 0) {
-    s += std::string("\n\tByte 8");
-    for (auto r : iRecordsMap[ByteSize::BYTE_8]) {
-      s += fmt::format("\n\t\tID: {}, val: {}", r->iID, r->iValue);
-    }
-  }
-  if (iRecordsMap[ByteSize::BYTE_X].size() > 0) {
-    s += std::string("\n\tByte X");
-    for (auto r : iRecordsMap[ByteSize::BYTE_X]) {
-      s += fmt::format("\n\t\tID: {}, val: {}", r->iID, r->iValue);
-    }
-  }
-
-  return s;
 }
 
 result_t IoRecord::toJsonImpl(Json::Value &rhs, bool root) const
@@ -172,6 +116,26 @@ result_t IoRecord::toJsonImpl(Json::Value &rhs, bool root) const
 		r.second.front()->toJson(val, root);
 		el.append(val);
 	}
+	return RES_OK;
+}
+
+result_t IoRecord::fromJsonImpl(const Json::Value &rhs, bool root)
+{
+	const auto& io = rhs["IoRecords"];
+	if (io.size() == 0) {
+		LG_WRN(this->logger(), "IO records object empty");
+		return RES_INVARG;
+	}
+
+	for (auto const& rec : io) {
+		auto property = std::make_shared<IoRecordProperty>();
+		if (property->fromJson(rec) != RES_OK)
+			continue;
+		IoRecordsPropertyList list;
+		list.emplace_back(property);
+		iRecordsMap.insert(std::make_pair(property->iID, list));
+	}
+
 	return RES_OK;
 }
 

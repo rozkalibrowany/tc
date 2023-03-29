@@ -26,6 +26,8 @@ public:
 
 	bool operator==(const Devices<T> &rhs) const;
 
+	void setCacheSize(size_t size);
+
 	bool has(const Imei &imei) const;
 	result_t add(const std::shared_ptr<T> &device);
 	result_t add(const std::shared_ptr<T> &device, const Imei &imei);
@@ -35,6 +37,7 @@ public:
 	size_t size() const;
 
 	Json::Value toJson(bool active = true);
+	result_t fromJsonPacket(const Json::Value &rhs);
 
 protected:
 	result_t fromJsonImpl(const Json::Value &rhs, bool active) override;
@@ -130,6 +133,39 @@ Json::Value Devices<T>::toJson(bool active)
 	toJsonImpl(list, active);
 
 	return list;
+}
+
+template <class T>
+result_t Devices<T>::fromJsonPacket(const Json::Value &rhs)
+{
+	auto &packets = rhs["packets"];
+	if (packets.size() == 0) {
+		return RES_INVARG;
+	}
+
+	for (const auto &records : packets) {
+		const auto& imei = records["Imei"].asString();
+		if (has(imei) == false)
+				continue;
+
+		// FIXME : catching only first for now
+		const auto& record = records["Records"][0];
+		if (!record.isMember("Record")) {
+			LG_WRN(this->logger(), "Record not present in json for imei: {}", imei);
+			continue;
+		}
+
+		auto packet = std::make_shared<parser::PacketPayload>();
+		if (packet->fromJson(record["Record"], true) != RES_OK) {
+			LG_WRN(this->logger(), "Unable to parse Record for imei: {}", imei);
+			continue;
+		}
+
+		auto &vehicle = iDevices.at(imei);
+		vehicle->add(std::move(packet));
+	}
+
+	return RES_OK;
 }
 
 template <class T>

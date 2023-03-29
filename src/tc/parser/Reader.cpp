@@ -38,21 +38,13 @@ uint Reader::readU(int bytes, int offset)
   return 0;
 }
 
-int64_t Reader::readL(int bytes, int offset)
+long Reader::readL(int bytes, int offset)
 {
 	auto offs = offset == 0 ? iOffset : offset;
-  Buf subBuf(Buf::ByteArray{iBuf->begin() + offs, iBuf->begin() + bytes + offs});
+	Buf subBuf(Buf::ByteArray{iBuf->begin() + offs, iBuf->begin() + bytes + offs});
 	if (offset == 0)
 		iOffset += bytes;
-  std::reverse(subBuf.begin(), subBuf.end());
-
-  if (bytes == 1)
-		return subBuf[0] & 0xFF;
-
-  if (bytes == 2)
-		return subBuf.toUInt16(0);
-
-  return 0;
+	return std::stol (tc::uchar2string(subBuf.cdata(), 8), nullptr, 16);
 }
 
 int Reader::read(int bytes, int offset)

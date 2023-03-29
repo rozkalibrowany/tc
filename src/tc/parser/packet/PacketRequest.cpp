@@ -1,5 +1,4 @@
 #include <tc/parser/packet/PacketRequest.h>
-#include <algorithm>
 
 namespace tc::parser {
 
@@ -41,6 +40,8 @@ result_t PacketRequest::parse(const uchar* cbuf, size_t size, size_t  offset)
 	iType = Packet::str2req(out);
 	iSize = size - 5;
 	delete out;
+
+	LG_DBG(this->logger(), "PacketRequest parse, method: {} type: {}", (int) iMethod, (int) iType);
 
 	return RES_OK;
 }

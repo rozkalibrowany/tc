@@ -27,8 +27,6 @@ protected:
 	void onError(int error, const std::string &category, const std::string &message) override;
 
 private:
-	result_t getDeviceData();
-
 	std::shared_ptr<CacheHandler> iCache{nullptr};
 	std::shared_ptr<db::mongo::Client> iDbClient;
 	std::mutex iMutex;

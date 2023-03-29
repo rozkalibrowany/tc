@@ -23,12 +23,12 @@ TelematicsServer::TelematicsServer(const std::shared_ptr<AsioService>& service, 
 {
 	this->SetupReusePort(true);
 	this->SetupReuseAddress(true);
-	this->SetupNoDelay(true);
 }
 
 TelematicsServer::~TelematicsServer()
 {
-	// nothing to do
+	this->DisconnectAll();
+	this->Stop();
 }
 
 std::shared_ptr<mongo::Client> TelematicsServer::dbClient()
@@ -49,6 +49,7 @@ std::shared_ptr< CppServer::Asio::TCPSession > TelematicsServer::CreateSession(c
 void TelematicsServer::onConnected(std::shared_ptr< CppServer::Asio::TCPSession > &session)
 {
 	LG_NFO(this->logger(), "TCP session connected, UUID: {}", session->id().string());
+	session->SetupReceiveBufferLimit(3000);
 }
 
 void TelematicsServer::onDisconnected(std::shared_ptr<CppServer::Asio::TCPSession> &session)
@@ -58,7 +59,7 @@ void TelematicsServer::onDisconnected(std::shared_ptr<CppServer::Asio::TCPSessio
 
 void TelematicsServer::onError(int error, const std::string& category, const std::string& message)
 {
-	LG_ERR(this->logger(), "Telematics Server caught an error[{}][{}]: {}", error, category, message);
+	LG_ERR(this->logger(), "Server caught an error[{}][{}]: {}", error, category, message);
 }
 
 result_t TelematicsServer::handleCommand(const uchar *buffer, size_t size)
@@ -85,14 +86,15 @@ result_t TelematicsServer::handleCommand(const uchar *buffer, size_t size)
 
 result_t TelematicsServer::handleRequest(const uchar *buffer, size_t size, const CppCommon::UUID id)
 {
-	LG_NFO(this->logger(), "Handle request[{}] id[{}]", size, id.string());
-
 	auto request = std::make_shared< parser::PacketRequest >();
 	result_t res = request->parse((uchar*) buffer, size);
 	if (res != RES_OK) {
 		LG_ERR(this->logger(), "Parse request.");
 		return res;
 	}
+
+	LG_NFO(this->logger(), "Handle request[{}] Method: {} Type: {}", size, Packet::method2string(request->iMethod),
+		Packet::type2string(request->iType));
 
 	return dispatchRequest(request, id);
 }
@@ -103,10 +105,9 @@ result_t TelematicsServer::dispatchRequest(std::shared_ptr< parser::PacketReques
 
 	result_t res = RES_OK;
 	auto type = request->iType;
-	auto method = request->iMethod;
 
-	if (type == Packet::eDevices && method == Packet::eGet) {
-		Json::Value list;
+	Json::Value list;
+	if (type == Packet::eDevices) {
 		auto &el = list["devices"] = Json::arrayValue;
 		for (const auto &[key, value] : _sessions) {
 			if (key == id) continue;
@@ -116,11 +117,24 @@ result_t TelematicsServer::dispatchRequest(std::shared_ptr< parser::PacketReques
 			session->toJson(val);
 			el.append(val);
 		}
-		auto hexJson = tc::tohex(list.toStyledString());
-		const auto &session = dynamic_pointer_cast<TelematicsSession>(_sessions.at(id));
-		if ((res = session->send((const uchar *)hexJson.data(), hexJson.size())) != RES_OK) {
-			LG_ERR(this->logger(), "Send hex json");
+	} else if (type == Packet::ePackets) {
+
+		auto &el = list["packets"] = Json::arrayValue;
+		for (const auto &[key, value] : _sessions) {
+			if (key == id) continue;
+			auto session = dynamic_pointer_cast<TelematicsSession>(value);
+			if (session == nullptr) continue;
+			Json::Value val;
+			if (session->lastPacketJson(val) != RES_OK)
+				continue;
+			el.append(val);
 		}
+	}
+
+	auto hexJson = tc::tohex(list.toStyledString());
+	const auto &session = dynamic_pointer_cast<TelematicsSession>(_sessions.at(id));
+	if ((res = session->send((const uchar *) hexJson.data(), hexJson.size())) != RES_OK) {
+		LG_ERR(this->logger(), "Error while processing internal response.");
 	}
 
 	return res;

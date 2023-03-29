@@ -14,7 +14,6 @@ using namespace parser;
 
 class TelematicsSession : public CppServer::Asio::TCPSession, public tc::LogI, public parser::JsonI
 {
-
 public:
 	enum Response {
 		eInvalid = 0,
@@ -28,6 +27,8 @@ public:
 	result_t send(int buffer, const bool async = false);
 	result_t send(const uchar* buffer, size_t size, const bool async = false);
 	result_t send(const void *buffer, size_t size, const bool async = false);
+
+	result_t lastPacketJson(Json::Value &rhs);
 
 	const Imei imei() const;
 

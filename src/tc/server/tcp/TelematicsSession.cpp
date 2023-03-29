@@ -103,16 +103,19 @@ result_t TelematicsSession::handlePayload(const uchar *buffer, size_t size)
 		return res;
 	}
 
-	std::scoped_lock lock(iMutex);
 	if (telematicsServer()->dbClient()->enabled())
 		res |= savePacket(packet);
 
 	auto records = packet->records().size();
-	res = iDevice->add(std::move(packet));
-	if (res != RES_OK && res != RES_INVCRC) {
-		LG_ERR(this->logger(), "[{}] Unable to add packet", iImei);
-		send(eInvalid);
-		return res;
+
+	{
+		std::lock_guard lock(iMutex);
+		res = iDevice->add(packet);
+		if (res != RES_OK && res != RES_INVCRC) {
+			LG_ERR(this->logger(), "[{}] Unable to add packet", iImei);
+			send(eInvalid);
+			return res;
+		}
 	}
 
 	if (res == RES_INVCRC) {
@@ -155,6 +158,9 @@ result_t TelematicsSession::handleStandby(const uchar *buffer, size_t size)
 
 result_t TelematicsSession::savePacket(std::shared_ptr<parser::PacketPayload> &packet)
 {
+	if (iDevice == nullptr || iDevice->imei().empty())
+		return RES_NOENT;
+
 	Json::Value val;
 
 	auto timestamp = packet->timestamp().timestamp.timestamp();
@@ -165,9 +171,9 @@ result_t TelematicsSession::savePacket(std::shared_ptr<parser::PacketPayload> &p
 	val["datetime"] = systime.getDateTime();
 
 	if (result_t res; (res = packet->toJson(val, true)) != RES_OK) {
-			LG_ERR(this->logger(), "[{}] Packet to json.", iImei);
-			return res;
-		}
+		LG_ERR(this->logger(), "[{}] Packet to json.", iImei);
+		return res;
+	}
 
 	auto dbClient = telematicsServer()->dbClient();
 
@@ -200,7 +206,6 @@ result_t TelematicsSession::send(const void *buffer, size_t size, const bool asy
 	auto res = RES_NOENT;
 	LG_DBG(this->logger(), "[{}] Sending: {} size: {}", iImei, tc::uchar2string((const uchar*) buffer, size), size);
 
-
 	if (async == false) {
 		auto sent = Send(buffer, size);
 		res = sent == size ? RES_OK : RES_CONNERROR;
@@ -210,6 +215,19 @@ result_t TelematicsSession::send(const void *buffer, size_t size, const bool asy
 	}
 
 	return res;
+}
+
+result_t TelematicsSession::lastPacketJson(Json::Value &rhs) {
+	if (iDevice == nullptr || iDevice->packets().empty()) {
+		return RES_NOENT;
+	}
+	if (iDevice->packets().back()->toJson(rhs) != RES_OK) {
+		LG_ERR(this->logger(), "Unable to serialize last packet into json[{}]", imei());
+		return RES_ERROR;
+	}
+	rhs["Imei"] = imei();
+
+	return RES_OK;
 }
 
 result_t TelematicsSession::toJsonImpl(Json::Value &rhs, bool root) const
