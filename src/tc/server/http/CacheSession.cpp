@@ -15,6 +15,7 @@ HTTPCacheSession::HTTPCacheSession(const std::shared_ptr<CppServer::HTTP::HTTPSe
 void HTTPCacheSession::onReceivedRequest(const CppServer::HTTP::HTTPRequest& request)
 {
 	LG_NFO(this->logger(), "request: {}", request.string());
+
 	if (iCache == nullptr) {
 		return;
 	}
@@ -26,15 +27,17 @@ void HTTPCacheSession::onReceivedRequest(const CppServer::HTTP::HTTPRequest& req
 		SendResponseAsync(response().MakeErrorResponse(400, "Bad request"));
 	}
 
+	Request req(request);
+
 	Action action;
-	if (action.parse(request) != RES_OK) {
+	if (action.parse(req) != RES_OK) {
 		LG_ERR(this->logger(), "Bad {} request[{}]", request.method(), request.url());
 		SendResponseAsync(response().MakeErrorResponse(400, "Bad request"));
 		return;
 	}
 
 	CppServer::HTTP::HTTPResponse resp;
-	if (result_t res; (res = iCache->handleAction(action, resp)) != RES_OK) {
+	if (result_t res; (res = iCache->handleAction(req, resp)) != RES_OK) {
 		LG_ERR(this->logger(), "Unable to handle action[{}][{}]", request.method(), request.url());
 		SendResponseAsync(resp);
 		return;

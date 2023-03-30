@@ -3,6 +3,7 @@
 
 #include <tc/server/http/Request.h>
 #include <tc/common/Common.h>
+
 namespace tc::server::http {
 
 class Action : public tc::LogI {
@@ -10,9 +11,7 @@ public:
 
 	Action() = default;
 
-	result_t parse(const CppServer::HTTP::HTTPRequest& request);
-
-	std::shared_ptr< Request > get() const;
+	result_t parse(const Request &request);
 
 private:
 	result_t parseDevice(const Request &request);
@@ -23,8 +22,6 @@ private:
 
 	result_t handleGet(const Request &request);
 	result_t handlePost(const Request &request);
-
-	Request iRequest;
 };
 
 } // namespace tc::server::http

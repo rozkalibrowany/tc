@@ -1,38 +1,27 @@
 #include <tc/server/http/Action.h>
-#include <tc/common/LockGuard.h>
-#include <tc/common/Regex.h>
 #include <tc/parser/Command.h>
 
 namespace tc::server::http {
 
 using namespace parser;
 
-std::shared_ptr< Request > Action::get() const
-{
-	return std::make_shared<Request>(iRequest);
-}
-
-result_t Action::parse(const CppServer::HTTP::HTTPRequest& request)
+result_t Action::parse(const Request &request)
 {
 	result_t res = RES_OK;
-	if (request.empty()) {
+	if (request.request().empty()) {
 		return RES_NOENT;
 	}
 
-	Request req(request);
-
-	switch (req.method()) {
+	switch (request.method()) {
 		case Request::eGet:
-			res = handleGet(req);
+			res = handleGet(request);
 			break;
 		case Request::ePost:
-			res = handlePost(req);
+			res = handlePost(request);
 			break;
 		default:
 			res = RES_NOIMPL;
 	}
-
-	iRequest = std::move(req);
 
 	return res;
 }

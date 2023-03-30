@@ -16,32 +16,53 @@ bool CacheHandler::hasImei(const Imei imei) const
 	return iVehicles.has(imei);
 }
 
+result_t CacheHandler::findImei(Request &request)
+{
+	if (request.hasImei())
+		return RES_OK;
+
+	for (const auto& vehicle : iVehicles) {
+		if (vehicle.second->id() == request.id()) {
+			request.setID(vehicle.second->imei());
+			return RES_OK;
+		}
+	}
+
+	return RES_NOENT;
+}
+
 /**
  * It handles the action
  * @param action The action that was requested.
  * @param response The response object that will be sent back to the client.
  * @return The result of the action.
  */
-result_t CacheHandler::handleAction(const Action &action, CppServer::HTTP::HTTPResponse &response)
+result_t CacheHandler::handleAction(Request &request, CppServer::HTTP::HTTPResponse &response)
 {
-	switch(action.get()->type()) {
+	switch(request.type()) {
 		case Request::eDevices: {
-			if (action.get()->hasQuery()) {
+			if (request.hasQuery()) {
 				std::string key;
-				if (action.get()->query(key) == RES_OK) {
+				if (request.query(key) == RES_OK) {
 					return getDevices(response, key.compare("all") == 0 ? false : true);
 				}
 			}
 			return getDevices(response);
 		}
 		case Request::eDevice: {
-			if (action.get()->method() == Request::eGet) {
-				return getDevice(action.get(), response);
+			if (!request.hasImei() && findImei(request) != RES_OK) {
+				response.MakeErrorResponse(400, fmt::format("Unable to map ID[{}] into Imei", request.id()));
+				LG_NFO(this->logger(), "Unable to map ID[{}] into Imei", request.id());
+				return RES_NOENT;
 			}
-			if (!action.get()->key().compare("set")) {
-				return set(action.get(), response);
+
+			if (request.method() == Request::eGet) {
+				return getDevice(request, response);
+			}
+			if (!request.key().compare("set")) {
+				return set(request, response);
 			} else {
-				return addCommand(action.get()->id(), action.get()->command(), response);
+				return addCommand(request, response);
 			}
 		}
 		case Request::ePackets:
@@ -64,32 +85,21 @@ iot::Devices<iot::Vehicle> &CacheHandler::vehicles()
  * @param response The response object that will be sent back to the client.
  * @return A device object.
  */
-result_t CacheHandler::getDevice(std::shared_ptr< Request > request, CppServer::HTTP::HTTPResponse &response)
+result_t CacheHandler::getDevice(const Request &request, CppServer::HTTP::HTTPResponse &response)
 {
-		std::string id;
-		if (request->id().length() < IMEI_LENGTH) {
-			for (const auto& vehicle : iVehicles) {
-				if (vehicle.second->id() == request->id())
-					id = vehicle.second->imei();
-			}
-		}
-
-		if (id.empty())
-			id = request->id();
-
-	if ((iVehicles.devices().find(id) == iVehicles.devices().end())) {
-		response.MakeErrorResponse(400, fmt::format("Device {} not found", id));
+	if ((iVehicles.devices().find(request.id()) == iVehicles.devices().end())) {
+		response.MakeErrorResponse(400, fmt::format("Device {} not found", request.id()));
 		return RES_NOENT;
 	}
-	if (!request->key().compare("packets")) {
-		const auto& vehicle = iVehicles.devices().at(id);
+	if (!request.key().compare("packets")) {
+		const auto& vehicle = iVehicles.devices().at(request.id());
 		if (vehicle->packets().empty()) {
-			response.MakeErrorResponse(400, fmt::format("Packet data empty for {}", id));
+			response.MakeErrorResponse(400, fmt::format("Packet data empty for {}", request.id()));
 			return RES_NOENT;
 		}
 		return getPacket(vehicle, response);
 	} else {
-		response.MakeGetResponse(iVehicles.devices().at(id)->toJson().toStyledString(), "application/json; charset=UTF-8");
+		response.MakeGetResponse(iVehicles.devices().at(request.id())->toJson().toStyledString(), "application/json; charset=UTF-8");
 	}
 	return RES_OK;
 }
@@ -203,34 +213,24 @@ result_t CacheHandler::decodeJson(const std::string &data)
 	return RES_NOENT;
 }
 
-result_t CacheHandler::addCommand(const Imei imei, const std::string cmd, CppServer::HTTP::HTTPResponse &response)
+result_t CacheHandler::addCommand(const Request &request, CppServer::HTTP::HTTPResponse &response)
 {
-	if (imei.length() < IMEI_LENGTH) {
-		for (const auto& vehicle : iVehicles) {
-			if (vehicle.second->id() == imei) {
-				if (vehicle.second->online()) {
-					iSignal.emit(vehicle.second->imei(), cmd);
-					response.MakeOKResponse();
-					return RES_OK;
-				} else {
-					response.MakeErrorResponse(400, fmt::format("Device with ID: {} not found", imei));
-					return RES_NOENT;
-				}
-			}
-		}
-	}
+	LG_ERR(this->logger(), "addCommand, {}", request.id());
 
-	if (imei.length() < IMEI_LENGTH) {
-		response.MakeErrorResponse(400, fmt::format("Device with ID: {} not found", imei));
+	auto vehicle = iVehicles.find(request.id());
+	if (vehicle == iVehicles.end()) {
+		LG_ERR(this->logger(), "Vehicle not found");
+		response.MakeErrorResponse(400, fmt::format("Device with ID: {} not found", request.id()));
 		return RES_NOENT;
 	}
 
-	if (iVehicles.find(imei) == iVehicles.end()) {
-		response.MakeErrorResponse(400, fmt::format("Device with ID: {} not found", imei));
+if (!vehicle->second->online()) {
+		LG_ERR(this->logger(), "Vehicle not online");
+		response.MakeErrorResponse(400, fmt::format("Device with ID: {} is not online", request.id()));
 		return RES_NOENT;
 	}
 
-	iSignal.emit(imei, cmd);
+	iSignal.emit(request.id(), request.command());
 	response.MakeOKResponse();
 	return RES_OK;
 }
@@ -241,13 +241,13 @@ result_t CacheHandler::addCommand(const Imei imei, const std::string cmd, CppSer
  * @param response The response object that will be sent back to the client.
  * @return A result code.
  */
-result_t CacheHandler::set(std::shared_ptr< Request > request, CppServer::HTTP::HTTPResponse &response)
+result_t CacheHandler::set(Request &request, CppServer::HTTP::HTTPResponse &response)
 {
 	auto &vehicles = iVehicles.devices();
-	auto it = vehicles.find(request->id());
+	auto it = vehicles.find(request.id());
 	if (it != vehicles.end()) {
 		std::string key, val;
-		if (request->query(key, val) == RES_OK) {
+		if (request.query(key, val) == RES_OK) {
 			if (!key.compare("id"))
 				it->second->setID(val);
 			if (!key.compare("fleet"))

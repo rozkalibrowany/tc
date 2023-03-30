@@ -58,7 +58,7 @@ Request::Type Request::str2type(const std::string type)
 	return Type::eUnknown;
 }
 
-const std::string_view Request::method2str(Method method)
+const std::string Request::method2str(Method method)
 {
   switch (method) {
     case eGet:
@@ -87,6 +87,16 @@ const std::string Request::type2str(Type type)
   }
 }
 
+void Request::setID(std::string_view id)
+{
+	iID = id;
+}
+
+CppServer::HTTP::HTTPRequest Request::request() const
+{
+	return iRequest;
+}
+
 Request::Method Request::method() const
 {
 	return str2method(iRequest.method());
@@ -110,10 +120,20 @@ bool Request::hasQuery() const
 	return tc::regex(std::regex{"([^\\/]+$)"}, iRequest.url()).find("?") != std::string::npos;
 }
 
+bool Request::hasImei() const
+{
+	if (id().length() == IMEI_LENGTH)
+		return true;
+	return false;
+}
+
 /* /.../id/...  */
 const std::string Request::id() const
 {
-	return tc::regex(std::regex{".*[-\\/](\\d+)"}, iRequest.url());
+	if (iID.has_value())
+		return iID.value();
+	else
+		return tc::regex(std::regex{".*[-\\/](\\d+)"}, iRequest.url());
 }
 
 /* /.../.../command */

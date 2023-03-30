@@ -33,11 +33,17 @@ public:
 
 	Method method() const;
 	Type type() const;
+
 	bool hasQuery() const;
+	bool hasImei() const;
+
+	void setID(std::string_view id);
 
 	const std::string id() const;
 	const std::string command() const;
 	const std::string key() const;
+
+	CppServer::HTTP::HTTPRequest request() const;
 
 	result_t query(std::string &key);
 	result_t query(std::string &key, std::string &val);
@@ -45,7 +51,7 @@ public:
 	result_t toInternal(parser::Buf &buf, bool cr = false);
 
 	static Type str2req(const std::string &req);
-  static const std::string_view method2str(Method method);
+  static const std::string method2str(Method method);
   static const std::string type2str(Type type);
   static Method str2method(const std::string_view method);
   static Type str2type(const std::string type);
@@ -53,6 +59,7 @@ public:
 private:
 	const size_t depth() const;
 
+	mutable std::optional<std::string> iID;
 	mutable CppServer::HTTP::HTTPRequest iRequest;
 };
 
