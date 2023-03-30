@@ -148,7 +148,17 @@ result_t CacheHandler::getPacket(const std::shared_ptr< iot::Vehicle > vehicle, 
 				gps["Satellites"] = rec["GPS"]["Satellites"];
 				gps["Speed"] = rec["GPS"]["Speed"];
 				packet["GPS"] = gps;
+				lastLocation = gps;
+			} else if (!lastLocation.empty()) {
+				Json::Value gps;
+				gps["Longitude"] = lastLocation["GPS"]["Longitude"];
+				gps["Latitude"] = lastLocation["GPS"]["Latitude"];
+				gps["Altitude"] = lastLocation["GPS"]["Altitude"];
+				gps["Angle"] = lastLocation["GPS"]["Angle"];
+				gps["Satellites"] = lastLocation["GPS"]["Satellites"];
+				gps["Speed"] = lastLocation["GPS"]["Speed"];
 			}
+
 			if (rec.isMember("IoRecords")) {
 				for (const auto& io : rec["IoRecords"]) {
 					if (io["ID"].asInt() == 113) 
@@ -218,19 +228,12 @@ result_t CacheHandler::decodeJson(const std::string &data)
 {
 	Json::Value root;
 	Json::Reader reader;
-
-	bool parsing_ok = reader.parse(data, root, false);
-	if (!parsing_ok) {
-		LG_ERR(this->logger(), "Unable to parse json");
+	if (!reader.parse(data, root, false)) {
+		LG_ERR(this->logger(), "Exception caught while decding JSON");
 		return RES_INVARG;
 	}
 
-	if (root.isMember("devices"))
-		return iVehicles.fromJson(root, true);
-	else if (root.isMember("packets"))
-		return iVehicles.fromJsonPacket(root);
-
-	return RES_NOENT;
+	return RES_OK;
 }
 
 result_t CacheHandler::addCommand(const Request &request, CppServer::HTTP::HTTPResponse &response)

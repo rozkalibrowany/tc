@@ -39,6 +39,7 @@ private:
 
 	Signal<Imei, std::string> &iSignal;
 	Signal<Imei> &iSignalModified;
+	Json::Value lastLocation;
 
 	iot::Devices<iot::Vehicle> iVehicles;
 	std::mutex _cache_lock;
