@@ -76,7 +76,7 @@ tc_conan_build_package(NAME asio
 )
 
 tc_conan_build_package(NAME args-parser
-	VERSION 6.2.0.1
+	VERSION 6.3.2
 	DEPENDS conan-profiles conan-tc-build
 	UBUNTU
 )
@@ -100,7 +100,7 @@ tc_conan_build_package(NAME mongoc
 )
 
 tc_conan_build_package(NAME mongocxx
-	VERSION 3.7.0
+	VERSION 3.7.1
 	DEPENDS conan-profiles conan-tc-build
 	UBUNTU
 )
