@@ -82,7 +82,7 @@ Json::Value Device::toJsonValue(bool active)
 	return val;
 }
 
-Device::PayloadPackets &Device::packets()
+const Device::PayloadPackets &Device::packets()
 {
 	return iPayloadPackets;
 }

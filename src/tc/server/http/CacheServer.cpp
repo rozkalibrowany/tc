@@ -14,6 +14,10 @@ HTTPCacheServer::HTTPCacheServer(const std::shared_ptr<AsioService> service, std
  , iCache(cache)
  , iDbClient(client)
 {
+	iCache->signal().connect([&](Imei imei) {
+		this->onModified(imei);
+	});
+
 	this->SetupReusePort(true);
 	this->SetupReuseAddress(true);
 	this->SetupNoDelay(true);

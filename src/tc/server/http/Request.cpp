@@ -53,6 +53,8 @@ Request::Type Request::str2type(const std::string type)
 		return Type::eDevice;
 	} else if (!type.compare("packets")) {
 		return Type::ePackets;
+	} else if (!type.compare("packet")) {
+		return Type::ePacket;
 	}
 
 	return Type::eUnknown;
@@ -82,6 +84,8 @@ const std::string Request::type2str(Type type)
     return "/devices";
 		case ePackets:
     return "/packets";
+		case ePacket:
+    return "/packet";
     default:
     return "unknown";
   }
@@ -210,7 +214,9 @@ Request::Type Request::str2req(const std::string &req)
 {
 	if (req.compare("devices") == 0) {
 		return Type::eDevices;
-	} else if (req.compare("data") == 0) {
+	} else if (req.compare("packets") == 0) {
+		return Type::ePackets;
+	} else if (req.compare("device") == 0) {
 		return Type::eDevice;
 	} else {
 		return Type::eUnknown;

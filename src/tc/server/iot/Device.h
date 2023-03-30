@@ -35,7 +35,7 @@ public:
 	virtual Imei imei() const;
 	virtual std::string type() const;
 
-	virtual PayloadPackets &packets();
+	virtual const PayloadPackets &packets();
 
 protected:
 	result_t fromJsonImpl(const Json::Value &rhs, bool root) override;

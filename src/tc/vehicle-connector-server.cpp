@@ -22,8 +22,8 @@ namespace defaults {
 	constexpr int c_default_threads 								= 2;
 	constexpr int c_default_db_sync_interval 				= 30000;
 	constexpr int c_default_pool_interval 					= 2000;
-	constexpr int c_default_devices_update_interval	= 6000;
-	constexpr int c_default_packets_update_interval	= 5000;
+	constexpr int c_default_devices_update_interval	= 5000;
+	constexpr int c_default_packets_update_interval	= 10000;
 };
 
 void sleep_for(uint64_t time) {
@@ -142,40 +142,16 @@ int main(int argc, char** argv)
 		LG_NFO(log.logger(), "DB connected. Name: {}, collection: {}, uri: {}", db_client->name(), (std::string) db_client->collection(), uri);
 	}
 
-	// Prepare signals
-	Signal<Imei, std::string> signal_cmd;
-	Signal<Imei> signal_modified;
-
-	// Create Cache for data
-	auto cache_handler = std::make_shared<CacheHandler>(signal_cmd, signal_modified);
-
 	// Create a new Asio service
 	auto service = std::make_shared<tc::asio::AsioService>(threads);
 	if (!service->Start())
 		return 1;
 
-	// Connect client signal for syncing device info
-	Signal<const void *, size_t> signal;
-	signal.connect([&](const void * buf, size_t size) {
-		cache_handler->onReceived(buf, size);
-	});
-
 	// Create a new TCP client
-	auto client = std::make_shared< client::tcp::Client >(signal, service, addr, tcp_port);
+	auto client = std::make_shared< client::tcp::Client >(service, addr, tcp_port);
 
-	while (true) {
-		if (client->IsConnected()) {
-			break;
-		}
-		LG_NFO(log.logger(), "Retrying connection to telematics server...");
-		client->ConnectAsync();
-		sleep_for(pool_interval);
-	}
-
-	// connect cache signal
-	signal_cmd.connect([&](Imei imei, std::string cmd) {
-    client->send(imei, cmd);
-  });
+	// Create Cache for data
+	auto cache_handler = std::make_shared<CacheHandler>(client);
 
 	// Create a new HTTPS server
 	auto server = std::make_shared<HTTPCacheServer>(service, db_client, cache_handler, http_port);
@@ -183,40 +159,55 @@ int main(int argc, char** argv)
 		LG_ERR(log.logger(), "Unable to start HTTP server.");
 		return 1;
 	}
-	LG_NFO(log.logger(), "HTTP Server started!");
-
-	signal_modified.connect([&](Imei imei) {
-		server->onModified(imei);
-	});
 
 	// sync devices from DB
 	server->syncDevices();
+
+	while (true) {
+		if (client->IsConnected())
+			break;
+	
+		LG_NFO(log.logger(), "Retrying connection to telematics server...");
+		client->ConnectAsync();
+		sleep_for(pool_interval);
+	}
 
 	// Sync devices into DB
 	server::http::LSync sync;
 	std::thread lsync_thread(&LSync::execute, &sync, cache_handler, db_client, sync_interval);
 	lsync_thread.detach();
 
-	// Sync packets from telematics server
-	server::http::Updater packets_updater(Request::eGet, Request::ePackets);
-	std::thread packets_updater_thread(&Updater::execute, &packets_updater, client, packets_update_interval);
-	packets_updater_thread.detach();
-
-	// Sync devices from telematics server
-	server::http::Updater device_updater(Request::eGet, Request::eDevices);
-	std::thread devices_updater_thread(&Updater::execute, &device_updater, client, devices_update_interval);
-	devices_updater_thread.detach();
-
 	while (true) {
 		LG_NFO(log.logger(), "HTTP server, sessions[{}] bytes sent[{}] received[{}]", server->connected_sessions(), server->bytes_sent(), server->bytes_received());
+		{
+			Request request(Request::eGet, Request::eDevices);
+			parser::Buf buf;
+			if (request.toInternal(buf) != RES_OK) {
+				LG_ERR(log.logger(), "Unable to convert to internal request");
+			}
 
+			if (client->send(buf) != RES_OK)	{
+				LG_ERR(log.logger(), "Unable to send buffer");
+			}
+		}
+		
+		sleep_for(pool_interval);
+		{
+			Request request(Request::eGet, Request::ePackets);
+			parser::Buf buf;
+			if (request.toInternal(buf) != RES_OK) {
+				LG_ERR(log.logger(), "Unable to convert to internal request");
+			}
+
+			if (client->send(buf) != RES_OK)	{
+				LG_ERR(log.logger(), "Unable to send buffer");
+			}
+		}
 		sleep_for(pool_interval);
 	}
 
 	// Join thread
 	lsync_thread.join();
-	devices_updater_thread.join();
-	packets_updater_thread.join();
 
 	// Stop the server
 	LG_NFO(log.logger(), "Server stopping...");

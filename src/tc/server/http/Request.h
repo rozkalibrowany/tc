@@ -13,6 +13,7 @@ class Request : public tc::LogI {
 public:
 	enum Type {
 		eUnknown = 0,
+		ePacket,
 		ePackets,
 		eDevices,
 		eDevice

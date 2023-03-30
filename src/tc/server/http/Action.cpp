@@ -32,9 +32,11 @@ result_t Action::handleGet(const Request &request)
 		return parseDevice(request);
 	}
 
-	if (request.type() == Request::eDevices) {
-		return parseDevices(request);
-	}
+	if (request.type() == Request::eDevices)
+		return RES_OK;
+
+	if (request.type() == Request::ePackets)
+		return RES_OK;
 
 	return RES_INVARG;
 }
@@ -71,21 +73,12 @@ result_t Action::parseDevice(const Request &request)
 			return RES_OK;
 		}
 
-		if (!request.key().empty() && !request.key().compare("packets")) {
+		if (!request.key().empty() && !request.key().compare("packet")) {
 			return RES_OK;
 		}
 	}
 
 	return RES_NOENT;
-}
-
-result_t Action::parseDevices(const Request &request)
-{
-	if (request.method() != Request::eGet) {
-		return RES_NOENT;
-	}
-
-	return RES_OK;
 }
 
 result_t Action::parseCommand(const Request &request)

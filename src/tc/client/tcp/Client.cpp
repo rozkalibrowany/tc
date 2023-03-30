@@ -2,16 +2,21 @@
 
 namespace tc::client::tcp {
 
-Client::Client(Signal<const void *, size_t> &signal, const std::shared_ptr<Service> &service, const std::string &address, int port)
+Client::Client(const std::shared_ptr<Service> &service, const std::string &address, int port)
  : TCPClient(service, address, port)
- , iSignal(signal)
 {
-	// nothing to do
+	this->SetupKeepAlive(true);
+	this->SetupNoDelay(true);
 }
 
 Client::~Client()
 {
 	Disconnect();
+}
+
+Signal<const void *, size_t> &Client::signal()
+{
+	return iSignal;
 }
 
 result_t Client::send(const parser::Buf &buf)

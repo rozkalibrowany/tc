@@ -15,7 +15,6 @@ public:
 
 private:
 	result_t parseDevice(const Request &request);
-	result_t parseDevices(const Request &request);
 	result_t parseDeviceId(const Request &request);
 	result_t parseCommand(const Request &request);
 	result_t parseQuery(const Request &request);

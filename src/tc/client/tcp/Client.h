@@ -15,19 +15,21 @@ namespace tc::client::tcp {
 	public:
 		using TCPClient::TCPClient;
 
-		Client(Signal<const void *, size_t> &signal, const std::shared_ptr<Service> &service, const std::string &address, int port);
+		Client(const std::shared_ptr<Service> &service, const std::string &address, int port);
 		~Client();
 		
 		result_t send(const parser::Buf &buf);
 		result_t send(std::shared_ptr<parser::Command> command);
 		result_t send(const Imei &imei, const std::string command);
 
+		Signal<const void *, size_t> &signal();
+
 	protected:
 		void onReceived(const void *buffer, size_t size) override;
 		void onDisconnected() override;
 
 	private:
-		Signal<const void *, size_t> &iSignal;
+		Signal<const void *, size_t> iSignal;
 };
 
 } // tc::client::tcp

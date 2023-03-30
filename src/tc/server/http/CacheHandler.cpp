@@ -3,12 +3,13 @@
 #include <tc/parser/Util.h>
 namespace tc::server::http {
 
-CacheHandler::CacheHandler(Signal<Imei, std::string> &signal, Signal<Imei> &signal_modified)
+CacheHandler::CacheHandler(std::shared_ptr<client::tcp::Client> client)
  : CppCommon::Singleton<CacheHandler>()
- , iSignal(signal)
- , iSignalModified(signal_modified)
+ , iClient(client)
 {
-	// nothing to do
+	iClient->signal().connect([&](const void * buf, size_t size) {
+		this->onReceived(buf, size);
+	});
 }
 
 bool CacheHandler::hasImei(const Imei imei) const
@@ -40,7 +41,7 @@ result_t CacheHandler::findImei(Request &request)
 result_t CacheHandler::handleAction(Request &request, CppServer::HTTP::HTTPResponse &response)
 {
 	switch(request.type()) {
-		case Request::eDevices: {
+		case Request::eDevices:
 			if (request.hasQuery()) {
 				std::string key;
 				if (request.query(key) == RES_OK) {
@@ -48,8 +49,8 @@ result_t CacheHandler::handleAction(Request &request, CppServer::HTTP::HTTPRespo
 				}
 			}
 			return getDevices(response);
-		}
-		case Request::eDevice: {
+		
+		case Request::eDevice:
 			if (!request.hasImei() && findImei(request) != RES_OK) {
 				response.MakeErrorResponse(400, fmt::format("Unable to map ID[{}] into Imei", request.id()));
 				LG_NFO(this->logger(), "Unable to map ID[{}] into Imei", request.id());
@@ -64,19 +65,25 @@ result_t CacheHandler::handleAction(Request &request, CppServer::HTTP::HTTPRespo
 			} else {
 				return addCommand(request, response);
 			}
-		}
-		case Request::ePackets:
-		default:
-			LG_NFO(this->logger(), "ePackets");
-			return RES_NOIMPL;
-		}
+		
+		case Request::ePackets: 
+			return getPackets(response);
+		
+		case Request::eUnknown:
+			return RES_NOENT;
+	}
 
-		return RES_NOENT;
+	return RES_NOENT;
 }
 
 iot::Devices<iot::Vehicle> &CacheHandler::vehicles()
 {
 	return iVehicles;
+}
+
+Signal<Imei> &CacheHandler::signal()
+{
+	return iSignal;
 }
 
 /**
@@ -91,13 +98,18 @@ result_t CacheHandler::getDevice(const Request &request, CppServer::HTTP::HTTPRe
 		response.MakeErrorResponse(400, fmt::format("Device {} not found", request.id()));
 		return RES_NOENT;
 	}
-	if (!request.key().compare("packets")) {
+	if (!request.key().compare("packet")) {
 		const auto& vehicle = iVehicles.devices().at(request.id());
-		if (vehicle->packets().empty()) {
+		if (vehicle == nullptr || vehicle->packets().empty()) {
 			response.MakeErrorResponse(400, fmt::format("Packet data empty for {}", request.id()));
 			return RES_NOENT;
 		}
-		return getPacket(vehicle, response);
+		Json::Value packet;
+		if(getPacket(vehicle, packet) != RES_OK) {
+			response.MakeErrorResponse(400, fmt::format("Error getting packet for {}", request.id()));
+			return RES_NOENT;
+		}
+		response.MakeGetResponse(packet.toStyledString(), "application/json; charset=UTF-8");
 	} else {
 		response.MakeGetResponse(iVehicles.devices().at(request.id())->toJson().toStyledString(), "application/json; charset=UTF-8");
 	}
@@ -111,7 +123,6 @@ result_t CacheHandler::getDevice(const Request &request, CppServer::HTTP::HTTPRe
  */
 result_t CacheHandler::getDevices(CppServer::HTTP::HTTPResponse &response, bool active_only)
 {
-
 	if (iVehicles.devices().empty()) {
 		response.MakeErrorResponse(500, "Internal Server Error");
 		return RES_NOENT;
@@ -126,18 +137,43 @@ result_t CacheHandler::getDevices(std::string &devices, bool active_only)
 	return RES_OK;
 }
 
-result_t CacheHandler::getPacket(const std::shared_ptr< iot::Vehicle > vehicle, CppServer::HTTP::HTTPResponse &response)
+result_t CacheHandler::getPackets(CppServer::HTTP::HTTPResponse &response)
 {
+	if (iVehicles.size() == 0) {
+		response.MakeErrorResponse(500, "Vehicle list empty");
+		return RES_NOENT;
+	}
+
+	Json::Value packets = Json::arrayValue;
+	for (auto &[imei, vehicle] : iVehicles.devices()) {
+		if (vehicle == nullptr || vehicle->packets().empty())
+			continue;
+
+		Json::Value val;
+		if (getPacket(vehicle, val) != RES_OK) {
+			response.MakeErrorResponse(500, "Internal Server Error");
+			return RES_ERROR;
+		}
+		packets.append(val);
+	}
+
+	response.MakeGetResponse(packets.toStyledString(), "application/json; charset=UTF-8");
+	return RES_OK;
+}
+
+result_t CacheHandler::getPacket(const std::shared_ptr< iot::Vehicle > vehicle, Json::Value &rhs)
+{
+
+	std::lock_guard lock(iMutex);
 	auto payload_packet = vehicle->packets().back();
 
-	Json::Value packet;
 	try {
 		auto json = payload_packet->toJsonValue();
 		for (const auto& records : json["Records"]) {
 			const auto &rec = records["Record"][0];
 			if (rec.isMember("Header")) {
-				packet["Priority"] = rec["Header"]["Priority"];
-				packet["Timestamp"] = rec["Header"]["Timestamp"];
+				rhs["Priority"] = rec["Header"]["Priority"];
+				rhs["Timestamp"] = rec["Header"]["Timestamp"];
 			}
 			if (rec.isMember("GPS")) {
 				Json::Value gps;
@@ -147,7 +183,7 @@ result_t CacheHandler::getPacket(const std::shared_ptr< iot::Vehicle > vehicle, 
 				gps["Angle"] = rec["GPS"]["Angle"];
 				gps["Satellites"] = rec["GPS"]["Satellites"];
 				gps["Speed"] = rec["GPS"]["Speed"];
-				packet["GPS"] = gps;
+				rhs["GPS"] = gps;
 				lastLocation = gps;
 			} else if (!lastLocation.empty()) {
 				Json::Value gps;
@@ -162,40 +198,38 @@ result_t CacheHandler::getPacket(const std::shared_ptr< iot::Vehicle > vehicle, 
 			if (rec.isMember("IoRecords")) {
 				for (const auto& io : rec["IoRecords"]) {
 					if (io["ID"].asInt() == 113) 
-						packet["Battery_capacity"] = io["value"].asInt();
+						rhs["Battery_capacity"] = io["value"].asInt();
 					else if (io["ID"].asInt() == 16)
-						 packet["Odometer"] = io["value"].asInt();
+						 rhs["Odometer"] = io["value"].asInt();
 					else if (io["ID"].asInt() == 341)
-						 packet["Error"] = io["value"].asInt();
+						 rhs["Error"] = io["value"].asInt();
 					else if (io["ID"].asInt() == 344)
-						 packet["Lock"] = io["value"].asInt();
+						 rhs["Lock"] = io["value"].asInt();
 					else if (io["ID"].asInt() == 349)
-						 packet["Speed_mode"] = io["value"].asInt();
+						 rhs["Speed_mode"] = io["value"].asInt();
 					else if (io["ID"].asInt() == 352)
-						 packet["Battery_percentage"] = io["value"].asInt();
+						 rhs["Battery_percentage"] = io["value"].asInt();
 					else if (io["ID"].asInt() == 353)
-						 packet["Actual_remaining_mileage"] = io["value"].asInt();
+						 rhs["Actual_remaining_mileage"] = io["value"].asInt();
 					else if (io["ID"].asInt() == 354)
-						 packet["Predicted_remaining_mileage"] = io["value"].asInt();
+						 rhs["Predicted_remaining_mileage"] = io["value"].asInt();
 					else if (io["ID"].asInt() == 355)
-						 packet["Speed"] = io["value"].asInt();
+						 rhs["Speed"] = io["value"].asInt();
 					else if (io["ID"].asInt() == 356)
-						 packet["Total_mileage"] = io["value"].asInt();
+						 rhs["Total_mileage"] = io["value"].asInt();
 					else if (io["ID"].asInt() == 352)
-						 packet["Scooter_battery"] = io["value"].asInt();
+						 rhs["Scooter_battery"] = io["value"].asInt();
 				}
 			}
 		}
 	} catch (...) {
-		response.MakeErrorResponse(500, "Internal Server Error");
 		LG_NFO(this->logger(), "Unable to serialize packet JSON for vehicle[{}]", vehicle->imei());
 		return RES_NOENT;
 	}
 
-	packet["Imei"] = vehicle->imei();
-	packet["ID"] = vehicle->id();
+	rhs["Imei"] = vehicle->imei();
+	rhs["ID"] = vehicle->id();
 
-	response.MakeGetResponse(packet.toStyledString(), "application/json; charset=UTF-8");
 	return RES_OK;
 }
 
@@ -212,8 +246,7 @@ void CacheHandler::onReceived(const void *buffer, size_t size)
 		return;
 	}
 
-	auto str = std::string((const char*) buffer, size);
-	if (decodeJson(tc::hex2string(str)) != RES_OK) {
+	if (decodeJson(tc::hex2string(std::string{(const char*) buffer, size})) != RES_OK) {
 		LG_ERR(this->logger(), "Unable to decode string");
 		return;
 	}
@@ -250,13 +283,17 @@ result_t CacheHandler::addCommand(const Request &request, CppServer::HTTP::HTTPR
 		return RES_NOENT;
 	}
 
-if (!vehicle->second->online()) {
+	if (!vehicle->second->online()) {
 		LG_ERR(this->logger(), "Vehicle not online");
 		response.MakeErrorResponse(400, fmt::format("Device with ID: {} is not online", request.id()));
 		return RES_NOENT;
 	}
 
-	iSignal.emit(request.id(), request.command());
+	if (iClient->send(request.id(), request.command()) != RES_OK) {
+		LG_ERR(this->logger(), "Unable to send command.");
+		response.MakeErrorResponse(400, "Internal Server Error");
+		return RES_NOENT;
+	}
 	response.MakeOKResponse();
 	return RES_OK;
 }
@@ -278,7 +315,7 @@ result_t CacheHandler::set(Request &request, CppServer::HTTP::HTTPResponse &resp
 				it->second->setID(val);
 			if (!key.compare("fleet"))
 				it->second->setFleet(val);
-			iSignalModified.emit(it->first);
+			iSignal.emit(it->first);
 		}
 	} else {
 		response.MakeErrorResponse(400, "Bad Request");
