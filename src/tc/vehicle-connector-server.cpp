@@ -164,6 +164,15 @@ int main(int argc, char** argv)
 	// Create a new TCP client
 	auto client = std::make_shared< client::tcp::Client >(signal, service, addr, tcp_port);
 
+	while (true) {
+		if (client->IsConnected()) {
+			break;
+		}
+		LG_NFO(log.logger(), "Retrying connection to telematics server...");
+		client->ConnectAsync();
+		sleep_for(pool_interval);
+	}
+
 	// connect cache signal
 	signal_cmd.connect([&](Imei imei, std::string cmd) {
     client->send(imei, cmd);
@@ -183,15 +192,6 @@ int main(int argc, char** argv)
 
 	// sync devices from DB
 	server->syncDevices();
-
-	while (true) {
-		if (client->IsConnected()) {
-			break;
-		}
-		LG_NFO(log.logger(), "Retrying connection to telematics server...");
-		client->ConnectAsync();
-		sleep_for(pool_interval);
-	}
 
 	// Sync devices into DB
 	server::http::LSync sync;

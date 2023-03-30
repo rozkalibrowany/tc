@@ -6,7 +6,13 @@ Client::Client(Signal<const void *, size_t> &signal, const std::shared_ptr<Servi
  : TCPClient(service, address, port)
  , iSignal(signal)
 {
+	SetupNoDelay(true);
 	// nothing to do
+}
+
+Client::~Client()
+{
+	Disconnect();
 }
 
 result_t Client::send(const parser::Buf &buf)
@@ -56,7 +62,7 @@ result_t Client::send(const Imei &imei, const std::string command)
 
 void Client::onReceived(const void* buffer, size_t size)
 {
-	LG_NFO(this->logger(), "Client received: [{}]", size, tc::uchar2string((const uchar*) buffer, size));
+	LG_NFO(this->logger(), "Client received: [{}]", size);
 	iSignal.emit(buffer, size);
 }
 

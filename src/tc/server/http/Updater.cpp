@@ -13,6 +13,11 @@ void Updater::execute(std::shared_ptr< tc::client::tcp::Client > client, int64_t
 {
 	std::chrono::milliseconds _interval(interval);
 
+	while (!client->IsConnected()) {
+		std::this_thread::sleep_for(_interval);
+		continue;
+	}
+	
 	parser::Buf buf;
 	if (iRequest.toInternal(buf) != RES_OK) {
 		LG_ERR(this->logger(), "Unable to convert to internal request");

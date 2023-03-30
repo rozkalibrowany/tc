@@ -140,19 +140,39 @@ result_t CacheHandler::getPacket(const std::shared_ptr< iot::Vehicle > vehicle, 
 				packet["Timestamp"] = rec["Header"]["Timestamp"];
 			}
 			if (rec.isMember("GPS")) {
-				packet["Longitude"] = rec["GPS"]["Longitude"];
-				packet["Latitude"] = rec["GPS"]["Latitude"];
-				packet["Altitude"] = rec["GPS"]["Altitude"];
-				packet["Angle"] = rec["GPS"]["Angle"];
-				packet["Satellites"] = rec["GPS"]["Satellites"];
-				packet["Speed"] = rec["GPS"]["Speed"];
+				Json::Value gps;
+				gps["Longitude"] = rec["GPS"]["Longitude"];
+				gps["Latitude"] = rec["GPS"]["Latitude"];
+				gps["Altitude"] = rec["GPS"]["Altitude"];
+				gps["Angle"] = rec["GPS"]["Angle"];
+				gps["Satellites"] = rec["GPS"]["Satellites"];
+				gps["Speed"] = rec["GPS"]["Speed"];
+				packet["GPS"] = gps;
 			}
 			if (rec.isMember("IoRecords")) {
 				for (const auto& io : rec["IoRecords"]) {
 					if (io["ID"].asInt() == 113) 
-						packet["Battery"] = io["value"].asInt();
+						packet["Battery_capacity"] = io["value"].asInt();
 					else if (io["ID"].asInt() == 16)
 						 packet["Odometer"] = io["value"].asInt();
+					else if (io["ID"].asInt() == 341)
+						 packet["Error"] = io["value"].asInt();
+					else if (io["ID"].asInt() == 344)
+						 packet["Lock"] = io["value"].asInt();
+					else if (io["ID"].asInt() == 349)
+						 packet["Speed_mode"] = io["value"].asInt();
+					else if (io["ID"].asInt() == 352)
+						 packet["Battery_percentage"] = io["value"].asInt();
+					else if (io["ID"].asInt() == 353)
+						 packet["Actual_remaining_mileage"] = io["value"].asInt();
+					else if (io["ID"].asInt() == 354)
+						 packet["Predicted_remaining_mileage"] = io["value"].asInt();
+					else if (io["ID"].asInt() == 355)
+						 packet["Speed"] = io["value"].asInt();
+					else if (io["ID"].asInt() == 356)
+						 packet["Total_mileage"] = io["value"].asInt();
+					else if (io["ID"].asInt() == 352)
+						 packet["Scooter_battery"] = io["value"].asInt();
 				}
 			}
 		}

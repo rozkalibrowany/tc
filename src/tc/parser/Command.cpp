@@ -26,7 +26,8 @@ namespace tc::parser {
 	{"buzz_ctrl_on", "scbuzzerctrl 1 1"},
 	{"alarm_sw_on", "scsetalarmswitch 1"},
 	{"alarm_sw_off", "scsetalarmswitch 0"},
-	{"restart", "screbootsys"}};
+	{"restart", "screbootsys"},
+	{"get_mode", "scgetmode"}};
 
 Command::Command(const std::string &imei)
 	: tc::LogI("console")

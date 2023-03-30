@@ -16,7 +16,8 @@ namespace tc::client::tcp {
 		using TCPClient::TCPClient;
 
 		Client(Signal<const void *, size_t> &signal, const std::shared_ptr<Service> &service, const std::string &address, int port);
-
+		~Client();
+		
 		result_t send(const parser::Buf &buf);
 		result_t send(std::shared_ptr<parser::Command> command);
 		result_t send(const Imei &imei, const std::string command);

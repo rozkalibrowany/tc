@@ -31,7 +31,7 @@ bool IoRecord::empty() const
 
 result_t IoRecord::parse(Reader &reader)
 {
-  return RES_NOIMPL;
+  return parse(reader, 8);
 }
 
 result_t IoRecord::parse(Reader &reader, int codec)
@@ -67,6 +67,7 @@ result_t IoRecord::parseFixedSize(Reader &reader, int ioIdSize, int byteSize)
 	for (uint i = 0; i < recordsCount; i++) {
 		auto id = reader.readU(ioIdSize);
 		auto value = reader.read(byteSize);
+
 		iRecordsMap.insert(std::make_pair(byteSize, IoRecordsPropertyList()));
 		iRecordsMap.at(byteSize).push_back(std::make_shared<IoRecordProperty>(id, value));
 	}
@@ -111,10 +112,13 @@ result_t IoRecord::parseVariableSize(Reader &reader, int ioIdSize)
 result_t IoRecord::toJsonImpl(Json::Value &rhs, bool root) const
 {
 	auto &el = rhs["IoRecords"] = Json::arrayValue;
-	for (auto &r : iRecordsMap) {
-		Json::Value val;
-		r.second.front()->toJson(val, root);
-		el.append(val);
+	for (auto &rec : iRecordsMap) {
+		for (auto &r : rec.second) {
+			Json::Value val;
+			r->toJson(val, root);
+			el.append(val);
+		}
+		
 	}
 	return RES_OK;
 }

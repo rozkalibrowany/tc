@@ -34,6 +34,9 @@ public:
 	size_t cacheSize() const;
 	std::shared_ptr<mongo::Client> dbClient();
 
+	result_t sendCommand(const Imei &imei, std::shared_ptr<parser::PacketCommand> &command);
+
+
 protected:
 	std::shared_ptr< CppServer::Asio::TCPSession > CreateSession(const std::shared_ptr<TCPServer> &server) override;
 
@@ -42,7 +45,6 @@ protected:
 	void onError(int error, const std::string &category, const std::string &message) override;
 
 private:
-	result_t sendCommand(const Imei &imei, std::shared_ptr<parser::PacketCommand> &command);
 	std::shared_ptr< mongo::Client > iDbClient;
 	size_t iCacheSize;
 };
