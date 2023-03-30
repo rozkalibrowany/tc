@@ -20,7 +20,7 @@ result_t readTelematicsConfig(INIStructure &ini, LogI &log, std::string &addr, i
 	if (!ini["server"].has("port")) {
 		LG_ERR(log.logger(), "Missing HTTP port number.");
 		return RES_NOENT;
-	}
+	}		
 
 	port = std::stoi(ini["server"]["port"]);
 	if (!vIsPortNumber(port)) {

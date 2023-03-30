@@ -233,13 +233,16 @@ result_t CacheHandler::decodeJson(const std::string &data)
 		return RES_INVARG;
 	}
 
-	return RES_OK;
+	if (root.isMember("devices"))
+		return iVehicles.fromJson(root, true);
+	else if (root.isMember("packets"))
+		return iVehicles.fromJsonPacket(root);
+
+	return RES_NOENT;
 }
 
 result_t CacheHandler::addCommand(const Request &request, CppServer::HTTP::HTTPResponse &response)
 {
-	LG_ERR(this->logger(), "addCommand, {}", request.id());
-
 	auto vehicle = iVehicles.find(request.id());
 	if (vehicle == iVehicles.end()) {
 		LG_ERR(this->logger(), "Vehicle not found");

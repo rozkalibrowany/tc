@@ -3,7 +3,6 @@
 #include <tc/parser/packet/PacketPayload.h>
 #include <tc/parser/packet/PacketCommand.h>
 #include <tc/parser/packet/PacketRequest.h>
-#include <tc/db/Thread.h>
 #include <bsoncxx/builder/stream/document.hpp>
 #include <bsoncxx/json.hpp>
 #include <iomanip>

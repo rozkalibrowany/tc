@@ -45,11 +45,11 @@ class TcConan(ConanFile, Os):
         self.requires("fmt/9.1.0@tc/stable")
         self.requires("asio/1.22.1@tc/stable")
         self.requires("mongoc/1.23.2@tc/stable")
-        self.requires("mongocxx/3.7.0@tc/stable")
+        self.requires("mongocxx/3.7.1@tc/stable")
         self.requires("cppserver/master@tc/stable")
         self.requires("jsoncpp/1.9.5@tc/stable")
         self.requires("spdlog/1.11.0@tc/stable")
-        self.requires("args-parser/6.2.0.1@tc/stable")
+        self.requires("args-parser/6.3.2@tc/stable")
         self.requires("mini/0.9.14@tc/stable")
         self.requires("vscode/1.0.2@tc/stable")
 

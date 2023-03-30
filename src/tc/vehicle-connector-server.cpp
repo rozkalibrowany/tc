@@ -153,7 +153,6 @@ int main(int argc, char** argv)
 	auto service = std::make_shared<tc::asio::AsioService>(threads);
 	if (!service->Start())
 		return 1;
-	LG_NFO(log.logger(), "Asio service started!");
 
 	// Connect client signal for syncing device info
 	Signal<const void *, size_t> signal;
@@ -209,13 +208,14 @@ int main(int argc, char** argv)
 	devices_updater_thread.detach();
 
 	while (true) {
-		LG_NFO(log.logger(), "HTTP server, connected sessions[{}] bytes sent[{}] bytes received[{}]", server->connected_sessions(), server->bytes_sent(), server->bytes_received());
+		LG_NFO(log.logger(), "HTTP server, sessions[{}] bytes sent[{}] received[{}]", server->connected_sessions(), server->bytes_sent(), server->bytes_received());
 
 		sleep_for(pool_interval);
 	}
 
 	// Join thread
 	lsync_thread.join();
+	devices_updater_thread.join();
 	packets_updater_thread.join();
 
 	// Stop the server

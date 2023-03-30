@@ -6,7 +6,6 @@ Client::Client(Signal<const void *, size_t> &signal, const std::shared_ptr<Servi
  : TCPClient(service, address, port)
  , iSignal(signal)
 {
-	SetupNoDelay(true);
 	// nothing to do
 }
 
