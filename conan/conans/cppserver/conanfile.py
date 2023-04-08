@@ -42,10 +42,6 @@ class CppServerConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHel
             [
                 {
                     "target": "lib",
-                    "libs": ["fmt"],
-                },
-                {
-                    "target": "lib",
                     "libs": ["cppserver"],
                 },
 
