@@ -5,7 +5,7 @@
 #include <tc/common/Common.h>
 #include <tc/parser/Json.h>
 
-namespace tc::parser::records {
+namespace tc::parser::teltonika::records {
 
 class RecordI : public tc::LogI, public JsonI {
 public:
@@ -18,6 +18,6 @@ public:
 	virtual bool empty() const = 0;
 };
 
-} // namespace tc::parser::records
+} // namespace tc::parser::teltonika::records
 
 #endif /* CDB95BC9_0A6E_4C4B_A858_F0CAB1CFC34C */

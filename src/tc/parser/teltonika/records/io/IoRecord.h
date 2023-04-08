@@ -2,11 +2,11 @@
 #define B2813421_A4C9_496C_930F_A76CC1C8337F
 
 //#include <fmt/ostream.h>
-#include <tc/parser/records/RecordI.h>
+#include <tc/parser/teltonika/records/RecordI.h>
 #include <tc/common/LockGuard.h>
 #include <json/json.h>
 
-namespace tc::parser::records::io {
+namespace tc::parser::teltonika::records {
 
 class IoRecordProperty;
 using IoRecordPropertySPtr = std::shared_ptr< IoRecordProperty >;
@@ -50,6 +50,6 @@ private:
 };
 
 
-} // namespace tc::parser::records::io
+} // namespace tc::parser::teltonika::records
 
 #endif /* B2813421_A4C9_496C_930F_A76CC1C8337F */

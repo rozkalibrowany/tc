@@ -1,10 +1,9 @@
 #ifndef D426066F_F3EE_412F_864E_4D6726173ECE
 #define D426066F_F3EE_412F_864E_4D6726173ECE
 
-#include <tc/parser/records/RecordI.h>
-#include <tc/common/SysMutex.h>
-#include <mutex>
-namespace tc::parser::records::gps {
+#include <tc/parser/teltonika/records/RecordI.h>
+
+namespace tc::parser::teltonika::records {
 
 class GPSRecord : public RecordI {
 public:
@@ -33,7 +32,7 @@ protected:
 	std::optional<int> iSpeed;
 };
 
-} // namespace tc::parser::records::avl
+} // namespace tc::parser::teltonika::records
 
 
 #endif /* D426066F_F3EE_412F_864E_4D6726173ECE */

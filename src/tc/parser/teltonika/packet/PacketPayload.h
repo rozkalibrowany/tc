@@ -1,7 +1,7 @@
 #ifndef E1382A91_4A19_490A_9DB0_1B2CEB94E659
 #define E1382A91_4A19_490A_9DB0_1B2CEB94E659
 
-#include <tc/parser/records/avl/AVLRecord.h>
+#include <tc/parser/teltonika/records/avl/AVLRecord.h>
 #include <tc/parser/Packet.h>
 #include <tc/parser/Reader.h>
 #include <tc/common/Buf.h>
@@ -9,7 +9,6 @@
 namespace tc::parser::teltonika {
 
 using namespace records;
-using namespace avl;
 
 class PacketPayload : public Packet, public JsonI
 {

@@ -1,12 +1,12 @@
 #ifndef E4EF0871_8722_4CC4_8A6F_AD01CD2675AF
 #define E4EF0871_8722_4CC4_8A6F_AD01CD2675AF
 
-#include <tc/parser/records/avl/AVLRecordHeader.h>
-#include <tc/parser/records/io/IoRecord.h>
-#include <tc/parser/records/gps/GPSRecord.h>
+#include <tc/parser/teltonika/records/avl/AVLRecordHeader.h>
+#include <tc/parser/teltonika/records/io/IoRecord.h>
+#include <tc/parser/teltonika/records/gps/GPSRecord.h>
 #include <tc/parser/Reader.h>
 
-namespace tc::parser::records::avl {
+namespace tc::parser::teltonika::records {
 
 class AVLRecord : public tc::LogI, public parser::JsonI {
 public:
@@ -19,8 +19,8 @@ public:
 	Json::Value toJsonValue();
 
 	AVLRecordHeader iRecordHeader;
-	gps::GPSRecord iGPSRecord;
-	io::IoRecord iRecordIo;
+	GPSRecord iGPSRecord;
+	IoRecord iRecordIo;
 
 protected:
 	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
@@ -60,6 +60,6 @@ protected:
 	std::vector< AVLRecord > iRecords;
 };
 
-} // namespace tc::parser::records::avl
+} // namespace tc::parser::teltonika::records
 
 #endif /* E4EF0871_8722_4CC4_8A6F_AD01CD2675AF */

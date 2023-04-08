@@ -2,10 +2,10 @@
 #define FEE8E53A_FF07_4D39_8BDA_27202A9F053E
 
 #include <tc/parser/Reader.h>
-#include <tc/parser/records/RecordI.h>
+#include <tc/parser/teltonika/records/RecordI.h>
 #include <list>
 
-namespace tc::parser::records::io {
+namespace tc::parser::teltonika::records {
 
 class IoRecordProperty : public RecordI {
 public:
@@ -62,7 +62,7 @@ protected:
 	std::list< McanIo > iIoElements;
 };
 
-} // namespace tc::parser::records::io
+} // namespace tc::parser::teltonika::records
 
 
 #endif /* FEE8E53A_FF07_4D39_8BDA_27202A9F053E */

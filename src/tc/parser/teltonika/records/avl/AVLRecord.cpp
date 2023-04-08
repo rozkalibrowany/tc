@@ -1,6 +1,6 @@
-#include <tc/parser/records/avl/AVLRecord.h>
+#include <tc/parser/teltonika/records/avl/AVLRecord.h>
 
-namespace tc::parser::records::avl {
+namespace tc::parser::teltonika::records {
 
 AVLRecord::AVLRecord(int codec)
  : tc::LogI("console")
@@ -196,4 +196,4 @@ result_t AVLRecords::fromJsonImpl(const Json::Value &rhs, bool root)
 	return RES_OK;
 }
 
-} // namespace tc::parser::AVLRecords::avl
+} // namespace tc::parser::teltonika::records

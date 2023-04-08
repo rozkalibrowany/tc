@@ -1,7 +1,7 @@
-#include <tc/parser/records/avl/AVLRecordHeader.h>
+#include <tc/parser/teltonika/records/avl/AVLRecordHeader.h>
 //#include <fmt/format.h>
 
-namespace tc::parser::records::avl {
+namespace tc::parser::teltonika::records {
 
 AVLRecordHeader::AVLRecordHeader(int64_t timestamp, int priority)
   : iTimestamp(timestamp)
@@ -67,4 +67,4 @@ result_t AVLRecordHeader::fromJsonImpl(const Json::Value &rhs, bool root)
 	return RES_OK;
 }
 
-} // namespace tc::parser::records::avl
+} // namespace tc::parser::teltonika::records

@@ -1,10 +1,10 @@
 #ifndef F25D9B53_659E_4A24_B5BB_B848D1096187
 #define F25D9B53_659E_4A24_B5BB_B848D1096187
-#include <tc/parser/records/io/IoRecord.h>
-#include <tc/parser/records/io/IoRecordProperty.h>
+#include <tc/parser/teltonika/records/io/IoRecord.h>
+#include <tc/parser/teltonika/records/io/IoRecordProperty.h>
 #include <iterator>
 
-namespace tc::parser::records::io {
+namespace tc::parser::teltonika::records {
 
 IoRecord::IoRecord(int eventID, int elements)
  : iEventID(eventID)
@@ -143,7 +143,7 @@ result_t IoRecord::fromJsonImpl(const Json::Value &rhs, bool root)
 	return RES_OK;
 }
 
-} // namespace tc::parser::records::io
+} // namespace tc::parser::teltonika::records
 
 
 #endif /* F25D9B53_659E_4A24_B5BB_B848D1096187 */

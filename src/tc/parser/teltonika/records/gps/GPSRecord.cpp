@@ -1,6 +1,6 @@
-#include <tc/parser/records/gps/GPSRecord.h>
+#include <tc/parser/teltonika/records/gps/GPSRecord.h>
 
-namespace tc::parser::records::gps {
+namespace tc::parser::teltonika::records {
 
 GPSRecord::GPSRecord()
 {
@@ -91,4 +91,4 @@ bool GPSRecord::empty() const
 	return !iLongitude.has_value() && !iLatitude.has_value();
 }
 
-} // namespace tc::parser::records::gps
+} // namespace tc::parser::teltonika::records

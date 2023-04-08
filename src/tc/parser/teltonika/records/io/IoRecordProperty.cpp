@@ -1,6 +1,6 @@
-#include <tc/parser/records/io/IoRecordProperty.h>
+#include <tc/parser/teltonika/records/io/IoRecordProperty.h>
 
-namespace tc::parser::records::io {
+namespace tc::parser::teltonika::records {
 
 IoRecordProperty::IoRecordProperty(int id, int64_t val)
  : iID(id)
@@ -139,4 +139,4 @@ result_t IoMcanProperty::fromJsonImpl(const Json::Value &rhs, bool root)
 }
 
 
-} // namespace tc::parser::records::io
+} // namespace tc::parser::teltonika::records

@@ -1,10 +1,10 @@
 #ifndef D876042F_EF7D_45D4_82F7_B53125967A96
 #define D876042F_EF7D_45D4_82F7_B53125967A96
 
-#include <tc/parser/records/RecordI.h>
+#include <tc/parser/teltonika/records/RecordI.h>
 #include <tc/parser/Reader.h>
 
-namespace tc::parser::records::avl {
+namespace tc::parser::teltonika::records {
 
 class AVLRecordHeader : public RecordI {
 public:
@@ -30,6 +30,6 @@ protected:
 
 };
 
-} // namespace tc::parser::records::avl
+} // namespace tc::parser::teltonika::records
 
 #endif /* D876042F_EF7D_45D4_82F7_B53125967A96 */
