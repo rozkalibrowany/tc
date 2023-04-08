@@ -1,15 +1,20 @@
-#include <tc/parser/teltonika/packet/PacketPayload.h>
+#include <tc/parser/teltonika/packet/Payload.h>
 #include <algorithm>
 
 namespace tc::parser::teltonika {
 
-size_t PacketPayload::DATA_MIN_SIZE = 45;
-size_t PacketPayload::IMEI_MIN_SIZE = 15;
+size_t Payload::DATA_MIN_SIZE = 45;
+size_t Payload::IMEI_MIN_SIZE = 15;
 
-bool PacketPayload::hasPayload(const uchar* buf, size_t size)
+bool Payload::isTeltonika(const uchar* buf, size_t size)
+{
+	return (hasPayloadImei(buf, size) || hasPayload(buf, size));
+}
+
+bool Payload::hasPayload(const uchar* buf, size_t size)
 {
 	bool isPayload = false;
-	if (size < PacketPayload::DATA_MIN_SIZE) {
+	if (size < Payload::DATA_MIN_SIZE) {
 		return isPayload;
 	}
 
@@ -18,10 +23,10 @@ bool PacketPayload::hasPayload(const uchar* buf, size_t size)
 	return isPayload;
 }
 
-bool PacketPayload::hasPayloadImei(const uchar* buf, size_t size)
+bool Payload::hasPayloadImei(const uchar* buf, size_t size)
 {
 	bool isPayload = false;
-	if (size < PacketPayload::IMEI_MIN_SIZE || size >= PacketPayload::DATA_MIN_SIZE) {
+	if (size < Payload::IMEI_MIN_SIZE || size >= Payload::DATA_MIN_SIZE) {
 		return isPayload;
 	}
 
@@ -30,7 +35,7 @@ bool PacketPayload::hasPayloadImei(const uchar* buf, size_t size)
 	return isPayload;
 }
 
-bool PacketPayload::contains(const uchar* buf, size_t size, uchar c)
+bool Payload::contains(const uchar* buf, size_t size, uchar c)
 {
 	auto end = buf + (unsigned long) size;
 	auto pos = std::find(buf, end, c);
@@ -38,7 +43,7 @@ bool PacketPayload::contains(const uchar* buf, size_t size, uchar c)
 	return pos != end;
 }
 
-int PacketPayload::getIdx(const uchar* cbuf, size_t size, const uchar c) {
+int Payload::getIdx(const uchar* cbuf, size_t size, const uchar c) {
 	if (size < 24) return -1;
 
 	for (int i = 0; i < 24; i++) {
@@ -49,9 +54,9 @@ int PacketPayload::getIdx(const uchar* cbuf, size_t size, const uchar c) {
 	return -1;
 }
 
-result_t PacketPayload::parse(const uchar* cbuf, size_t size, size_t /* offset */)
+result_t Payload::parse(const uchar* cbuf, size_t size, size_t /* offset */)
 {
-	if (size < PacketPayload::IMEI_MIN_SIZE) {
+	if (size < Payload::IMEI_MIN_SIZE) {
 		return RES_NOENT;
 	}
 
@@ -95,17 +100,17 @@ result_t PacketPayload::parse(const uchar* cbuf, size_t size, size_t /* offset *
 	return RES_NOENT;
 }
 
-const size_t PacketPayload::size()
+const size_t Payload::size()
 {
 	return iRecordsSize;
 }
 
-AVLRecords &PacketPayload::records()
+AVLRecords &Payload::records()
 {
 	return iAVLRecords;
 }
 
-Json::Value PacketPayload::toJsonValue()
+Json::Value Payload::toJsonValue()
 {
 	Json::Value val;
 	toJsonImpl(val, true);
@@ -113,12 +118,12 @@ Json::Value PacketPayload::toJsonValue()
 	return val;
 }
 
-result_t PacketPayload::toJsonImpl(Json::Value &rhs, bool root) const
+result_t Payload::toJsonImpl(Json::Value &rhs, bool root) const
 {
 	return iAVLRecords.toJson(rhs, root);
 }
 
-result_t PacketPayload::fromJsonImpl(const Json::Value &rhs, bool root)
+result_t Payload::fromJsonImpl(const Json::Value &rhs, bool root)
 {
 	return iAVLRecords.fromJson(rhs, root);
 }

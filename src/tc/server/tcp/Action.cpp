@@ -1,5 +1,5 @@
 #include <tc/server/tcp/Action.h>
-#include <tc/parser/teltonika/packet/PacketPayload.h>
+#include <tc/parser/teltonika/packet/Payload.h>
 #include <tc/parser/teltonika/packet/PacketCommand.h>
 #include <tc/parser/InternalRequest.h>
 
@@ -15,7 +15,7 @@ Action::Type Action::get(const uchar* buffer, size_t size)
 		return Type::standby;
 	}
 
-	if (!has_imei && parser::teltonika::PacketPayload::hasPayload(buffer, size)) {
+	if (!has_imei && parser::teltonika::Payload::hasPayload(buffer, size)) {
 		return Type::payload;
 	}
 

@@ -34,9 +34,9 @@ public:
 	bool operator!=(const Device &rhs) const;
 	Vehicle &operator=(const Vehicle &rhs);
 
-	bool has(const std::shared_ptr<parser::teltonika::PacketPayload> packet) override;
+	bool has(const std::shared_ptr<parser::teltonika::Payload> packet) override;
 	result_t add(const uchar *buffer, size_t size) override;
-	result_t add(const std::shared_ptr<parser::teltonika::PacketPayload> packet) override;
+	result_t add(const std::shared_ptr<parser::teltonika::Payload> packet) override;
 
 	result_t set(const std::string &json_doc);
 

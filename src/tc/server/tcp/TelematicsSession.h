@@ -22,8 +22,6 @@ public:
 
 	using CppServer::Asio::TCPSession::TCPSession;
 
-	Action::Type type() const;
-
 	result_t send(int buffer, const bool async = false);
 	result_t send(const uchar* buffer, size_t size, const bool async = false);
 	result_t send(const void *buffer, size_t size, const bool async = false);
@@ -44,14 +42,13 @@ private:
 	result_t handlePayload(const uchar *buffer, size_t size);
 	result_t handleStandby(const uchar *buffer, size_t size);
 
-	result_t savePacket(std::shared_ptr<parser::teltonika::PacketPayload> &packet);
+	result_t savePacket(std::shared_ptr<parser::teltonika::Payload> &packet);
 
 	std::shared_ptr<TelematicsServer> telematicsServer();
 
 	Imei iImei{"unknown"};
 	std::mutex iMutex;
 	SysTime iTimestamp;
-	Action::Type iType{Action::unknown};
 	std::unique_ptr<iot::Device> iDevice{nullptr};
 	std::shared_ptr<common::Buf> iBufferIncomplete{nullptr};
 };

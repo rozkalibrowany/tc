@@ -10,12 +10,13 @@ namespace tc::parser::teltonika {
 
 using namespace records;
 
-class PacketPayload : public Packet, public JsonI
+class Payload : public Packet, public JsonI
 {
 public:
 	static size_t DATA_MIN_SIZE;
 	static size_t IMEI_MIN_SIZE;
 
+	static bool isTeltonika(const uchar* buf, size_t size);
 	static bool hasPayload(const uchar* buf, size_t size);
 	static bool hasPayloadImei(const uchar* buf, size_t size);
 	static bool contains(const uchar* buf, size_t size, uchar c);

@@ -1,6 +1,6 @@
 #include <tc/server/tcp/TelematicsSession.h>
 #include <tc/server/tcp/TelematicsServer.h>
-#include <tc/parser/teltonika/packet/PacketPayload.h>
+#include <tc/parser/teltonika/packet/Payload.h>
 #include <tc/parser/teltonika/packet/PacketCommand.h>
 #include <tc/parser/InternalRequest.h>
 #include <bsoncxx/builder/stream/document.hpp>
@@ -20,11 +20,6 @@ std::shared_ptr<TelematicsServer> TelematicsSession::telematicsServer()
 const Imei TelematicsSession::imei() const
 {
 	return iImei;
-}
-
-Action::Type TelematicsSession::type() const
-{
-	return iType;
 }
 
 inline std::string bytes2hex(const uint8_t *in, int size)
@@ -126,8 +121,6 @@ void TelematicsSession::handleDataBuffer(const uchar* buffer, size_t size, Actio
 	if (res != RES_OK) {
 		LG_DBG(this->logger(), "[{}] Unable to handle data buffer[{}]", iImei, size);
 	}
-
-	iType = type;
 }
 
 result_t TelematicsSession::handleImei(const uchar *buffer, size_t size)
@@ -159,7 +152,7 @@ result_t TelematicsSession::handlePayload(const uchar *buffer, size_t size)
 
 	result_t res = RES_OK;
 
-	auto packet = std::make_shared< parser::teltonika::PacketPayload >();
+	auto packet = std::make_shared< parser::teltonika::Payload >();
 	if ((res = packet->parse(buffer, size)) != RES_OK) {
 		LG_ERR(this->logger(), "[{}] Parse payload packet", iImei);
 		return res;
@@ -218,7 +211,7 @@ result_t TelematicsSession::handleStandby(const uchar *buffer, size_t size)
 	return send(eOK);
 }
 
-result_t TelematicsSession::savePacket(std::shared_ptr<parser::teltonika::PacketPayload> &packet)
+result_t TelematicsSession::savePacket(std::shared_ptr<parser::teltonika::Payload> &packet)
 {
 	if (iDevice == nullptr || iDevice->imei().empty())
 		return RES_NOENT;

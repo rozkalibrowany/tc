@@ -28,8 +28,8 @@ public:
 	~TelematicsServer();
 
 	result_t handleCommand(const uchar *buffer, size_t size);
-	result_t dispatchRequest(std::shared_ptr< InternalRequest > request, const CppCommon::UUID id);
 	result_t handleRequest(const uchar *buffer, size_t size, const CppCommon::UUID id);
+	result_t dispatchRequest(std::shared_ptr< InternalRequest > request, const CppCommon::UUID id);
 
 	size_t cacheSize() const;
 	std::shared_ptr<mongo::Client> dbClient();
