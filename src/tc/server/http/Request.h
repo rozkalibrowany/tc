@@ -3,7 +3,7 @@
 
 #include <server/http/http_request.h>
 #include <tc/common/Common.h>
-#include <tc/parser/Buf.h>
+#include <tc/common/Buf.h>
 
 namespace tc::server::http {
 
@@ -48,7 +48,7 @@ public:
 	result_t query(std::string &key);
 	result_t query(std::string &key, std::string &val);
 
-	result_t toInternal(parser::Buf &buf, bool cr = false);
+	result_t toInternal(common::Buf &buf, bool cr = false);
 
 	static Type str2req(const std::string &req);
   static const std::string method2str(Method method);

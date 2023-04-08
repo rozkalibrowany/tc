@@ -1,7 +1,7 @@
 #ifndef E2EB797D_BF96_49F2_8076_6FCE70519A6C
 #define E2EB797D_BF96_49F2_8076_6FCE70519A6C
 
-#include <tc/parser/Buf.h>
+#include <tc/common/Buf.h>
 #include <tc/common/Common.h>
 #include <tc/parser/Reader.h>
 
@@ -65,7 +65,7 @@ public:
 	virtual const Timestamp &timestamp() const;
 
 protected:
-	bool crcOk(const std::shared_ptr< Buf > buf, size_t size);
+	bool crcOk(const std::shared_ptr< common::Buf > buf, size_t size);
 
 	Timestamp iTimestamp;
 	int iCodec;

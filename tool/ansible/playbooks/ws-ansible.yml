@@ -24,4 +24,5 @@
     # services
     - { role: nginx, tags: [nginx] }
     - { role: telematics-server, tags: [telematics-server] }
+    - { role: telematics-server-omni, tags: [telematics-server-omni] }
     - { role: vehicle-connector-server, tags: [vehicle-connector-server] }

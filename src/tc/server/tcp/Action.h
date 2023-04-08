@@ -2,7 +2,7 @@
 #define D1DC27A3_560C_41B9_978D_1501280E6365
 
 #include <tc/common/Common.h>
-#include <tc/parser/Buf.h>
+#include <tc/common/Buf.h>
 
 namespace tc::server::tcp {
 

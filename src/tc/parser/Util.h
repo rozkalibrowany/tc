@@ -2,7 +2,7 @@
 #define D2287EC0_5CFD_4186_8A47_42D2A9981F96
 
 #include <tc/common/Common.h>
-#include <tc/parser/Buf.h>
+#include <tc/common/Buf.h>
 #include <tc/parser/Json.h>
 #include <tc/parser/Convert.h>
 

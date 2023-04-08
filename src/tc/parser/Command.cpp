@@ -58,7 +58,7 @@ result_t Command::create(const std::string &cmd, bool cr)
 	val = byte2string(0, 4*2);
 	iBuf.insert(val.data(), val.length());
 
-	parser::Buf payload;
+	common::Buf payload;
 	if ((res = getPayload(cmd, payload)) != RES_OK) {
 		return res;
 	}
@@ -92,7 +92,7 @@ result_t Command::create(const std::string &cmd, bool cr)
 	return res;
 }
 
-result_t Command::getPayload(const std::string &cmd, parser::Buf &buf)
+result_t Command::getPayload(const std::string &cmd, common::Buf &buf)
 {
 	// codec
 	auto val = byte2string(CODEC_12);

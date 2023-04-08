@@ -5,7 +5,7 @@
 #include <iterator>
 #include <tc/common/Common.h>
 
-namespace tc::parser {
+namespace tc::common {
 
 class Buf {
 public:
@@ -54,6 +54,6 @@ public:
   ByteArray iBuf;
 };
 
-} // namespace tc::parser
+} // namespace tc::common
 
 #endif /* DA60B58C_59CB_4A50_9994_E86447621129 */

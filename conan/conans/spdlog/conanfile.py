@@ -32,7 +32,8 @@ class SpdlogConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHelper
 
     def package(s):
         s.copy("*.h", src=os.path.join(s._source_subfolder, "include"), dst="include")
-        s.copy("*.so", src=os.path.join(s._build_subfolder, "lib"), dst="lib")
+        s.copy("*.so*", src=os.path.join(s._build_subfolder, "lib"), dst="lib")
+        s.do_package()
 
     def package_info(s):
         s.add_components(

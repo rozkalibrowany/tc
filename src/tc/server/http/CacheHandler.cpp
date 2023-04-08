@@ -161,10 +161,10 @@ result_t CacheHandler::getPacket(const std::shared_ptr< iot::Vehicle > vehicle, 
 
 			if (rec.isMember("IoRecords")) {
 				for (const auto& io : rec["IoRecords"]) {
-					if (io["ID"].asInt() == 113) 
+					if (io["ID"].asInt() == 113)
 						packet["Battery_capacity"] = io["value"].asInt();
 					else if (io["ID"].asInt() == 16)
-						 packet["Odometer"] = io["value"].asInt();
+						 packet["Odometer"] = ::fmt::format("{:.2f}", float(round(io["value"].asInt() / 1000.0)));
 					else if (io["ID"].asInt() == 341)
 						 packet["Error"] = io["value"].asInt();
 					else if (io["ID"].asInt() == 344)
@@ -174,13 +174,13 @@ result_t CacheHandler::getPacket(const std::shared_ptr< iot::Vehicle > vehicle, 
 					else if (io["ID"].asInt() == 352)
 						 packet["Battery_percentage"] = io["value"].asInt();
 					else if (io["ID"].asInt() == 353)
-						 packet["Actual_remaining_mileage"] = io["value"].asInt();
+						 packet["Actual_remaining_mileage"] = ::fmt::format("{:.2f}", float(round(io["value"].asInt() / 1000.0)));
 					else if (io["ID"].asInt() == 354)
-						 packet["Predicted_remaining_mileage"] = io["value"].asInt();
+						 packet["Predicted_remaining_mileage"] =  ::fmt::format("{:.2f}", float(round(io["value"].asInt() / 1000.0)));
 					else if (io["ID"].asInt() == 355)
 						 packet["Speed"] = io["value"].asInt();
 					else if (io["ID"].asInt() == 356)
-						 packet["Total_mileage"] = io["value"].asInt();
+						 packet["Total_mileage"] =  ::fmt::format("{:.2f}", float(round(io["value"].asInt() / 1000.0)));
 					else if (io["ID"].asInt() == 352)
 						 packet["Scooter_battery"] = io["value"].asInt();
 				}
@@ -228,8 +228,9 @@ result_t CacheHandler::decodeJson(const std::string &data)
 {
 	Json::Value root;
 	Json::Reader reader;
+
 	if (!reader.parse(data, root, false)) {
-		LG_ERR(this->logger(), "Exception caught while decding JSON");
+		LG_ERR(this->logger(), "Unable to parse json string");
 		return RES_INVARG;
 	}
 

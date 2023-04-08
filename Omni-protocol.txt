@@ -1,0 +1,12 @@
+From Device:
+      header         manuf                imei                                    time                     instruction        userID                 timestamp                 cycle time units   end
+1. 2a434d4452   2c   4f4d   2c   383632323035303535303430373730     2c    303030303030303030303030     2c     4c31      2c      31      2c      31363830353437383932     2c      3430            230a
+     *CMDR      ,     OM    ,         862205055040770               ,         000000000000           ,         L1       ,        1      ,            1680547892          ,         40             #
+
+
+*CMDR - locker to server
+*CMDS - server to locker
+
+
+*CMDR,OM,862205055040770,000000000000,L1,1,1680547892,40#
+*CMDS,OM,862205055040770,000000000000,Re,L1#

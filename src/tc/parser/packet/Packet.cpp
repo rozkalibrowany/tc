@@ -79,7 +79,7 @@ const Imei Packet::toImei(const uchar* cbuf, int len)
 	return imei;
 }
 
-bool Packet::crcOk(const std::shared_ptr< Buf > buf, size_t size)
+bool Packet::crcOk(const std::shared_ptr< common::Buf > buf, size_t size)
 {
 	if (buf == nullptr) {
 		return false;
@@ -89,7 +89,7 @@ bool Packet::crcOk(const std::shared_ptr< Buf > buf, size_t size)
 	auto reader = std::make_shared< parser::Reader >(buf, size);
 	auto reader_crc = reader->read(4, size - 4);
 
-	parser::Buf subBuf(parser::Buf::ByteArray{buf->begin() + 8, buf->begin() + size - 4});
+	common::Buf subBuf(common::Buf::ByteArray{buf->begin() + 8, buf->begin() + size - 4});
 	auto calc = crc.calc((char*) subBuf.iBuf.data(), subBuf.size());
 
 	return calc == (int)reader_crc ? true : false;

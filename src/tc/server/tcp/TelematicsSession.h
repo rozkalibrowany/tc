@@ -53,7 +53,7 @@ private:
 	SysTime iTimestamp;
 	Action::Type iType{Action::unknown};
 	std::unique_ptr<iot::Device> iDevice{nullptr};
-	std::shared_ptr<parser::Buf> iBufferIncomplete{nullptr};
+	std::shared_ptr<common::Buf> iBufferIncomplete{nullptr};
 };
 
 } // namespace tc::server::tcp

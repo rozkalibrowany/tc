@@ -174,7 +174,7 @@ result_t Request::query(std::string &key, std::string &val)
 	return RES_OK;
 }
 
-result_t Request::toInternal(parser::Buf &buf, bool cr)
+result_t Request::toInternal(common::Buf &buf, bool cr)
 {
 	result_t res = RES_OK;
 

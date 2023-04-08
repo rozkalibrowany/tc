@@ -93,7 +93,7 @@ result_t IoRecord::parseVariableSize(Reader &reader, int ioIdSize)
 
 		if (id == 10358) {
 			auto property = std::make_shared< IoRecordProperty >(id);
-			auto buf = std::make_unique<Buf>(beg, end);
+			auto buf = std::make_unique<common::Buf>(beg, end);
 			Reader readerMcan(std::move(buf));
 			if (property->parse(readerMcan) != RES_OK) {
 				LG_ERR(this->logger(), "Unable to parse Mcan. Offset[{}], length[{}] buf size {}", readerMcan.offset(), length, readerMcan.buf()->size());

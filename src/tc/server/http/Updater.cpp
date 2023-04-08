@@ -18,7 +18,7 @@ void Updater::execute(std::shared_ptr< tc::client::tcp::Client > client, int64_t
 		continue;
 	}
 	
-	parser::Buf buf;
+	common::Buf buf;
 	if (iRequest.toInternal(buf) != RES_OK) {
 		LG_ERR(this->logger(), "Unable to convert to internal request");
 	}

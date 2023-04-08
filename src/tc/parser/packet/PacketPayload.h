@@ -4,7 +4,7 @@
 #include <tc/parser/records/avl/AVLRecord.h>
 #include <tc/parser/packet/Packet.h>
 #include <tc/parser/Reader.h>
-#include <tc/parser/Buf.h>
+#include <tc/common/Buf.h>
 
 namespace tc::parser {
 

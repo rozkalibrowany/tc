@@ -4,14 +4,14 @@
 
 namespace tc::parser {
 
-Reader::Reader(std::shared_ptr<Buf> buf, int offset)
+Reader::Reader(std::shared_ptr<common::Buf> buf, int offset)
  : iBuf(std::move(buf))
  , iOffset(offset)
 {
   // nothing to do
 }
 
-std::shared_ptr<Buf> Reader::buf()
+std::shared_ptr<common::Buf> Reader::buf()
 {
 	return iBuf;
 }
@@ -24,7 +24,7 @@ int Reader::offset() const
 uint Reader::readU(int bytes, int offset)
 {
 	auto offs = offset == 0 ? iOffset : offset;
-  Buf subBuf(Buf::ByteArray{iBuf->begin() + offs, iBuf->begin() + bytes + offs});
+  common::Buf subBuf(common::Buf::ByteArray{iBuf->begin() + offs, iBuf->begin() + bytes + offs});
 	if (offset == 0)
 		iOffset += bytes;
   std::reverse(subBuf.begin(), subBuf.end());
@@ -41,7 +41,7 @@ uint Reader::readU(int bytes, int offset)
 long Reader::readL(int bytes, int offset)
 {
 	auto offs = offset == 0 ? iOffset : offset;
-	Buf subBuf(Buf::ByteArray{iBuf->begin() + offs, iBuf->begin() + bytes + offs});
+	common::Buf subBuf(common::Buf::ByteArray{iBuf->begin() + offs, iBuf->begin() + bytes + offs});
 	if (offset == 0)
 		iOffset += bytes;
 	return std::stol (tc::uchar2string(subBuf.cdata(), 8), nullptr, 16);
@@ -50,7 +50,7 @@ long Reader::readL(int bytes, int offset)
 int Reader::read(int bytes, int offset)
 {
 	auto offs = offset == 0 ? iOffset : offset;
-	Buf subBuf(Buf::ByteArray{iBuf->begin() + offs, iBuf->begin() + bytes + offs});
+	common::Buf subBuf(common::Buf::ByteArray{iBuf->begin() + offs, iBuf->begin() + bytes + offs});
 	if (offset == 0)
 		iOffset += bytes;
   std::reverse(subBuf.begin(), subBuf.end());

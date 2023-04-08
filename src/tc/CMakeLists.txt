@@ -69,6 +69,10 @@ TcAddLibrary(
 TcAddExecutable(tc-telematics-server "${src}/telematics-server.cpp" tc-server
 	LINK_FLAGS "-Wl,--no-as-needed")
 
+TcAddExecutable(tc-telematics-server-omni "${src}/telematics-server.cpp" tc-server
+	LINK_FLAGS "-Wl,--no-as-needed")
+
+
 TcAddLibrary(
 	TARGET tc-client
 	SOURCE "${src}/client/tcp/*.cpp"

@@ -3,7 +3,7 @@
 
 #include <server/asio/tcp_client.h>
 #include <tc/common/Signal.h>
-#include <tc/parser/Buf.h>
+#include <tc/common/Buf.h>
 #include <tc/parser/Command.h>
 
 namespace tc::client::tcp {
@@ -18,7 +18,7 @@ namespace tc::client::tcp {
 		Client(Signal<const void *, size_t> &signal, const std::shared_ptr<Service> &service, const std::string &address, int port);
 		~Client();
 		
-		result_t send(const parser::Buf &buf);
+		result_t send(const common::Buf &buf);
 		result_t send(std::shared_ptr<parser::Command> command);
 		result_t send(const Imei &imei, const std::string command);
 

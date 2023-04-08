@@ -5,7 +5,9 @@
 #include <tc/parser/packet/PacketRequest.h>
 #include <bsoncxx/builder/stream/document.hpp>
 #include <bsoncxx/json.hpp>
+#include <fmt/format.h>
 #include <iomanip>
+#include <sstream>
 
 namespace tc::server::tcp {
 
@@ -25,11 +27,72 @@ Action::Type TelematicsSession::type() const
 	return iType;
 }
 
+inline std::string bytes2hex(const uint8_t *in, int size)
+{
+	std::string out;
+	char temp[8];
+	for (int i = 0; i < size; ++i) {
+		snprintf(temp, sizeof(temp), "%02hhx", in[i]);
+		out += temp;
+	}
+	return out;
+}
+
 void TelematicsSession::onReceived(const void *buffer, size_t size)
 {
 	LG_NFO(this->logger(), "[{}] Session: received buffer[{}]", iImei, size);
 
-	return handleDataBuffer((const uchar*) buffer, size, Action::get((const uchar*) buffer, size));
+	std::string hex = tc::uchar2string((const uchar *)buffer, size);
+	std::string hexAsText;
+	for(int i=0; i < hex.length(); i+=2)
+	{
+			std::string byte = hex.substr(i,2);
+			char chr = (char) (int)strtol(byte.c_str(), NULL, 16);
+			hexAsText.push_back(chr);
+	}
+
+	std::vector<std::string> strings;
+	std::istringstream f(hexAsText);
+	std::string s;
+	while (getline(f, s, ',')) {
+			strings.push_back(s);
+	}
+
+	if (strings[4] == "H0") {
+		SysTime now(true);
+		std::string answer = fmt::format("*CMDS,OM,862205055040770,000000000000,L0,0,0,{}#", now.timestamp());
+		unsigned char first[2];
+		first[0] = 0xFF;
+		first[1] = 0xFF;
+		unsigned char second[answer.length()];
+		memcpy(second, answer.data(), answer.length());
+
+		unsigned char out[answer.length() + 2];
+		memcpy(out, first, 2);
+		memcpy(out + 2, second, answer.length());
+
+		send(out, answer.length() + 2, true);
+
+		LG_NFO(this->logger(), "L0 out: {}", tc::uchar2string(out, answer.length() + 2));
+	}
+
+	LG_NFO(this->logger(), "hexAsText: {}", hexAsText);
+	std::string answer = fmt::format("*CMDS,OM,862205055040770,000000000000,Re,{}#", strings[4]);
+	unsigned char first[2];
+	first[0] = 0xFF;
+	first[1] = 0xFF;
+	unsigned char second[answer.length()];
+	memcpy(second, answer.data(), answer.length());
+
+	unsigned char out[answer.length() + 2];
+	memcpy(out, first, 2);
+	memcpy(out + 2, second, answer.length());
+
+	send(out, answer.length() + 2, true);
+
+	LG_NFO(this->logger(), "out: {}", tc::uchar2string(out, answer.length() + 2));
+	
+	return handleDataBuffer((const uchar *)buffer, size, Action::get((const uchar *)buffer, size));
 }
 
 void TelematicsSession::handleDataBuffer(const uchar* buffer, size_t size, Action::Type type)
@@ -118,7 +181,7 @@ result_t TelematicsSession::handlePayload(const uchar *buffer, size_t size)
 	}
 
 	if (res == RES_INVCRC) {
-		iBufferIncomplete = std::make_shared< parser::Buf >(buffer, size);
+		iBufferIncomplete = std::make_shared< common::Buf >(buffer, size);
 		return res;
 	}
 

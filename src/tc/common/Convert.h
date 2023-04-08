@@ -18,6 +18,7 @@ std::string string2hex(const std::string &s);
 std::string hex2string(const std::string &s);
 std::string byte2string(int val, int width = 2);
 std::string uchar2string(const unsigned char *c, uint32_t length);
+std::string hexStr(const uint8_t *data, int len);
 
 void hex2bin(const char* src, char* target);
 

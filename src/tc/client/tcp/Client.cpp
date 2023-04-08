@@ -14,7 +14,7 @@ Client::~Client()
 	Disconnect();
 }
 
-result_t Client::send(const parser::Buf &buf)
+result_t Client::send(const common::Buf &buf)
 {
 	result_t res = RES_OK;
 

@@ -2,7 +2,7 @@
 #define D0D21C63_ABC2_402A_BA25_0EDB333AB7CD
 
 #include <tc/common/Common.h>
-#include <tc/parser/Buf.h>
+#include <tc/common/Buf.h>
 #include <tc/parser/Json.h>
 
 namespace tc::parser {
