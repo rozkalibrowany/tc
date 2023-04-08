@@ -131,13 +131,14 @@ int main(int argc, char** argv)
 	}
 
 	// Create DB client
-	auto db_client = std::make_shared<db::mongo::Client>(uri, db::mongo::Client::eDevices);
+	auto db_client = std::make_shared<db::mongo::Client>(db::mongo::Client::eDevices);
 	if (db_client->load(ini) != RES_OK) {
 		LG_ERR(log.logger(), "Unable to parse db client config. Exiting...");
 		return 1;
 	}
 
 	if (db_client->enabled()) {
+		db_client->init(uri);
 		if(!db_client->has(db_client->collection())) db_client->create(db_client->collection());
 		LG_NFO(log.logger(), "DB connected. Name: {}, collection: {}, uri: {}", db_client->name(), (std::string) db_client->collection(), uri);
 	}

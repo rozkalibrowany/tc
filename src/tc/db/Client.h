@@ -50,9 +50,11 @@ public:
 		}
 	};
 
-	Client(std::string &uri, CollType type);
+	Client(CollType type);
 
 	result_t load(INIStructure &ini);
+
+	void init(const std::string &uri);
 	void synchronizeTime(int64_t timestamp);
 
 	/* Not thread safe */

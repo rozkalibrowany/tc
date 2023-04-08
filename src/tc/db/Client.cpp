@@ -4,8 +4,13 @@
 
 namespace tc::db::mongo {
 
-Client::Client(std::string &uri, CollType type)
+Client::Client(CollType type)
 	: iCollection(type)
+{
+	// nothing to do
+}
+
+void Client::init(const std::string &uri)
 {
 	Instance::getInstance()->createPool(uri);
 }

@@ -99,15 +99,18 @@ int main(int argc, char** argv)
 	}
 
 	// Create DB client
-	auto &s_uri = ini["db"]["uri"];
-	auto db_client = std::make_shared< db::mongo::Client >(s_uri, db::mongo::Client::ePackets);
+	auto db_client = std::make_shared< db::mongo::Client >(db::mongo::Client::ePackets);
 	if (db_client->load(ini) != RES_OK) {
 		LG_ERR(log.logger(), "Unable to parse db client config. Exiting...");
 		return 1;
 	}
 
-	if (db_client->enabled())
-		LG_NFO(log.logger(), "DB connected. Name: {}, collection: {}, uri: {}", db_client->name(), (std::string) db_client->collection(), s_uri);
+	// Connect to DB
+	if (db_client->enabled()) {
+		auto &s_uri = ini["db"]["uri"];
+		db_client->init(s_uri);
+		LG_NFO(log.logger(), "DB connected. Name: {}, collection: {}, uri: {}", db_client->name(), db_client->collection().iName, s_uri);
+	}
 
 	// Create a new TCP server
 	auto server = std::make_shared< server::tcp::TelematicsServer >(service, db_client, cache, tcp_port, addr);
@@ -118,9 +121,11 @@ int main(int argc, char** argv)
 	LG_NFO(log.logger(), "TCP server running on port {}", tcp_port);
 
 	// Sync devices into DB
-	server::tcp::Clean clean;
-	std::thread thread(&server::tcp::Clean::execute, &clean, db_client, clean_interval, packets_days_lifetime);
-	thread.detach();
+	if (db_client->enabled()) {
+		server::tcp::Clean clean;
+		std::thread thread(&server::tcp::Clean::execute, &clean, db_client, clean_interval, packets_days_lifetime);
+		thread.detach();
+	}
 
 	while (true) {
 		using milliseconds = std::chrono::milliseconds;
