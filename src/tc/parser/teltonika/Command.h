@@ -3,7 +3,7 @@
 
 #include <tc/common/Buf.h>
 
-namespace tc::parser {
+namespace tc::parser::teltonika {
 
 class Command : public tc::LogI
 {
@@ -22,6 +22,6 @@ private:
 	result_t getPayload(const std::string &cmd, common::Buf &buf);
 };
 
-} // namespace tc::parser
+} // namespace tc::parser::teltonika
 
 #endif /* EBC1B453_899B_44DB_BCE2_D5BD9C5CF467 */

@@ -1,5 +1,5 @@
 #include <tc/server/http/Action.h>
-#include <tc/parser/Command.h>
+#include <tc/parser/teltonika/Command.h>
 
 namespace tc::server::http {
 
@@ -56,8 +56,8 @@ result_t Action::handlePost(const Request &request)
 result_t Action::parseDevice(const Request &request)
 {
 	if (request.method() == Request::ePost) {
-		auto it = Command::sMapping.find(request.command());
-		if (it != Command::sMapping.end()) {
+		auto it = teltonika::Command::sMapping.find(request.command());
+		if (it != teltonika::Command::sMapping.end()) {
 			return RES_OK;
 		}
 

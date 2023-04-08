@@ -27,7 +27,7 @@ result_t Client::send(const common::Buf &buf)
 	return res;
 }
 
-result_t Client::send(std::shared_ptr< parser::Command > command)
+result_t Client::send(std::shared_ptr< parser::teltonika::Command > command)
 {
 	LG_NFO(this->logger(), "Sending command: [{}]", tc::uchar2string(command->iBuf.data(), command->iBuf.size()));
 
@@ -50,7 +50,7 @@ result_t Client::send(const Imei &imei, const std::string command)
 {
 	result_t res = RES_OK;
 
-	auto cmd = std::make_shared< parser::Command >(imei);
+	auto cmd = std::make_shared< parser::teltonika::Command >(imei);
 	if ((res = cmd->create(command)) != RES_OK) {
 		LG_ERR(this->logger(), "Unable to create command");
 		return res;

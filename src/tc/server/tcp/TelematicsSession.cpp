@@ -1,8 +1,8 @@
 #include <tc/server/tcp/TelematicsSession.h>
 #include <tc/server/tcp/TelematicsServer.h>
-#include <tc/parser/packet/PacketPayload.h>
-#include <tc/parser/packet/PacketCommand.h>
-#include <tc/parser/packet/PacketRequest.h>
+#include <tc/parser/teltonika/packet/PacketPayload.h>
+#include <tc/parser/teltonika/packet/PacketCommand.h>
+#include <tc/parser/InternalRequest.h>
 #include <bsoncxx/builder/stream/document.hpp>
 #include <bsoncxx/json.hpp>
 #include <fmt/format.h>
@@ -159,7 +159,7 @@ result_t TelematicsSession::handlePayload(const uchar *buffer, size_t size)
 
 	result_t res = RES_OK;
 
-	auto packet = std::make_shared< parser::PacketPayload >();
+	auto packet = std::make_shared< parser::teltonika::PacketPayload >();
 	if ((res = packet->parse(buffer, size)) != RES_OK) {
 		LG_ERR(this->logger(), "[{}] Parse payload packet", iImei);
 		return res;
@@ -218,7 +218,7 @@ result_t TelematicsSession::handleStandby(const uchar *buffer, size_t size)
 	return send(eOK);
 }
 
-result_t TelematicsSession::savePacket(std::shared_ptr<parser::PacketPayload> &packet)
+result_t TelematicsSession::savePacket(std::shared_ptr<parser::teltonika::PacketPayload> &packet)
 {
 	if (iDevice == nullptr || iDevice->imei().empty())
 		return RES_NOENT;

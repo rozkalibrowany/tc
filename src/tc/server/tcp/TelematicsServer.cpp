@@ -74,7 +74,7 @@ result_t TelematicsServer::handleCommand(const uchar *buffer, size_t size)
 		return res;
 	}
 
-	auto packetCommand = std::make_shared< parser::PacketCommand >();
+	auto packetCommand = std::make_shared< teltonika::PacketCommand >();
 	res = packetCommand->parse((uchar*) buffer, size, imei.length());
 	if (res != RES_OK) {
 		LG_ERR(this->logger(), "Parse command.");
@@ -86,7 +86,7 @@ result_t TelematicsServer::handleCommand(const uchar *buffer, size_t size)
 
 result_t TelematicsServer::handleRequest(const uchar *buffer, size_t size, const CppCommon::UUID id)
 {
-	auto request = std::make_shared< parser::PacketRequest >();
+	auto request = std::make_shared< parser::InternalRequest >();
 	result_t res = request->parse((uchar*) buffer, size);
 	if (res != RES_OK) {
 		LG_ERR(this->logger(), "Parse request.");
@@ -99,7 +99,7 @@ result_t TelematicsServer::handleRequest(const uchar *buffer, size_t size, const
 	return dispatchRequest(request, id);
 }
 
-result_t TelematicsServer::dispatchRequest(std::shared_ptr< parser::PacketRequest > request, const CppCommon::UUID id)
+result_t TelematicsServer::dispatchRequest(std::shared_ptr< parser::InternalRequest > request, const CppCommon::UUID id)
 {
 	using namespace parser;
 
@@ -140,7 +140,7 @@ result_t TelematicsServer::dispatchRequest(std::shared_ptr< parser::PacketReques
 	return res;
 }
 
-result_t TelematicsServer::sendCommand(const Imei &imei, std::shared_ptr<parser::PacketCommand> &command)
+result_t TelematicsServer::sendCommand(const Imei &imei, std::shared_ptr<teltonika::PacketCommand> &command)
 {
 	for (const auto &[key, value] : _sessions) {
 		const auto &session = dynamic_pointer_cast<TelematicsSession>(value);

@@ -1,7 +1,7 @@
-#include <tc/parser/packet/PacketPayload.h>
+#include <tc/parser/teltonika/packet/PacketPayload.h>
 #include <algorithm>
 
-namespace tc::parser {
+namespace tc::parser::teltonika {
 
 size_t PacketPayload::DATA_MIN_SIZE = 45;
 size_t PacketPayload::IMEI_MIN_SIZE = 15;
@@ -123,4 +123,4 @@ result_t PacketPayload::fromJsonImpl(const Json::Value &rhs, bool root)
 	return iAVLRecords.fromJson(rhs, root);
 }
 
-} // namespace tc::parser
+} // namespace tc::parser::teltonika

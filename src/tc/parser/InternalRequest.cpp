@@ -1,13 +1,13 @@
-#include <tc/parser/packet/PacketRequest.h>
+#include <tc/parser/InternalRequest.h>
 
 namespace tc::parser {
 
-size_t PacketRequest::REQ_MIN_SIZE = 11;
+size_t InternalRequest::REQ_MIN_SIZE = 11;
 
-bool PacketRequest::hasRequest(const uchar* buf, size_t size)
+bool InternalRequest::hasRequest(const uchar* buf, size_t size)
 {
 	bool isRequest = false;
-	if (size < PacketRequest::REQ_MIN_SIZE) {
+	if (size < InternalRequest::REQ_MIN_SIZE) {
 		return isRequest;
 	}
 
@@ -16,7 +16,7 @@ bool PacketRequest::hasRequest(const uchar* buf, size_t size)
 	return isRequest;
 }
 
-bool PacketRequest::contains(const uchar* buf, size_t size, uchar c)
+bool InternalRequest::contains(const uchar* buf, size_t size, uchar c)
 {
 	auto end = buf + (unsigned long) size;
 	auto pos = std::find(buf, end, c);
@@ -24,9 +24,9 @@ bool PacketRequest::contains(const uchar* buf, size_t size, uchar c)
 	return pos != end;
 }
 
-result_t PacketRequest::parse(const uchar* cbuf, size_t size, size_t  offset)
+result_t InternalRequest::parse(const uchar* cbuf, size_t size, size_t  offset)
 {
-	if (PacketRequest::hasRequest(cbuf, size) == false) {
+	if (InternalRequest::hasRequest(cbuf, size) == false) {
 		return RES_NOENT;
 	}
 
@@ -41,12 +41,12 @@ result_t PacketRequest::parse(const uchar* cbuf, size_t size, size_t  offset)
 	iSize = size - 5;
 	delete out;
 
-	LG_DBG(this->logger(), "PacketRequest parse, method: {} type: {}", (int) iMethod, (int) iType);
+	LG_DBG(this->logger(), "InternalRequest parse, method: {} type: {}", (int) iMethod, (int) iType);
 
 	return RES_OK;
 }
 
-const size_t PacketRequest::size()
+const size_t InternalRequest::size()
 {
 	return iSize;
 }

@@ -8,7 +8,7 @@ for example (command unlock):
 */
 
 #include <tc/client/tcp/TelematicsClient.h>
-#include <tc/parser/Command.h>
+#include <tc/parser/teltonika/Command.h>
 #include <tc/asio/AsioService.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <args-parser/all.hpp>
@@ -16,6 +16,7 @@ for example (command unlock):
 int main(int argc, char** argv)
 {
 	using namespace Args;
+	using namespace tc;
 
 	std::string command, imei, address;
 	std::string address_full = "127.0.0.1:8883";
@@ -53,7 +54,7 @@ int main(int argc, char** argv)
   }
 
 	auto logger = spdlog::stdout_color_mt("console");
-	tc::LogI log(logger);
+	LogI log(logger);
 	spdlog::set_default_logger(log.logger());
 
 	if (port > 65535 || port < 0) {
@@ -68,15 +69,15 @@ int main(int argc, char** argv)
 
 	address = address_full.substr(0, address_full.find(":", 0));
 
-	tc::parser::Command cmd(imei);
+	parser::teltonika::Command cmd(imei);
 
-	if (cmd.create(command) != tc::RES_OK) {
+	if (cmd.create(command) != RES_OK) {
 		LG_ERR(log.logger(), "Unable to create command.");
 		return 1;
 	}
 
 	std::vector<char> bin_cmd(cmd.iBuf.size() / 2);
-	tc::hex2bin((char*) cmd.iBuf.data(), (char*) bin_cmd.data());
+	hex2bin((char*) cmd.iBuf.data(), (char*) bin_cmd.data());
 
 	// Create a new Asio service
 	auto service = std::make_shared<tc::asio::AsioService>();
@@ -90,7 +91,7 @@ int main(int argc, char** argv)
 	LG_NFO(log.logger(), "Done!");
 
 	// Create a new TCP chat client
-	auto client = std::make_shared< tc::client::tcp::TelematicsClient >(service, address, port);
+	auto client = std::make_shared< client::tcp::TelematicsClient >(service, address, port);
 
 	// Connect the client
 	LG_NFO(log.logger(), "Client connecting...");

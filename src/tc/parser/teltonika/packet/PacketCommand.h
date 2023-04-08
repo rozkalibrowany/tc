@@ -1,9 +1,9 @@
 #ifndef D43AB83E_8F58_407E_A5C3_3BD76E9F3EF7
 #define D43AB83E_8F58_407E_A5C3_3BD76E9F3EF7
 
-#include <tc/parser/packet/Packet.h>
+#include <tc/parser/Packet.h>
 
-namespace tc::parser {
+namespace tc::parser::teltonika {
 
 class PacketCommand : public Packet
 {
@@ -24,7 +24,7 @@ private:
 	size_t iSize;
 };
 
-} // namespace tc::parser
+} // namespace tc::parser::teltonika
 
 
 #endif /* D43AB83E_8F58_407E_A5C3_3BD76E9F3EF7 */

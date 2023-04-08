@@ -5,7 +5,7 @@
 #include <tc/server/tcp/Action.h>
 #include <tc/common/LockGuard.h>
 #include <tc/server/iot/Device.h>
-#include <tc/parser/packet/PacketRequest.h>
+#include <tc/parser/InternalRequest.h>
 
 namespace tc::server::tcp {
 
@@ -44,7 +44,7 @@ private:
 	result_t handlePayload(const uchar *buffer, size_t size);
 	result_t handleStandby(const uchar *buffer, size_t size);
 
-	result_t savePacket(std::shared_ptr<parser::PacketPayload> &packet);
+	result_t savePacket(std::shared_ptr<parser::teltonika::PacketPayload> &packet);
 
 	std::shared_ptr<TelematicsServer> telematicsServer();
 

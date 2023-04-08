@@ -1,4 +1,4 @@
-#include <tc/parser/packet/Packet.h>
+#include <tc/parser/Packet.h>
 #include <tc/common/CRC16.h>
 
 namespace tc::parser {

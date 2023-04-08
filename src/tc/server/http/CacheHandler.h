@@ -4,7 +4,7 @@
 #include <server/http/https_server.h>
 #include <tc/server/iot/Devices.h>
 #include <tc/server/iot/Vehicle.h>
-#include <tc/parser/Command.h>
+#include <tc/parser/teltonika/Command.h>
 #include <tc/server/http/Action.h>
 #include <tc/common/Signal.h>
 #include <queue>

@@ -1,7 +1,7 @@
-#include <tc/parser/packet/PacketCommand.h>
+#include <tc/parser/teltonika/packet/PacketCommand.h>
 #include <algorithm>
 
-namespace tc::parser {
+namespace tc::parser::teltonika {
 
 PacketCommand::PacketCommand(const std::string imei)
 	: Packet(imei)
@@ -40,4 +40,4 @@ const uchar* PacketCommand::command()
 	return iCommand;
 }
 
-} // namespace tc::parser
+} // namespace tc::parser::teltonika

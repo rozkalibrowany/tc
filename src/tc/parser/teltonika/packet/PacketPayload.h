@@ -2,11 +2,11 @@
 #define E1382A91_4A19_490A_9DB0_1B2CEB94E659
 
 #include <tc/parser/records/avl/AVLRecord.h>
-#include <tc/parser/packet/Packet.h>
+#include <tc/parser/Packet.h>
 #include <tc/parser/Reader.h>
 #include <tc/common/Buf.h>
 
-namespace tc::parser {
+namespace tc::parser::teltonika {
 
 using namespace records;
 using namespace avl;
@@ -37,6 +37,6 @@ private:
 	AVLRecords iAVLRecords;
 };
 
-} // namespace tc::parser
+} // namespace tc::parser::teltonika
 
 #endif /* E1382A91_4A19_490A_9DB0_1B2CEB94E659 */

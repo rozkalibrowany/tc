@@ -153,7 +153,7 @@ result_t Devices<T>::fromJsonPacket(const Json::Value &rhs)
 			continue;
 		}
 
-		auto packet = std::make_shared<parser::PacketPayload>();
+		auto packet = std::make_shared<parser::teltonika::PacketPayload>();
 		if (packet->fromJson(record["Record"], true) != RES_OK) {
 			LG_WRN(this->logger(), "Unable to parse Record for imei: {}", imei);
 			continue;

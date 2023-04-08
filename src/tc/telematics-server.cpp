@@ -10,9 +10,9 @@ using namespace tc;
 using namespace mINI;
 
 namespace defaults {
-	constexpr int c_cache									 = 100;
-	constexpr int c_default_clean_interval = 90000;
-	constexpr int c_packets_days_lifetime  = 3;
+	constexpr int c_cache										= 100;
+	constexpr int c_default_clean_interval	= 90000;
+	constexpr int c_packets_days_lifetime		= 3;
 };
 
 result_t readTelematicsConfig(INIStructure &ini, LogI &log, std::string &addr, int &port, int &cache)
@@ -67,7 +67,7 @@ int main(int argc, char** argv)
 	spdlog::set_default_logger(log.logger());
 
 	if(!std::filesystem::exists(argv[1])) {
-		LG_ERR(log.logger(), "Config file not exists. Exit...");
+		LG_ERR(log.logger(), "Config file does not exist. Exit...");
 		return 1;
 	}
 

@@ -56,7 +56,7 @@ Vehicle &Vehicle::operator=(const Vehicle &rhs)
 	return *this;
 }
 
-bool Vehicle::has(const std::shared_ptr< parser::PacketPayload > packet)
+bool Vehicle::has(const std::shared_ptr< parser::teltonika::PacketPayload > packet)
 {
 	auto it = std::find(iPayloadPackets.begin(), iPayloadPackets.end(), packet);
 	return it == iPayloadPackets.end() ? false : true;
@@ -69,7 +69,7 @@ result_t Vehicle::add(const uchar* buffer, size_t size)
 	}
 
 	result_t res = RES_OK;
-	auto packet = std::make_shared< parser::PacketPayload >();
+	auto packet = std::make_shared< parser::teltonika::PacketPayload >();
 
  	if ((res = packet->parse((uchar*) buffer, size)) != RES_OK) {
 		LG_ERR(this->logger(), "Parse payload packet");
@@ -78,7 +78,7 @@ result_t Vehicle::add(const uchar* buffer, size_t size)
 	return add(std::move(packet));
 }
 
-result_t Vehicle::add(const std::shared_ptr< parser::PacketPayload > packet)
+result_t Vehicle::add(const std::shared_ptr< parser::teltonika::PacketPayload > packet)
 {
   if (has(packet) == true) {
 		/* Logging an error message. */

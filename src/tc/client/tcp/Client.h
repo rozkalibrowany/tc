@@ -4,7 +4,7 @@
 #include <server/asio/tcp_client.h>
 #include <tc/common/Signal.h>
 #include <tc/common/Buf.h>
-#include <tc/parser/Command.h>
+#include <tc/parser/teltonika/Command.h>
 
 namespace tc::client::tcp {
 
@@ -19,7 +19,7 @@ namespace tc::client::tcp {
 		~Client();
 		
 		result_t send(const common::Buf &buf);
-		result_t send(std::shared_ptr<parser::Command> command);
+		result_t send(std::shared_ptr<parser::teltonika::Command> command);
 		result_t send(const Imei &imei, const std::string command);
 
 	protected:

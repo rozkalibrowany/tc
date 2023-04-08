@@ -1,7 +1,7 @@
 #ifndef EAD57CC8_F87B_4E24_B54A_C8E0F992FBE7
 #define EAD57CC8_F87B_4E24_B54A_C8E0F992FBE7
 
-#include <tc/parser/packet/PacketPayload.h>
+#include <tc/parser/teltonika/packet/PacketPayload.h>
 #include <tc/common/SysTime.h>
 
 namespace tc::server::iot {
@@ -9,7 +9,7 @@ namespace tc::server::iot {
 class Device : public tc::LogI, public parser::JsonI
 {
 public:
-  using PayloadPackets = std::deque< std::shared_ptr< parser::PacketPayload > >;
+  using PayloadPackets = std::deque< std::shared_ptr< parser::teltonika::PacketPayload > >;
 
 	explicit Device(const Imei &imei);
 	explicit Device(const Imei &imei, size_t cache);
@@ -20,10 +20,10 @@ public:
 	virtual bool operator!=(const Device &rhs) const;
 	virtual Device &operator=(const Device &rhs);
 
-	virtual bool has(const std::shared_ptr<parser::PacketPayload> packet);
+	virtual bool has(const std::shared_ptr<parser::teltonika::PacketPayload> packet);
 
 	virtual result_t add(const uchar *buffer, size_t size);
-	virtual result_t add(const std::shared_ptr<parser::PacketPayload> packet);
+	virtual result_t add(const std::shared_ptr<parser::teltonika::PacketPayload> packet);
 
 	virtual Json::Value toJsonValue(bool active = true);
 

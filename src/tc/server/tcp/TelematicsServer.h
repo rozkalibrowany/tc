@@ -3,7 +3,7 @@
 
 #include <server/asio/tcp_server.h>
 #include <tc/server/tcp/TelematicsSession.h>
-#include <tc/parser/packet/PacketCommand.h>
+#include <tc/parser/teltonika/packet/PacketCommand.h>
 #include <tc/server/iot/Devices.h>
 #include <tc/asio/AsioService.h>
 #include <tc/db/Client.h>
@@ -28,14 +28,13 @@ public:
 	~TelematicsServer();
 
 	result_t handleCommand(const uchar *buffer, size_t size);
-	result_t dispatchRequest(std::shared_ptr< PacketRequest > request, const CppCommon::UUID id);
+	result_t dispatchRequest(std::shared_ptr< InternalRequest > request, const CppCommon::UUID id);
 	result_t handleRequest(const uchar *buffer, size_t size, const CppCommon::UUID id);
 
 	size_t cacheSize() const;
 	std::shared_ptr<mongo::Client> dbClient();
 
-	result_t sendCommand(const Imei &imei, std::shared_ptr<parser::PacketCommand> &command);
-
+	result_t sendCommand(const Imei &imei, std::shared_ptr<teltonika::PacketCommand> &command);
 
 protected:
 	std::shared_ptr< CppServer::Asio::TCPSession > CreateSession(const std::shared_ptr<TCPServer> &server) override;

@@ -1,12 +1,12 @@
 #ifndef E0CCFC07_4DC4_466F_BFF6_501414B18F09
 #define E0CCFC07_4DC4_466F_BFF6_501414B18F09
 
-#include <tc/parser/packet/Packet.h>
+#include <tc/parser/Packet.h>
 #include <tc/parser/Reader.h>
 
 namespace tc::parser {
 
-class PacketRequest : public Packet
+class InternalRequest : public Packet
 {
 public:
 	static size_t REQ_MIN_SIZE;
