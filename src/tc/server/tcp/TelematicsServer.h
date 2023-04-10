@@ -4,7 +4,7 @@
 #include <server/asio/tcp_server.h>
 #include <tc/server/tcp/TelematicsSession.h>
 #include <tc/parser/teltonika/packet/PacketCommand.h>
-#include <tc/server/iot/Devices.h>
+#include <tc/iot/Devices.h>
 #include <tc/asio/AsioService.h>
 #include <tc/db/Client.h>
 
@@ -13,8 +13,6 @@ namespace tc::server::tcp {
 using namespace parser;
 using namespace asio;
 using namespace db;
-
-class TelematicsSession;
 
 class TelematicsServer : public CppServer::Asio::TCPServer, public tc::LogI
 {
@@ -29,7 +27,7 @@ public:
 
 	result_t handleCommand(const uchar *buffer, size_t size);
 	result_t handleRequest(const uchar *buffer, size_t size, const CppCommon::UUID id);
-	result_t dispatchRequest(std::shared_ptr< InternalRequest > request, const CppCommon::UUID id);
+	result_t dispatchRequest(std::shared_ptr< internal::Request > request, const CppCommon::UUID id);
 
 	size_t cacheSize() const;
 	std::shared_ptr<mongo::Client> dbClient();

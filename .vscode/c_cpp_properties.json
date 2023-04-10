@@ -3,8 +3,8 @@
         {
             "name": "Linux",
             "includePath": [
-                "/usr/local/ws/include",
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/src",
+                "/usr/local/ws/include"
             ],
             "defines": [
                 "_LINUX",
@@ -19,7 +19,7 @@
                 "databaseFilename": ""
             },
             "intelliSenseMode": "linux-gcc-x64",
-            "configurationProvider": "ms-vscode.cmake-tools"
+            "configurationProvider": "ms-vscode.cpptools"
         }
     ],
     "version": 4

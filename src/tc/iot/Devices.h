@@ -4,7 +4,7 @@
 #define C4F49DD5_45B3_4AAD_8B44_E0716E65EE57
 
 #include <tc/common/Common.h>
-#include <tc/server/iot/Device.h>
+#include <tc/iot/Device.h>
 #include <tc/parser/Json.h>
 
 namespace tc::server::iot {

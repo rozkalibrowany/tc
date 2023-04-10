@@ -1,7 +1,7 @@
 #ifndef AC5BB633_C3DF_423C_9202_CD95401C79B9
 #define AC5BB633_C3DF_423C_9202_CD95401C79B9
 
-#include <tc/server/iot/Device.h>
+#include <tc/iot/Device.h>
 #include <bsoncxx/builder/stream/document.hpp>
 #include <bsoncxx/json.hpp>
 

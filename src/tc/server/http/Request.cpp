@@ -1,5 +1,5 @@
 #include <tc/server/http/Request.h>
-#include <tc/parser/InternalRequest.h>
+#include <tc/parser/internal/Request.h>
 #include <tc/common/Regex.h>
 
 namespace tc::server::http {

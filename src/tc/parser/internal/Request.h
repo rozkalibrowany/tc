@@ -4,9 +4,9 @@
 #include <tc/parser/Packet.h>
 #include <tc/parser/Reader.h>
 
-namespace tc::parser {
+namespace tc::parser::internal {
 
-class InternalRequest : public Packet
+class Request : public Packet
 {
 public:
 	static size_t REQ_MIN_SIZE;
@@ -23,6 +23,6 @@ public:
 	size_t iSize{0};
 };
 
-} // namespace tc::parser
+} // namespace tc::parser::internal
 
 #endif /* E0CCFC07_4DC4_466F_BFF6_501414B18F09 */

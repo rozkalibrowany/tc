@@ -1,6 +1,5 @@
 {
 	"restructuredtext.confPath": "",
-	"C_Cpp.errorSquiggles": "Enabled",
 	"editor.minimap.enabled": false,
 	"python.formatting.provider": "black",
 	"files.associations": {

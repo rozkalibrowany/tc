@@ -34,7 +34,7 @@ TcAddLibrary(
 
 TcAddLibrary(
 	TARGET tc-iot
-	SOURCE "${src}/server/iot/*.cpp"
+	SOURCE "${src}/iot/*.cpp"
 	INCLUDE "${TcIncludeDir}"
 	LIBRARIES
 	 tc-parser
@@ -53,7 +53,7 @@ TcAddLibrary(
 
 TcAddLibrary(
 	TARGET tc-server
-	SOURCE "${src}/server/tcp/*.cpp"
+	SOURCE "${src}/server/tcp/*.cpp" "${src}/server/tcp/handler/*.cpp"
 	INCLUDE "${TcIncludeDir}"
 	LIBRARIES
 		pthread

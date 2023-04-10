@@ -1,9 +1,9 @@
-#include <tc/server/tcp/Action.h>
+#include <tc/parser/teltonika/Action.h>
 #include <tc/parser/teltonika/packet/Payload.h>
 #include <tc/parser/teltonika/packet/PacketCommand.h>
-#include <tc/parser/InternalRequest.h>
+#include <tc/parser/internal/Request.h>
 
-namespace tc::server::tcp {
+namespace tc::parser::teltonika {
 
 using namespace parser;
 
@@ -19,19 +19,19 @@ Action::Type Action::get(const uchar* buffer, size_t size)
 		return Type::payload;
 	}
 
-	if (!has_imei && parser::InternalRequest::hasRequest(buffer, size)) {
+/*	if (!has_imei && parser::internal::Request::hasRequest(buffer, size)) {
 		return Type::request;
-	}
+	}*/
 
 	if (has_imei && size == 17) {
 		return Type::imei;
 	}
 
-	if (has_imei && teltonika::PacketCommand::hasCommand(buffer, size)) {
+	/*if (has_imei && teltonika::PacketCommand::hasCommand(buffer, size)) {
 		return Type::command;
-	}
+	}*/
 
 	return Type::unknown;
 }
 
-} // namespace tc::server::tcp
+} // namespace tc::parser::teltonika

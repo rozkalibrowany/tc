@@ -1,21 +1,21 @@
-#include <tc/parser/Handler.h>
+#include <tc/parser/Protocol.h>
 #include <tc/parser/teltonika/packet/Payload.h>
 
 namespace tc::parser {
 
-result_t Handler::parse(const uchar *buffer, size_t size)
+result_t Protocol::parse(const uchar *buffer, size_t size)
 {
 	if (teltonika::Payload::isTeltonika(buffer, size)) {
-		iProtocol = eTeltonika;
+		iType = eTeltonika;
 		return RES_OK;
 	}
 
 	return RES_NOENT;
 }
 
-Handler::Protocol Handler::protocol() const
+Protocol::Type Protocol::type() const
 {
-	return iProtocol;
+	return iType;
 }
 
 } // namespace tc::parser

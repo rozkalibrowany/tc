@@ -2,8 +2,8 @@
 #define C56B686D_6161_4ADA_84B8_E655D445D95C
 
 #include <server/http/https_server.h>
-#include <tc/server/iot/Devices.h>
-#include <tc/server/iot/Vehicle.h>
+#include <tc/iot/Devices.h>
+#include <tc/iot/Vehicle.h>
 #include <tc/parser/teltonika/Command.h>
 #include <tc/server/http/Action.h>
 #include <tc/common/Signal.h>

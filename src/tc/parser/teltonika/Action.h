@@ -4,28 +4,22 @@
 #include <tc/common/Common.h>
 #include <tc/common/Buf.h>
 
-namespace tc::server::tcp {
+namespace tc::parser::teltonika {
 
 class Action {
 public:
 
 	enum Type {
 		unknown = 0,
-		payload,
 		imei,
-		command,
-		request,
-		incomplete_payload,
-		standby
+		payload,
+		standby,
+		incomplete_payload
 	};
 
 	static Type get(const uchar* buffer, size_t size);
-
-	static bool hasImei(const uchar *cbuf, size_t size);
-	static result_t parseImei(const uchar *cbuf, size_t size, Imei &imei);
-	static const Imei toImei(const uchar *cbuf, int len);
 };
 
-} // namespace tc::server::tcp
+} // namespace tc::parser::teltonika
 
 #endif /* D1DC27A3_560C_41B9_978D_1501280E6365 */

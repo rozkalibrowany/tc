@@ -5,20 +5,20 @@
 
 namespace tc::parser {
 
-class Handler {
+class Protocol {
 
 public:
-	enum Protocol {
+	enum Type {
 		eUnknown = 0,
 		eTeltonika,
 		eOmni
 	};
 
 	result_t parse(const uchar *buffer, size_t size);
-	Protocol protocol() const;
+	Type type() const;
 
 protected:
-	Protocol iProtocol{eUnknown};
+	Type iType{eUnknown};
 };
 
 } // namespace tc::parser

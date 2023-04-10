@@ -2,10 +2,10 @@
 #define DEFE5823_FB5C_4F70_9A29_B3E2AE5E66D1
 
 #include <server/asio/tcp_session.h>
-#include <tc/server/tcp/Action.h>
-#include <tc/common/LockGuard.h>
-#include <tc/server/iot/Device.h>
-#include <tc/parser/InternalRequest.h>
+#include <tc/server/tcp/handler/HandlerI.h>
+#include <tc/parser/internal/Request.h>
+#include <tc/parser/Protocol.h>
+#include <tc/iot/Device.h>
 
 namespace tc::server::tcp {
 
@@ -14,13 +14,12 @@ using namespace parser;
 
 class TelematicsSession : public CppServer::Asio::TCPSession, public tc::LogI, public parser::JsonI
 {
+	friend class HandlerI;
+	friend class TeltonikaHandler;
 public:
-	enum Response {
-		eInvalid = 0,
-		eOK = 1
-	};
-
 	using CppServer::Asio::TCPSession::TCPSession;
+
+	const Imei imei() const;
 
 	result_t send(int buffer, const bool async = false);
 	result_t send(const uchar* buffer, size_t size, const bool async = false);
@@ -28,29 +27,18 @@ public:
 
 	result_t lastPacketJson(Json::Value &rhs);
 
-	const Imei imei() const;
-
 protected:
 	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
+	
 	void onReceived(const void *buffer, size_t size) override;
+	std::shared_ptr<TelematicsServer> server();
 
 private:
-	void handleDataBuffer(const uchar* buffer, size_t size, Action::Type type);
-
-	result_t handleImei(const uchar *buffer, size_t size);
-	result_t handleIncomplete(const uchar *buffer, size_t size);
-	result_t handlePayload(const uchar *buffer, size_t size);
-	result_t handleStandby(const uchar *buffer, size_t size);
-
 	result_t savePacket(std::shared_ptr<parser::teltonika::Payload> &packet);
 
-	std::shared_ptr<TelematicsServer> telematicsServer();
-
-	Imei iImei{"unknown"};
-	std::mutex iMutex;
-	SysTime iTimestamp;
+	Protocol iProtocol;
+	std::unique_ptr<HandlerI> iHandler{nullptr};
 	std::unique_ptr<iot::Device> iDevice{nullptr};
-	std::shared_ptr<common::Buf> iBufferIncomplete{nullptr};
 };
 
 } // namespace tc::server::tcp

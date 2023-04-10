@@ -1,5 +1,5 @@
 #include <tc/server/tcp/TelematicsServer.h>
-#include <tc/server/iot/Devices.h>
+#include <tc/iot/Devices.h>
 #include <tc/server/http/Request.h>
 
 namespace tc::server::tcp {
@@ -86,7 +86,7 @@ result_t TelematicsServer::handleCommand(const uchar *buffer, size_t size)
 
 result_t TelematicsServer::handleRequest(const uchar *buffer, size_t size, const CppCommon::UUID id)
 {
-	auto request = std::make_shared< parser::InternalRequest >();
+	auto request = std::make_shared< parser::internal::Request >();
 	result_t res = request->parse((uchar*) buffer, size);
 	if (res != RES_OK) {
 		LG_ERR(this->logger(), "Parse request.");
@@ -94,12 +94,12 @@ result_t TelematicsServer::handleRequest(const uchar *buffer, size_t size, const
 	}
 
 	LG_NFO(this->logger(), "Handle request[{}] Method: {} Type: {}", size, Packet::method2string(request->iMethod),
-		Packet::type2string(request->iType));
+	Packet::type2string(request->iType));
 
 	return dispatchRequest(request, id);
 }
 
-result_t TelematicsServer::dispatchRequest(std::shared_ptr< parser::InternalRequest > request, const CppCommon::UUID id)
+result_t TelematicsServer::dispatchRequest(std::shared_ptr< parser::internal::Request > request, const CppCommon::UUID id)
 {
 	using namespace parser;
 

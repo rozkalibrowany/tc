@@ -1,5 +1,5 @@
 
-#include <tc/server/iot/Devices.h>
+#include <tc/iot/Devices.h>
 namespace tc::server::iot {
 
 
