@@ -14,6 +14,11 @@ public:
 		eOmni
 	};
 
+	Protocol() = default;
+	Protocol(Type type);
+
+	bool operator==(Type type) { return iType == type; };
+
 	result_t parse(const uchar *buffer, size_t size);
 	Type type() const;
 

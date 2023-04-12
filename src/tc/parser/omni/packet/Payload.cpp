@@ -2,9 +2,12 @@
 
 namespace tc::parser::omni {
 
-bool Payload::isOmni(const uchar* buf, size_t size)
+bool Payload::valid(const uchar* buf, size_t size)
 {
-	return false;
+	if (size < 1)
+		return false;
+
+	return (uchar)buf[0] == (uchar)OMNI_HEADER;
 }
 
 result_t Payload::parse(const uchar* cbuf, size_t size, size_t /* offset */)

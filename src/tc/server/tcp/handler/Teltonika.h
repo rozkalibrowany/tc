@@ -17,12 +17,8 @@ public:
 		eOK = 1
 	};
 
-	explicit TeltonikaHandler(const std::shared_ptr< TelematicsSession > &session);
-	TeltonikaHandler(const TeltonikaHandler&) = delete;
-	TeltonikaHandler(TeltonikaHandler&&) = delete;
-
-	TeltonikaHandler& operator=(const TeltonikaHandler&) = delete;
-	TeltonikaHandler& operator=(TeltonikaHandler&&) = delete;
+	TeltonikaHandler(const std::shared_ptr< TelematicsSession > &session)
+	 : HandlerI(session) {}
 
 	result_t handle(const uchar* buffer, size_t size) override;
 

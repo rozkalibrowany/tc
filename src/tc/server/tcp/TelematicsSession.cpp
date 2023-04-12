@@ -1,13 +1,12 @@
 #include <tc/server/tcp/TelematicsSession.h>
 #include <tc/server/tcp/TelematicsServer.h>
-#include <tc/parser/teltonika/packet/Payload.h>
-#include <tc/parser/teltonika/packet/PacketCommand.h>
-#include <tc/parser/internal/Request.h>
+#include <tc/server/tcp/handler/Teltonika.h>
+#include <tc/server/tcp/handler/Omni.h>
 #include <bsoncxx/builder/stream/document.hpp>
 #include <bsoncxx/json.hpp>
 #include <fmt/format.h>
 #include <iomanip>
-#include <sstream>
+
 
 namespace tc::server::tcp {
 
@@ -23,8 +22,44 @@ std::shared_ptr<TelematicsServer> TelematicsSession::server()
 
 void TelematicsSession::onReceived(const void *buffer, size_t size)
 {
-	LG_NFO(this->logger(), "[{}] Session: received buffer[{}]", imei(), size);
+	LG_NFO(this->logger(), "[{}] Received buffer[{}]", imei(), size);
 
+	if (iProtocol.type() == Protocol::eUnknown && iProtocol.parse((const uchar*) buffer, size) != RES_OK) {
+		LG_WRN(this->logger(), "[{}] Unknown protocol", imei(), size);
+		return;
+	}
+
+	LG_NFO(this->logger(), "[{}] Protocol: {}", imei(), (int) iProtocol.type());
+
+	if (iHandler == nullptr && createHandler(iProtocol) != RES_OK) {
+		LG_ERR(this->logger(), "[{}] Unable creating handler", imei());
+		return;
+	}
+
+	return handlePayload(buffer, size);
+}
+
+void TelematicsSession::handlePayload(const void *buffer, size_t size)
+{
+	if (iHandler == nullptr)
+		return;
+
+	iHandler->handle((const uchar*) buffer, size);
+}
+
+result_t TelematicsSession::createHandler(Protocol protocol)
+{
+	switch (protocol.type()) {
+		case Protocol::eTeltonika:
+			iHandler = std::make_unique<TeltonikaHandler>(std::dynamic_pointer_cast<TelematicsSession>(this->shared_from_this()));
+			break;
+		case Protocol::eOmni:
+			iHandler = std::make_unique<OmniHandler>(std::dynamic_pointer_cast<TelematicsSession>(this->shared_from_this()));
+			break;
+		case Protocol::eUnknown:
+			return RES_NOENT;
+		}
+		return RES_OK;
 }
 
 result_t TelematicsSession::savePacket(std::shared_ptr<parser::teltonika::Payload> &packet)
@@ -79,7 +114,8 @@ result_t TelematicsSession::send(const void *buffer, size_t size, const bool asy
 
 	if (async == false) {
 		auto sent = Send(buffer, size);
-		res = sent == size ? RES_OK : RES_CONNERROR;
+		res = sent == size ? RES_OK :
+			RES_CONNERROR;
 	} else {
 		auto sent = SendAsync(buffer, size);
 		res = sent == true ? RES_OK : RES_CONNERROR;

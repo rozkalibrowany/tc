@@ -12,7 +12,7 @@ class HandlerI : public tc::LogI {
 	friend class TelematicsSession;
 public:
 
-	explicit HandlerI(const std::shared_ptr< TelematicsSession > &session)
+	HandlerI(const std::shared_ptr< TelematicsSession > &session)
 	 : iSession(session) {}
 
 	virtual ~HandlerI() = default;

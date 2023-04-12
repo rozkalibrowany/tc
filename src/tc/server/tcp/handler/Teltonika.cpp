@@ -7,12 +7,6 @@ namespace tc::server::tcp {
 
 using namespace parser::teltonika;
 
-TeltonikaHandler::TeltonikaHandler(const std::shared_ptr<TelematicsSession> &session)
- : HandlerI(session)
-{
-	// nothing to do
-}
-
 result_t TeltonikaHandler::handle(const uchar* buffer, size_t size)
 {
 	switch(Action::get(buffer, size)) {

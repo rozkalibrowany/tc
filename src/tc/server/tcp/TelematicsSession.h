@@ -31,12 +31,15 @@ protected:
 	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
 	
 	void onReceived(const void *buffer, size_t size) override;
+	void handlePayload(const void *buffer, size_t size);
+
 	std::shared_ptr<TelematicsServer> server();
 
 private:
+	result_t createHandler(Protocol protocol);
 	result_t savePacket(std::shared_ptr<parser::teltonika::Payload> &packet);
 
-	Protocol iProtocol;
+	Protocol iProtocol{Protocol::eUnknown};
 	std::unique_ptr<HandlerI> iHandler{nullptr};
 	std::unique_ptr<iot::Device> iDevice{nullptr};
 };
