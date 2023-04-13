@@ -10,15 +10,15 @@ using namespace parser::teltonika;
 result_t TeltonikaHandler::handle(const uchar* buffer, size_t size)
 {
 	switch(Action::get(buffer, size)) {
-		case Action::imei:
+		case Action::eImei:
 			return handleImei(buffer, size);
-		case Action::payload:
+		case Action::ePayload:
 			return handlePayload(buffer, size);
-		case Action::standby:
+		case Action::eStandby:
 			return handleStandby(buffer, size);
-		case Action::incomplete_payload:
+		case Action::eIncompletePayload:
 			return handleIncomplete(buffer, size);
-		case Action::unknown:
+		case Action::eUnknown:
 			LG_WRN(this->logger(), "[{}] Unable to handle data buffer[{}]", iImei, size);
 			return RES_NOENT;
 	}

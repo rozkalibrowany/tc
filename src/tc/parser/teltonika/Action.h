@@ -10,11 +10,11 @@ class Action {
 public:
 
 	enum Type {
-		unknown = 0,
-		imei,
-		payload,
-		standby,
-		incomplete_payload
+		eUnknown = 0,
+		eImei,
+		ePayload,
+		eStandby,
+		eIncompletePayload
 	};
 
 	static Type get(const uchar* buffer, size_t size);

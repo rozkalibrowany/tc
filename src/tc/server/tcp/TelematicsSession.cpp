@@ -29,22 +29,21 @@ void TelematicsSession::onReceived(const void *buffer, size_t size)
 		return;
 	}
 
-	LG_NFO(this->logger(), "[{}] Protocol: {}", imei(), (int) iProtocol.type());
-
-	if (iHandler == nullptr && createHandler(iProtocol) != RES_OK) {
+	if (!iHandler && createHandler(iProtocol) != RES_OK) {
 		LG_ERR(this->logger(), "[{}] Unable creating handler", imei());
 		return;
 	}
 
-	return handlePayload(buffer, size);
+	if (auto res = handlePayload(buffer, size); res != RES_OK)
+		LG_ERR(this->logger(), "[{}] Error handling payload[{}]", imei(), size);
 }
 
-void TelematicsSession::handlePayload(const void *buffer, size_t size)
+result_t TelematicsSession::handlePayload(const void *buffer, size_t size)
 {
-	if (iHandler == nullptr)
-		return;
+	if (!iHandler)
+		return RES_NOENT;
 
-	iHandler->handle((const uchar*) buffer, size);
+	return iHandler->handle((const uchar*) buffer, size);
 }
 
 result_t TelematicsSession::createHandler(Protocol protocol)

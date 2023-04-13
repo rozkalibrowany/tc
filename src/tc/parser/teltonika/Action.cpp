@@ -12,26 +12,18 @@ Action::Type Action::get(const uchar* buffer, size_t size)
 	bool has_imei = parser::Packet::hasImei(buffer, size);
 
 	if (size == 1) {
-		return Type::standby;
+		return Type::eStandby;
 	}
 
 	if (!has_imei && parser::teltonika::Payload::hasPayload(buffer, size)) {
-		return Type::payload;
+		return Type::ePayload;
 	}
-
-/*	if (!has_imei && parser::internal::Request::hasRequest(buffer, size)) {
-		return Type::request;
-	}*/
 
 	if (has_imei && size == 17) {
-		return Type::imei;
+		return Type::eImei;
 	}
 
-	/*if (has_imei && teltonika::PacketCommand::hasCommand(buffer, size)) {
-		return Type::command;
-	}*/
-
-	return Type::unknown;
+	return Type::eUnknown;
 }
 
 } // namespace tc::parser::teltonika

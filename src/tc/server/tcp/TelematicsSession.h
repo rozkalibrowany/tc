@@ -31,7 +31,7 @@ protected:
 	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
 	
 	void onReceived(const void *buffer, size_t size) override;
-	void handlePayload(const void *buffer, size_t size);
+	result_t handlePayload(const void *buffer, size_t size);
 
 	std::shared_ptr<TelematicsServer> server();
 
