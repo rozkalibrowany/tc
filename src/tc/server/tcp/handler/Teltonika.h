@@ -18,7 +18,7 @@ public:
 	};
 
 	TeltonikaHandler(const std::shared_ptr< TelematicsSession > &session)
-	 : HandlerI(session) {}
+	 : HandlerI(session, eTeltonika) {}
 
 	result_t handle(const uchar* buffer, size_t size) override;
 

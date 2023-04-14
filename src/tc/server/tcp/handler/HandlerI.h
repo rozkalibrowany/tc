@@ -3,17 +3,19 @@
 
 #include <tc/common/Common.h>
 #include <tc/iot/Device.h>
-
+#include <tc/parser/Protocol.h>
 namespace tc::server::tcp {
 
 class TelematicsSession;
 
-class HandlerI : public tc::LogI {
+class HandlerI : public parser::Protocol, public tc::LogI {
 	friend class TelematicsSession;
 public:
+	using parser::Protocol::Protocol;
 
-	HandlerI(const std::shared_ptr< TelematicsSession > &session)
-	 : iSession(session) {}
+	HandlerI(const std::shared_ptr< TelematicsSession > &session, Protocol protocol = eUnknown)
+	 : Protocol(protocol)
+	 , iSession(session) {}
 
 	virtual ~HandlerI() = default;
 

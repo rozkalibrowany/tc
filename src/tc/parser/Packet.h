@@ -46,7 +46,7 @@ public:
 
 	static Type str2req(const std::string &req);
 	static result_t parseImei(const uchar *cbuf, size_t size, Imei &imei);
-	
+
 	static const char* type2string(Type type);
 	static const char* method2string(Method method);
 	static const std::string toImei(const uchar *cbuf, int len);

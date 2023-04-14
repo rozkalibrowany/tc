@@ -13,9 +13,8 @@ using namespace records;
 class Payload : public Packet, public JsonI
 {
 public:
-	static size_t DATA_MIN_SIZE;
-	static size_t IMEI_MIN_SIZE;
-
+	static constexpr size_t DATA_MIN_SIZE = 45;
+	static constexpr size_t IMEI_MIN_SIZE = 15;
 
 	static bool valid(const uchar* buf, size_t size);
 	static bool hasPayload(const uchar* buf, size_t size);

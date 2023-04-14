@@ -17,6 +17,8 @@ public:
 	Protocol() = default;
 	Protocol(Type type);
 
+	virtual ~Protocol() = default;
+
 	bool operator==(Type type) { return iType == type; };
 
 	result_t parse(const uchar *buffer, size_t size);

@@ -23,9 +23,6 @@ public:
 
 	Type get(const std::string &type);
 	Type get(const uchar* buffer, size_t size);
-
-private:
-	size_t index_of_nth(const std::string_view &str, char delim, unsigned n);
 };
 
 } // namespace tc::parser::namespace

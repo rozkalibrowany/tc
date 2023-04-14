@@ -4,11 +4,11 @@
 #include <tc/server/tcp/handler/Omni.h>
 #include <bsoncxx/builder/stream/document.hpp>
 #include <bsoncxx/json.hpp>
-#include <fmt/format.h>
-#include <iomanip>
-
+#include <magic_enum.hpp>
 
 namespace tc::server::tcp {
+
+using namespace magic_enum;
 
 const Imei TelematicsSession::imei() const
 {
@@ -22,20 +22,20 @@ std::shared_ptr<TelematicsServer> TelematicsSession::server()
 
 void TelematicsSession::onReceived(const void *buffer, size_t size)
 {
-	LG_NFO(this->logger(), "[{}] Received buffer[{}]", imei(), size);
+	LG_NFO(this->logger(), "[{}][{}] Received buffer[{}]", enum_name(iProtocol.type()), imei(), size);
 
 	if (iProtocol.type() == Protocol::eUnknown && iProtocol.parse((const uchar*) buffer, size) != RES_OK) {
-		LG_WRN(this->logger(), "[{}] Unknown protocol", imei(), size);
+		LG_WRN(this->logger(), "[{}][{}] Unknown protocol", enum_name(iProtocol.type()), imei(), size);
 		return;
 	}
 
 	if (!iHandler && createHandler(iProtocol) != RES_OK) {
-		LG_ERR(this->logger(), "[{}] Unable creating handler", imei());
+		LG_ERR(this->logger(), "[{}][{}] Unable creating handler", enum_name(iProtocol.type()), imei());
 		return;
 	}
 
 	if (auto res = handlePayload(buffer, size); res != RES_OK)
-		LG_ERR(this->logger(), "[{}] Error handling payload[{}]", imei(), size);
+		LG_ERR(this->logger(), "[{}][{}] Error handling payload[{}]", enum_name(iProtocol.type()), imei(), size);
 }
 
 result_t TelematicsSession::handlePayload(const void *buffer, size_t size)
@@ -76,14 +76,14 @@ result_t TelematicsSession::savePacket(std::shared_ptr<parser::teltonika::Payloa
 	val["datetime"] = systime.getDateTime();
 
 	if (result_t res; (res = packet->toJson(val, true)) != RES_OK) {
-		LG_ERR(this->logger(), "[{}] Packet to json.", imei());
+		LG_ERR(this->logger(), "[{}][{}] Packet to json.", enum_name(iProtocol.type()), imei());
 		return res;
 	}
 
 	auto dbClient = server()->dbClient();
 
 	if(result_t res; (res = dbClient->insert(val.toStyledString())) != RES_OK) {
-		LG_ERR(this->logger(), "[{}] Error inserting data.", imei());
+		LG_ERR(this->logger(), "[{}][{}] Error inserting data.", enum_name(iProtocol.type()), imei());
 		return res;
 	}
 
@@ -109,7 +109,7 @@ result_t TelematicsSession::send(int buffer, const bool async)
 result_t TelematicsSession::send(const void *buffer, size_t size, const bool async)
 {
 	auto res = RES_NOENT;
-	LG_DBG(this->logger(), "[{}] Sending: {} size: {}", imei(), tc::uchar2string((const uchar*) buffer, size), size);
+	LG_DBG(this->logger(), "[{}][{}] Sending: {} size: {}", enum_name(iProtocol.type()), imei(), tc::uchar2string((const uchar*) buffer, size), size);
 
 	if (async == false) {
 		auto sent = Send(buffer, size);
@@ -128,7 +128,7 @@ result_t TelematicsSession::lastPacketJson(Json::Value &rhs) {
 		return RES_NOENT;
 	}
 	if (iDevice->packets().back()->toJson(rhs) != RES_OK) {
-		LG_ERR(this->logger(), "[{}] Unable to serialize last packet into json", imei());
+		LG_ERR(this->logger(), "[{}][{}] Unable to serialize last packet into json", enum_name(iProtocol.type()), imei());
 		return RES_ERROR;
 	}
  	rhs["Imei"] = imei();

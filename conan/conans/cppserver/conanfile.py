@@ -36,7 +36,6 @@ class CppServerConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHel
         self.copy("*.inl", dst="include", src=inc_dir)
         self.copy("*.so", dst="lib", src=osp.join(self._build_subfolder, "lib"))
 
-
     def package_info(self):
         self.add_components(
             [
@@ -44,9 +43,8 @@ class CppServerConan(ConanFile, tc.SourceHelper, tc.CmakeHelper, tc.ComponentHel
                     "target": "lib",
                     "libs": ["cppserver"],
                 },
-
             ]
         )
-        #libdir_c = os.path.join(os.path.join(self.package_folder, "lib"), "cmake")
-        #self.output.info("Appending PATH environment variable: {}".format(libdir_c))
-        #self.env_info.PATH.append(libdir_c)
+        # libdir_c = os.path.join(os.path.join(self.package_folder, "lib"), "cmake")
+        # self.output.info("Appending PATH environment variable: {}".format(libdir_c))
+        # self.env_info.PATH.append(libdir_c)

@@ -29,7 +29,7 @@ public:
 
 protected:
 	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
-	
+
 	void onReceived(const void *buffer, size_t size) override;
 	result_t handlePayload(const void *buffer, size_t size);
 

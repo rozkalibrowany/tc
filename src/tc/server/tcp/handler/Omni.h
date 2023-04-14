@@ -12,11 +12,13 @@ class OmniHandler : public HandlerI {
 public:
 
 	OmniHandler(const std::shared_ptr< TelematicsSession > &session)
-	 : HandlerI(session) {}
+	 : HandlerI(session, eOmni) {}
 
 	result_t handle(const uchar* buffer, size_t size) override;
 
 private:
+	result_t initDevice(const std::string_view& buf);
+	result_t handleBasicInfo(const std::string_view& buf);
 };
 
 } // namespace tc::server::tcp

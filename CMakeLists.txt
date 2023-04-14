@@ -119,6 +119,7 @@ tc_find_package_status(NAME jsoncpp REQUIRED)
 tc_find_package_status(NAME spdlog REQUIRED)
 tc_find_package_status(NAME mongoc REQUIRED)
 tc_find_package_status(NAME mongocxx REQUIRED)
+tc_find_package_status(NAME magic_enum REQUIRED)
 
 add_subdirectory("src/tc")
 

@@ -93,6 +93,12 @@ tc_conan_build_package(NAME jsoncpp
 	UBUNTU
 )
 
+tc_conan_build_package(NAME magic_enum
+	VERSION 0.8.2
+	DEPENDS conan-profiles conan-tc-build
+	UBUNTU
+)
+
 tc_conan_build_package(NAME mongoc
 	VERSION 1.23.2
 	DEPENDS conan-profiles conan-tc-build

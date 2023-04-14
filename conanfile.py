@@ -44,6 +44,7 @@ class TcConan(ConanFile, Os):
         self.requires("tc/0.3.0@tc/stable")
         self.requires("fmt/9.1.0@tc/stable")
         self.requires("asio/1.22.1@tc/stable")
+        self.requires("magic_enum/0.8.2@tc/stable")
         self.requires("mongoc/1.23.2@tc/stable")
         self.requires("mongocxx/3.7.1@tc/stable")
         self.requires("cppserver/master@tc/stable")

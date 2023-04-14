@@ -3,9 +3,6 @@
 
 namespace tc::parser::teltonika {
 
-size_t Payload::DATA_MIN_SIZE = 45;
-size_t Payload::IMEI_MIN_SIZE = 15;
-
 bool Payload::valid(const uchar* buf, size_t size)
 {
 	return (hasPayloadImei(buf, size));  // hasPayload(buf, size));
