@@ -47,6 +47,7 @@ result_t OmniHandler::initDevice(const std::string_view& buf)
 	return RES_OK;
 }
 
+// get voltage or/and lock status, according to Omni protcol
 result_t OmniHandler::handleBasicInfo(const std::string_view& buf)
 {
 	return RES_OK;

@@ -105,29 +105,4 @@ const Packet::Timestamp &Packet::timestamp() const
 	return iTimestamp;
 }
 
-bool Packet::operator<(const Packet &rhs) const
-{
-	return iTimestamp.timestamp.timestamp() < rhs.iTimestamp.timestamp.timestamp();
-}
-
-bool Packet::operator<=(const Packet &rhs) const
-{
-	return iTimestamp.timestamp.timestamp() <= rhs.iTimestamp.timestamp.timestamp();
-}
-
-bool Packet::operator>(const Packet &rhs) const
-{
-	return iTimestamp.timestamp.timestamp() > rhs.iTimestamp.timestamp.timestamp();
-}
-
-bool Packet::operator>=(const Packet &rhs) const
-{
-	return iTimestamp.timestamp.timestamp() >= rhs.iTimestamp.timestamp.timestamp();
-}
-
-bool Packet::operator==(const Packet &rhs) const
-{
-	return iTimestamp.timestamp.timestamp() == rhs.iTimestamp.timestamp.timestamp();
-}
-
 } // namespace tc::parser

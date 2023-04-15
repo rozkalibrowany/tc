@@ -4,6 +4,7 @@
 #include <tc/common/Buf.h>
 #include <tc/common/Common.h>
 #include <tc/parser/Reader.h>
+#include <compare>
 
 #define TYPE_PACKET_COMMAND			0x5
 #define TYPE_PACKET_RESPONSE		0x6
@@ -44,6 +45,8 @@ public:
 	Packet(const std::string imei = "");
 	virtual ~Packet() = default;
 
+	auto operator<=>(const Packet&) const = default;
+
 	static Type str2req(const std::string &req);
 	static result_t parseImei(const uchar *cbuf, size_t size, Imei &imei);
 
@@ -52,12 +55,6 @@ public:
 	static const std::string toImei(const uchar *cbuf, int len);
 
 	static bool hasImei(const uchar *cbuf, size_t size);
-
-	virtual bool operator<(const Packet &rhs) const;
-	virtual bool operator<=(const Packet &rhs) const;
-	virtual bool operator>(const Packet &rhs) const;
-	virtual bool operator>=(const Packet &rhs) const;
-	virtual bool operator==(const Packet &rhs) const;
 
 	virtual result_t parse(const uchar *cbuf, size_t size, size_t offset = 0) = 0;
 	virtual const size_t size() = 0;
