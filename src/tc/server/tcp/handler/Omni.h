@@ -21,6 +21,7 @@ private:
 	result_t handleUnlock(const common::Buf& buf);
 	result_t handleCheckIn(const common::Buf& buf);
 	result_t handleHeartbeat(const common::Buf& buf);
+	result_t handlePositioning(const common::Buf& buf);
 	result_t handleLockReport(const common::Buf& buf);
 };
 

@@ -33,6 +33,8 @@ result_t OmniHandler::handle(const uchar* buffer, size_t size)
 			return handleLockReport(buf);
 		case action::Locker::eUnlock:
 			return handleUnlock(buf);
+		case action::Locker::eAcquisitionPositioning:
+			return handlePositioning(buf);
 		case action::Locker::eAlarm:
 		case action::Locker::eUpgradeData:
 		case action::Locker::eUpgradeDetection:
@@ -96,6 +98,11 @@ result_t OmniHandler::handleUnlock(const common::Buf& buf)
 	iSession->send(response.data(), response.size(), true);
 
 	return RES_OK;
+}
+
+result_t OmniHandler::handlePositioning(const common::Buf& buf)
+{
+	
 }
 
 } // namespace tc::server::tcp

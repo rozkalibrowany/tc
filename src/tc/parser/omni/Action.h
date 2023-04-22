@@ -12,6 +12,7 @@ public:
 		eCheckIn                      = 0x5130,	// Q0
 		eHeartBeat                    = 0x4830,	// H0
 		eUnlock                       = 0x4C30,	// L0
+		eAcquisitionPositioning       = 0x4430,	// D0
 		eLockReport                   = 0x4C31,	// L1
 		eAlarm                        = 0x5730,	// W0
 		eUpgradeDetection             = 0x5530,	// U0
