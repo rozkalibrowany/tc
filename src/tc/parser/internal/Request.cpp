@@ -2,8 +2,6 @@
 
 namespace tc::parser::internal {
 
-size_t Request::REQ_MIN_SIZE = 11;
-
 bool Request::hasRequest(const uchar* buf, size_t size)
 {
 	bool isRequest = false;
@@ -16,17 +14,9 @@ bool Request::hasRequest(const uchar* buf, size_t size)
 	return isRequest;
 }
 
-bool Request::contains(const uchar* buf, size_t size, uchar c)
+result_t Request::parse(const uchar* cbuf, size_t size)
 {
-	auto end = buf + (unsigned long) size;
-	auto pos = std::find(buf, end, c);
-
-	return pos != end;
-}
-
-result_t Request::parse(const uchar* cbuf, size_t size, size_t  offset)
-{
-	if (Request::hasRequest(cbuf, size) == false) {
+	if (hasRequest(cbuf, size) == false) {
 		return RES_NOENT;
 	}
 
@@ -37,7 +27,7 @@ result_t Request::parse(const uchar* cbuf, size_t size, size_t  offset)
 	auto str = tc::uchar2string((const uchar*)cbuf + 5, size - 5);
 	tc::hex2bin((char*) str.data(), out);
 
-	iType = Packet::str2req(out);
+	iType = string2type(out);
 	iSize = size - 5;
 	delete out;
 
@@ -46,7 +36,7 @@ result_t Request::parse(const uchar* cbuf, size_t size, size_t  offset)
 	return RES_OK;
 }
 
-const size_t Request::size()
+size_t Request::size() const
 {
 	return iSize;
 }

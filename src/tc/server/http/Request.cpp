@@ -1,5 +1,4 @@
 #include <tc/server/http/Request.h>
-#include <tc/parser/internal/Request.h>
 #include <tc/common/Regex.h>
 
 namespace tc::server::http {
@@ -17,45 +16,25 @@ Request::Request(Method method, Type type)
 }
 
 Request::Request(std::string_view method, std::string_view type)
-  : tc::LogI("console")
-	, iRequest(CppServer::HTTP::HTTPRequest(method, type))
+	: iRequest(CppServer::HTTP::HTTPRequest(method, type))
 {
   // nothing to do
 }
 
 Request::Request(const CppServer::HTTP::HTTPRequest &request)
-	: tc::LogI("console")
-	, iRequest(request)
+	: iRequest(request)
 {
   // nothing to do
 }
 
-Request::Method Request::str2method(const std::string_view method)
+result_t Request::parse(const uchar *cbuf, size_t size)
 {
-	if (method.compare("GET") == 0) {
-		return Method::eGet;
-	} else if (method.compare("POST") == 0) {
-		return Method::ePost;
-	} else if (method.compare("DELETE") == 0) {
-		return Method::eDelete;
-	} else if (method.compare("HEAD") == 0) {
-		return Method::eHead;
-	}
-
-	return Method::eNone;
+ return RES_NOIMPL;
 }
 
-Request::Type Request::str2type(const std::string type)
+size_t Request::size() const
 {
-  if (!type.compare("devices")) {
-		return Type::eDevices;
-	} else if (!type.compare("device")) {
-		return Type::eDevice;
-	} else if (!type.compare("packets")) {
-		return Type::ePackets;
-	}
-
-	return Type::eUnknown;
+ return iRequest.string().size();
 }
 
 const std::string Request::method2str(Method method)
@@ -65,8 +44,6 @@ const std::string Request::method2str(Method method)
     return {"GET"};
     case ePost:
     return {"POST"};
-    case eDelete:
-    return {"DELETE"};
     case eHead:
     return {"HEAD"};
     default:
@@ -87,7 +64,7 @@ const std::string Request::type2str(Type type)
   }
 }
 
-void Request::setID(std::string_view id)
+void Request::setID(const std::string_view &id)
 {
 	iID = id;
 }
@@ -99,7 +76,13 @@ CppServer::HTTP::HTTPRequest Request::request() const
 
 Request::Method Request::method() const
 {
-	return str2method(iRequest.method());
+	if (!iRequest.method().compare("GET"))
+		return eGet;
+	else if (!iRequest.method().compare("POST"))
+		return ePost;
+	else if (!iRequest.method().compare("HEAD"))
+		return eHead;
+	return eNone;
 }
 
 /* /type/../...  */
@@ -112,7 +95,7 @@ Request::Type Request::type() const
 	auto url_with_qp = url.substr(0, it);
 	std::string type = url_with_qp.substr(0, url_with_qp.find("?"));
 
-	return str2type(type);
+	return string2type(type);
 }
 
 bool Request::hasQuery() const
@@ -204,17 +187,6 @@ result_t Request::toInternal(common::Buf &buf, bool cr)
   buf.insert(val.data(), val.length());
 
 	return res;
-}
-
-Request::Type Request::str2req(const std::string &req)
-{
-	if (req.compare("devices") == 0) {
-		return Type::eDevices;
-	} else if (req.compare("data") == 0) {
-		return Type::eDevice;
-	} else {
-		return Type::eUnknown;
-	}
 }
 
 const size_t Request::depth() const

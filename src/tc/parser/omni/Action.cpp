@@ -1,50 +1,30 @@
 #include <tc/parser/omni/Action.h>
 #include <tc/parser/omni/packet/Payload.h>
 
-namespace tc::parser::omni {
+namespace tc::parser::omni::action {
 
 using namespace parser;
 
-Action::Type Action::get(const uchar* buffer, size_t size)
+Locker::Instruction Locker::get(const common::Buf &buf)
 {
-	// casting to string_view
-	const std::string_view str_buffer(reinterpret_cast<char const *>(buffer));
 	// getting index of instruction segment
-	auto index = Payload::index_of_nth(str_buffer, ',', 4);
-	if (index + 2 > size) // index + size of instruction
-		return eInvalid;
-	// getting instruction
-	std::string type((const char *)buffer + index, 2);
-
-	return get(type);
-}
-
-Action::Type Action::get(const std::string &type)
-{
-	if (type.empty())
-		return eInvalid;
-
-	unsigned val = strtoul(tohex(type).c_str(), 0, 16);
-	switch (val) {
-	case eCheckIn:
-		return eCheckIn;
-	case eHeartBeat:
-		return eHeartBeat;
-	case eUnlock:
-		return eUnlock;
-	case eLockReport:
-		return eLockReport;
-	case eAlarm:
-		return eAlarm;
-	case eUpgradeDetection:
-		return eUpgradeDetection;
-	case eUpgradeData:
-		return eUpgradeData;
-	case eUpgradeResults:
-		return eUpgradeResults;
-	default:
+	auto index = buf.find_nth(',', 4);
+	if (!index || index + 2 > (int) buf.size()) // index + size of instruction
 		return eUnknown;
-	}
+	// getting instruction
+	std::string type((const char *)buf.cdata() + index, 2);
+	return (Instruction) strtoul(tohex(type).c_str(), 0, 16);
 }
 
-} // namespace tc::parser::omni
+Server::Instruction Server::get(const common::Buf &buf)
+{
+	// getting index of instruction segment
+	auto index = buf.find_nth(',', 4);
+	if (!index || index + 2 > (int) buf.size()) // index + size of instruction
+		return eUnknown;
+	// getting instruction
+	std::string type((const char *)buf.cdata() + index, 2);
+	return (Instruction) strtoul(tohex(type).c_str(), 0, 16);
+}
+
+} // namespace tc::parser::omni::action

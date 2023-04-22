@@ -24,6 +24,17 @@ void TelematicsSession::onReceived(const void *buffer, size_t size)
 {
 	LG_NFO(this->logger(), "[{}][{}] Received buffer[{}]", enum_name(iProtocol.type()), imei(), size);
 
+	std::string hex = tc::uchar2string((const uchar*) buffer, size);
+	std::string hexAsText;
+	for(int i=0; i < hex.length(); i+=2)
+	{
+			std::string byte = hex.substr(i,2);
+			char chr = (char) (int)strtol(byte.c_str(), NULL, 16);
+			hexAsText.push_back(chr);
+	}
+
+	LG_NFO(this->logger(), "Received: {}", hexAsText);
+
 	if (iProtocol.type() == Protocol::eUnknown && iProtocol.parse((const uchar*) buffer, size) != RES_OK) {
 		LG_WRN(this->logger(), "[{}][{}] Unknown protocol", enum_name(iProtocol.type()), imei(), size);
 		return;

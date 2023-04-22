@@ -7,7 +7,7 @@
 
 namespace tc::common {
 
-class Buf {
+class Buf final {
 public:
 
   using ByteArray = std::vector < uchar >;
@@ -18,6 +18,10 @@ public:
 	Buf(const uchar *rhs, size_t size);
   Buf(const ByteArray &rhs);
 	Buf(ByteArray::iterator begin, ByteArray::iterator end);
+	Buf(ByteArray::const_iterator begin, ByteArray::const_iterator end);
+
+	Buf(Buf &&rhs) = default;
+	Buf(const Buf &rhs) = default;
 
 	~Buf();
 
@@ -27,17 +31,22 @@ public:
   uchar &operator[](uint idx);
 	const uchar &operator[](uint idx) const;
 
-  uint16_t toUInt16(int offset);
-  int16_t toInt16(int offset);
-  int32_t toInt32(int offset);
-  int64_t toInt64(int offset);
+	std::string_view asHex() const;
 
-	const bool empty();
-	const size_t size();
+	uint16_t toUInt16(int offset) const;
+	int16_t toInt16(int offset) const;
+	int32_t toInt32(int offset) const;
+  int64_t toInt64(int offset) const;
+
+	const_iterator find_nth_it(char delim, unsigned n = 1) const;
+	int find_nth(char delim, unsigned n = 1) const;
+
+	const bool empty() const;
+	const size_t size() const;
 
 	void clear();
 
-	const uchar *cdata();
+	const uchar *cdata() const;
 	uchar *data();
 
 	void push_back(const uchar val);

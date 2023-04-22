@@ -1,11 +1,15 @@
 #include <tc/server/tcp/TelematicsServer.h>
 #include <tc/iot/Devices.h>
 #include <tc/server/http/Request.h>
+#include <magic_enum.hpp>
 
 namespace tc::server::tcp {
 
-TelematicsServer::TelematicsServer(const std::shared_ptr<AsioService>& service, std::shared_ptr<mongo::Client> client, size_t cache)
- : TelematicsServer(service, client, cache, 8881)
+using namespace magic_enum;
+using namespace parser;
+
+TelematicsServer::TelematicsServer(const std::shared_ptr<AsioService> &service, std::shared_ptr<mongo::Client> client, size_t cache)
+		: TelematicsServer(service, client, cache, 8881)
 {
 	// nothing to do
 }
@@ -86,28 +90,27 @@ result_t TelematicsServer::handleCommand(const uchar *buffer, size_t size)
 
 result_t TelematicsServer::handleRequest(const uchar *buffer, size_t size, const CppCommon::UUID id)
 {
-	auto request = std::make_shared< parser::internal::Request >();
+	auto request = std::make_shared< internal::Request >();
 	result_t res = request->parse((uchar*) buffer, size);
 	if (res != RES_OK) {
 		LG_ERR(this->logger(), "Parse request.");
 		return res;
 	}
 
-	LG_NFO(this->logger(), "Handle request[{}] Method: {} Type: {}", size, Packet::method2string(request->iMethod),
-	Packet::type2string(request->iType));
-
+	LG_NFO(this->logger(), "Handle request[{}] Method: {} Type: {}", size,
+		enum_name(request->method()), enum_name(request->type()));
 	return dispatchRequest(request, id);
 }
 
-result_t TelematicsServer::dispatchRequest(std::shared_ptr< parser::internal::Request > request, const CppCommon::UUID id)
+result_t TelematicsServer::dispatchRequest(std::shared_ptr< internal::Request > request, const CppCommon::UUID id)
 {
 	using namespace parser;
 
 	result_t res = RES_OK;
-	auto type = request->iType;
+	auto type = request->type();
 
 	Json::Value list;
-	if (type == Packet::eDevices) {
+	if (type == internal::Request::eDevices) {
 		auto &el = list["devices"] = Json::arrayValue;
 		for (const auto &[key, value] : _sessions) {
 			if (key == id) continue;
@@ -117,7 +120,7 @@ result_t TelematicsServer::dispatchRequest(std::shared_ptr< parser::internal::Re
 			session->toJson(val);
 			el.append(val);
 		}
-	} else if (type == Packet::ePackets) {
+	} else if (type == internal::Request::ePackets) {
 
 		auto &el = list["packets"] = Json::arrayValue;
 		for (const auto &[key, value] : _sessions) {

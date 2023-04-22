@@ -71,7 +71,7 @@ public:
 	SysTime& timestamp(int64_t value);
 	int64_t timestamp() const;
 
-private:
+protected:
 	long long iTimestamp;
 };
 

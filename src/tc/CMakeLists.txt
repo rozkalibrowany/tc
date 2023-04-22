@@ -17,6 +17,7 @@ TcAddLibrary(
 	SOURCE "${src}/parser/*.cpp"
 	INCLUDE "${TcIncludeDir}"
 	LIBRARIES
+		tc-common
 		fmt::lib
 		jsoncpp
 	VERSION ${TcVersion}
@@ -62,7 +63,6 @@ TcAddLibrary(
 		tc-db
 		tc-iot
 		tc-parser
-		tc-common
 	VERSION ${TcVersion}
 )
 

@@ -65,7 +65,7 @@ result_t Payload::parse(const uchar* cbuf, size_t size, size_t /* offset */)
 		} else if (getIdx(cbuf, size, '8') == 23 || getIdx(cbuf, size, '8') == 8) {
 			offset = getIdx(cbuf, size, '8');
 		}
-		auto buf = std::make_shared<common::Buf>(cbuf, size);
+		common::Buf buf(cbuf, size);
 
 		if (crcOk(buf, size) != true) {
 			LG_DBG(this->logger(), "Incorrect CRC sum");

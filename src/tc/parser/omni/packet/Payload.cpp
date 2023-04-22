@@ -8,37 +8,52 @@ bool Payload::valid(const uchar* buf, size_t size)
 	return (uchar)buf[0] == (uchar)OMNI_HEADER;
 }
 
-result_t Payload::parseImei(const std::string_view &buf, Imei &imei)
+result_t Payload::parseImei(const common::Buf &buf, Imei &imei)
 {
 	if (buf.empty())
 		return RES_NOENT;
 
 	// getting index where imei should start
-	auto index = index_of_nth(buf, ',', 2);
-	if (index + IMEI_SIZE > buf.size())
+	auto index = buf.find_nth(',', 2);
+	if (!index && index + IMEI_SIZE > buf.size())
 		return RES_NOMEM;
 
 	imei.reserve(IMEI_SIZE);
-	imei = std::string(buf.data() + index, IMEI_SIZE);
+	imei = std::string((const char*) (buf.cdata() + index), IMEI_SIZE);
 
 	return RES_OK;
 }
 
-size_t Payload::index_of_nth(const std::string_view &str, char delim, unsigned n)
+result_t Payload::parseManufacturer(const common::Buf &buf, std::string &manufacturer)
 {
-	if (n == 0)
-		return std::string_view::npos;
+	if (buf.empty())
+		return RES_NOENT;
+	
+	// getting index where manufacturer should start
+	auto index = buf.find_nth(',', 1);
+	if (!index && index + MANUFACTURER_SIZE > buf.size())
+		return RES_NOMEM;
 
-	size_t pos, from = 0;
-	unsigned i=0;
-	while (i < n) {
-		pos = str.find(delim, from);
-		if (pos == std::string_view::npos)
-			break;
-		from = pos + 1;
-		++i;
-	}
-	return ++pos; // return with +1 offset
+	manufacturer.reserve(2);
+	manufacturer = std::string((const char*) (buf.cdata() + index), MANUFACTURER_SIZE);
+
+	return RES_OK;
+}
+
+result_t Payload::parseDatetime(const common::Buf &buf, Datetime &datetime)
+{
+	if (buf.empty())
+		return RES_NOENT;
+	
+	// getting index where datetime should start
+	auto index = buf.find_nth(',', 3);
+	if (!index && index + DATETIME_SIZE > buf.size())
+		return RES_NOMEM;
+
+	if(datetime.parse(std::string((const char*) (buf.cdata() + index), DATETIME_SIZE)) != RES_OK)
+		return RES_ERROR;
+
+	return RES_OK;
 }
 
 result_t Payload::parse(const std::string_view &buffer)

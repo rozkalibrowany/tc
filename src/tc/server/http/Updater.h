@@ -15,7 +15,7 @@ public:
 	void execute(std::shared_ptr< tc::client::tcp::Client > client, int64_t interval);
 
 private:
-	Request iRequest;
+	http::Request iRequest;
 };
 
 } // namespace tc::server::http

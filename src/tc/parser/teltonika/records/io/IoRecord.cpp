@@ -82,21 +82,21 @@ result_t IoRecord::parseVariableSize(Reader &reader, int ioIdSize)
 		auto id = reader.readU(ioIdSize);
 		auto length = reader.readU(2);
 
-		if (reader.offset() >= static_cast<int>(reader.buf()->size()) || (reader.offset() + length) >= static_cast<uint>(reader.buf()->size())) {
+		if (reader.offset() >= static_cast<int>(reader.size()) || (reader.offset() + length) >= static_cast<uint>(reader.buf().size())) {
 			LG_ERR(this->logger(), "Unable to create copy buffer. Offset[{}], length[{}]", reader.offset(), length);
 			return RES_NOENT;
 		}
 
-		auto beg = reader.buf()->begin() + reader.offset();
-		auto end = reader.buf()->begin() + reader.offset() + length;
+		auto beg = reader.buf().cbegin() + reader.offset();
+		auto end = reader.buf().cbegin() + reader.offset() + length;
 		iRecordsMap.insert(std::make_pair(BYTE_X, IoRecordsPropertyList()));
 
 		if (id == 10358) {
 			auto property = std::make_shared< IoRecordProperty >(id);
-			auto buf = std::make_unique<common::Buf>(beg, end);
-			Reader readerMcan(std::move(buf));
+			common::Buf buf(beg, end);
+			Reader readerMcan(buf);
 			if (property->parse(readerMcan) != RES_OK) {
-				LG_ERR(this->logger(), "Unable to parse Mcan. Offset[{}], length[{}] buf size {}", readerMcan.offset(), length, readerMcan.buf()->size());
+				LG_ERR(this->logger(), "Unable to parse Mcan. Offset[{}], length[{}] buf size {}", readerMcan.offset(), length, readerMcan.buf().size());
 				return RES_NOENT;
 			}
 			iRecordsMap.at(BYTE_X).push_back(std::make_shared<IoRecordProperty>());

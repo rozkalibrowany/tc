@@ -17,8 +17,11 @@ public:
 	result_t handle(const uchar* buffer, size_t size) override;
 
 private:
-	result_t initDevice(const std::string_view& buf);
-	result_t handleBasicInfo(const std::string_view& buf);
+	result_t initDevice(const common::Buf& buf);
+	result_t handleUnlock(const common::Buf& buf);
+	result_t handleCheckIn(const common::Buf& buf);
+	result_t handleHeartbeat(const common::Buf& buf);
+	result_t handleLockReport(const common::Buf& buf);
 };
 
 } // namespace tc::server::tcp

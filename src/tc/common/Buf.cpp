@@ -27,6 +27,13 @@ Buf::Buf(Buf::ByteArray::iterator begin, Buf::ByteArray::iterator end)
 	// nothing to do
 }
 
+Buf::Buf(Buf::ByteArray::const_iterator begin, Buf::ByteArray::const_iterator end)
+ : iBuf(ByteArray(begin, end))
+{
+	// nothing to do
+}
+
+
 Buf::~Buf()
 {
 	iBuf.clear();
@@ -64,12 +71,17 @@ const uchar &Buf::operator[](uint idx) const
 	return iBuf[idx];
 }
 
+std::string_view Buf::asHex() const
+{
+	return size() == 0 ? "" : bytes2hex(iBuf.data(), size());
+}
+
 void Buf::clear()
 {
 	iBuf.clear();
 }
 
-const uchar *Buf::cdata()
+const uchar *Buf::cdata() const
 {
 	return iBuf.data();
 }
@@ -109,17 +121,17 @@ result_t Buf::insert(const uchar* buf, size_t length)
 	return RES_OK;
 }
 
-uint16_t Buf::toUInt16(int offset)
+uint16_t Buf::toUInt16(int offset) const
 {
 	return ((iBuf[offset] & 0xFF) | ((iBuf[offset + 1] & 0xFF) << 8));
 }
 
-int16_t Buf::toInt16(int offset)
+int16_t Buf::toInt16(int offset) const
 {
 	 return (int16_t) ((iBuf[offset] & 0xFF) | ((iBuf[offset + 1] & 0xFF) << 8));
 }
 
-int32_t Buf::toInt32(int offset)
+int32_t Buf::toInt32(int offset) const
 {
 	return ((iBuf[offset] & 0xFF) |
                 ((iBuf[offset + 1] & 0xFF) << 8)
@@ -127,7 +139,7 @@ int32_t Buf::toInt32(int offset)
                 | ((iBuf[offset + 3] & 0xFF) << 24));
 }
 
-int64_t Buf::toInt64(int offset)
+int64_t Buf::toInt64(int offset) const
 {
 	return (((int64_t) (iBuf[offset + 7] & 0xff) << 56)
                 | ((int64_t) (iBuf[offset + 6] & 0xff) << 48)
@@ -138,12 +150,36 @@ int64_t Buf::toInt64(int offset)
                 | ((int64_t) (iBuf[offset + 1] & 0xff) << 8) | (iBuf[offset] & 0xff));
 }
 
-const bool Buf::empty()
+Buf::const_iterator Buf::find_nth_it(char delim, unsigned n) const
+{
+	if (n == 0)
+		return cend();
+
+	uint8_t occurences = 0;
+	for (ByteArray::const_iterator it = iBuf.begin(); it != iBuf.end(); it++) {
+		if (occurences == n)
+			return it; // return start point with offset + 1
+
+		if (*it == delim)
+			occurences++;
+	}
+
+	return cend();
+}
+
+int Buf::find_nth(char delim, unsigned n) const
+{
+	auto it = find_nth_it(delim, n);
+
+	return it == cend() ? 0 : std::distance(cbegin(), it);
+}
+
+const bool Buf::empty() const
 {
 	return iBuf.empty();
 }
 
-const size_t Buf::size()
+const size_t Buf::size() const
 {
 	return iBuf.size();
 }

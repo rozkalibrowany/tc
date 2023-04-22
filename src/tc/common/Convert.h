@@ -78,6 +78,20 @@ inline std::string tohex(const std::string &s, bool upper = false)
 	return ret.str();
 }
 
+inline std::string tohex(const std::string_view &s, bool upper = false)
+{
+	std::ostringstream ret;
+
+	unsigned int c;
+	for (std::string::size_type i = 0; i < s.length(); ++i)
+	{
+		c = (unsigned int)(unsigned char)s[i];
+		ret << std::hex << std::setfill('0') <<
+			std::setw(2) << (upper ? std::uppercase : std::nouppercase) << c;
+	}
+	return ret.str();
+}
+
 inline std::string string2hex(const std::string &s)
 {
 	static const char hex_digits[] = "0123456789ABCDEF";

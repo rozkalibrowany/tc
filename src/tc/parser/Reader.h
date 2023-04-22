@@ -9,20 +9,25 @@ namespace tc::parser {
 
 class Reader {
 public:
-	Reader(std::shared_ptr<common::Buf> buf, int offset = 0);
-	Reader(const Reader &reader) = default;
+	Reader(const common::Buf &buf, int offset = 0);
+	Reader(Reader &&reader) = default;
+	Reader(const Reader &reader) = delete;
 	~Reader() = default;
 
-	std::shared_ptr<common::Buf> buf();
+	const common::Buf& buf() const;
 	int offset() const;
+	size_t size() const;
 
 	long readL(int bytes, int offset = 0);
 	uint readU(int bytes, int offset = 0);
 	int read(int bytes, int offset = 0);
-	void skip(int bytes);
+	uchar* readS(int bytes, int offset = 0);
 
-private:
-	std::shared_ptr<common::Buf> iBuf;
+	void skip(int bytes);
+	void setOffset(int offset);
+
+protected:
+	common::Buf iBuf;
 	mutable int iOffset;
 };
 
