@@ -10,7 +10,7 @@ namespace tc::parser::teltonika {
 
 using namespace records;
 
-class Payload : public Packet, public JsonI
+class Payload : public Packet
 {
 public:
 	static constexpr size_t DATA_MIN_SIZE = 45;
@@ -26,7 +26,7 @@ public:
 	const size_t size() override;
 	AVLRecords &records();
 
-	Json::Value toJsonValue();
+	Json::Value toJsonValue() override;
 
 protected:
 	result_t toJsonImpl(Json::Value &rhs, bool root) const override;

@@ -7,7 +7,8 @@ namespace tc::parser::omni::action {
 
 class Locker : tc::LogI {
 public:
-	enum Instruction
+
+	enum Event
 	{
 		eCheckIn                      = 0x5130,	// Q0
 		eHeartBeat                    = 0x4830,	// H0
@@ -21,13 +22,13 @@ public:
 		eUnknown
 	};
 
-	static Instruction get(const common::Buf &buf);
+	static Event get(const common::Buf &buf);
 };
 
 class Server : tc::LogI {
 public:
 
-	enum Instruction
+	enum Event
 	{
 		eUnlock                       = 0x4C30,	// L0
 		eAcquisitionPositioning       = 0x4430,	// D0
@@ -40,7 +41,7 @@ public:
 	};
 
 
-	static Instruction get(const common::Buf &buf);
+	static Event get(const common::Buf &buf);
 };
 
 } // namespace tc::parser::namespace

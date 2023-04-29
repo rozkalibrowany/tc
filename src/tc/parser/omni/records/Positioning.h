@@ -13,10 +13,13 @@ public:
 		eInvalidLocation    = 0x5641
 	};
 
-	Positioning(const common::Buf& buf) : RecordI(buf) {}
+	Positioning(bool has_response) : RecordI(has_response) {}
+	Positioning(const Positioning &rhs) = default;
+	Positioning(Positioning &&rhs) = default;
+	~Positioning() = default;
 
-	result_t parse(uint8_t elements = 1) override;
-	result_t response(common::Buf& response) override;
+	result_t parse(const common::Buf &buf) override;
+	result_t response(common::Buf &response) override;
 
 private:
 	std::string iLatitude;

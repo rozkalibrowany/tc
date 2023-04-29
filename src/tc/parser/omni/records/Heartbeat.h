@@ -7,10 +7,14 @@ namespace tc::parser::omni::records {
 
 class Heartbeat : public RecordI {
 public:
-	Heartbeat(const common::Buf& buf) : RecordI(buf) {}
 
-	result_t parse(uint8_t elements = 1) override;
-	result_t response(common::Buf& response) override;
+	Heartbeat(bool has_response) : RecordI(has_response) {}
+	Heartbeat(const Heartbeat &rhs) = default;
+	Heartbeat(Heartbeat &&rhs) = default;
+	~Heartbeat() = default;
+
+	result_t parse(const common::Buf &buf) override;
+	result_t response(common::Buf &response) override;
 
 	bool locked() const;
 	float voltage() const;

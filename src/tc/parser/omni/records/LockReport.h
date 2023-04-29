@@ -8,13 +8,17 @@ namespace tc::parser::omni::records {
 
 class LockReport : public RecordI {
 public:
-	result_t parse(uint8_t elements = 3) override;
+	LockReport(bool has_response) : RecordI(has_response) {}
+	LockReport(const LockReport &rhs) = default;
+	LockReport(LockReport &&rhs) = default;
+	~LockReport() = default;
 
-	SysTime timestamp() const;
+	result_t parse(const common::Buf &buf) override;
+	result_t response(common::Buf &response) override{};
+	
 	std::chrono::minutes cycle_time() const;
 
 private:
-	SysTime iTimestamp{true};
 	std::chrono::minutes iCycleTime;
 };
 

@@ -9,7 +9,7 @@ namespace tc::server::iot {
 class Device : public tc::LogI, public parser::JsonI
 {
 public:
-  using PayloadPackets = std::deque< std::shared_ptr< parser::teltonika::Payload > >;
+  using PayloadPackets = std::deque< std::shared_ptr< parser::Packet > >;
 
 	explicit Device(const Imei &imei);
 	explicit Device(const Imei &imei, size_t cache);
@@ -20,10 +20,10 @@ public:
 	virtual bool operator!=(const Device &rhs) const;
 	virtual Device &operator=(const Device &rhs);
 
-	virtual bool has(const std::shared_ptr<parser::teltonika::Payload> packet);
+	virtual bool has(const std::shared_ptr< parser::Packet > packet);
 
 	virtual result_t add(const uchar *buffer, size_t size);
-	virtual result_t add(const std::shared_ptr<parser::teltonika::Payload> packet);
+	virtual result_t add(const std::shared_ptr< parser::Packet > packet);
 
 	virtual Json::Value toJsonValue(bool active = true);
 

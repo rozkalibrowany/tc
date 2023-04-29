@@ -36,7 +36,7 @@ Device &Device::operator=(const Device &rhs)
 	return *this;
 }
 
-bool Device::has(const std::shared_ptr< parser::teltonika::Payload > packet)
+bool Device::has(const std::shared_ptr< parser::Packet > packet)
 {
 	auto it = std::find(iPayloadPackets.begin(), iPayloadPackets.end(), packet);
 	return it == iPayloadPackets.end() ? false : true;
@@ -58,7 +58,7 @@ result_t Device::add(const uchar* buffer, size_t size)
 	return add(std::move(packet));
 }
 
-result_t Device::add(const std::shared_ptr< parser::teltonika::Payload > packet)
+result_t Device::add(const std::shared_ptr< parser::Packet > packet)
 {
   if (has(packet) == true) {
 		LG_ERR(this->logger(), "Packet already exists.");

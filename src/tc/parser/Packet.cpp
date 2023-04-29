@@ -3,9 +3,9 @@
 
 namespace tc::parser {
 
-Packet::Packet(const std::string imei)
-	: tc::LogI("console")
-	, iCodec(0)
+Packet::Packet(const Imei &imei)
+ : iImei(imei)
+ , tc::LogI("console")
 {
 	// nothing to do
 }
@@ -63,9 +63,24 @@ int Packet::codec() const
 	return iCodec;
 }
 
-const Packet::Timestamp &Packet::timestamp() const
+const SysTime &Packet::timestamp() const
 {
 	return iTimestamp;
+}
+
+Json::Value Packet::toJsonValue()
+{
+	return Json::Value();
+}
+
+result_t Packet::toJsonImpl(Json::Value &rhs, bool root) const
+{
+	return RES_NOIMPL;
+}
+
+result_t Packet::fromJsonImpl(const Json::Value &rhs, bool root)
+{
+	return RES_NOIMPL;
 }
 
 } // namespace tc::parser

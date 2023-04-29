@@ -26,7 +26,7 @@ void TelematicsSession::onReceived(const void *buffer, size_t size)
 
 	std::string hex = tc::uchar2string((const uchar*) buffer, size);
 	std::string hexAsText;
-	for(int i=0; i < hex.length(); i+=2)
+	for(int i=0; i < (int) hex.length(); i+=2)
 	{
 			std::string byte = hex.substr(i,2);
 			char chr = (char) (int)strtol(byte.c_str(), NULL, 16);
@@ -72,14 +72,14 @@ result_t TelematicsSession::createHandler(Protocol protocol)
 		return RES_OK;
 }
 
-result_t TelematicsSession::savePacket(std::shared_ptr<parser::teltonika::Payload> &packet)
+result_t TelematicsSession::savePacket(const std::shared_ptr<parser::Packet> &packet)
 {
 	if (iDevice == nullptr || iDevice->imei().empty())
 		return RES_NOENT;
 
 	Json::Value val;
 
-	auto timestamp = packet->timestamp().timestamp.timestamp();
+	auto timestamp = packet->timestamp().timestamp();
 	auto systime = SysTime(timestamp);
 
 	val["imei"] = iDevice->imei();
@@ -103,11 +103,24 @@ result_t TelematicsSession::savePacket(std::shared_ptr<parser::teltonika::Payloa
 
 result_t TelematicsSession::send(const uchar* buffer, size_t size, const bool async)
 {
+
+
+	std::string hex = tc::uchar2string((const uchar*) buffer, size);
+	std::string hexAsText;
+	for(int i=0; i < hex.length(); i+=2)
+	{
+			std::string byte = hex.substr(i,2);
+			char chr = (char) (int)strtol(byte.c_str(), NULL, 16);
+			hexAsText.push_back(chr);
+	}
+
+	LG_NFO(this->logger(), "[{}][{}] Sending [{}]", enum_name(iProtocol.type()), imei(), hexAsText);
+
 	auto buf_str = tc::uchar2string(buffer, size);
 	auto out = new char[size];
 	tc::hex2bin(buf_str.data(), out);
 
-	auto res =  send((const void *)out, size, async);
+	auto res = send((const void *)out, size, async);
 	delete out;
 	return res;
 }

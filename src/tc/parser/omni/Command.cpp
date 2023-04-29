@@ -8,17 +8,17 @@
 
 namespace tc::parser::omni {
 
-result_t Command::getHeader(common::Buf &buf, const Imei &imei, const Datetime &datetime)
+result_t Command::getHeader(common::Buf &buf, const Imei &imei, const std::string &datetime)
 {
 	if (imei.empty())
 		return RES_NOENT;
 
 	// 1 bytes FF
-	auto val = byte2string(0xFF, 2);
+	auto val = byte2string(0xFF, 1);
 	buf.insert(val.data(), val.length());
 
 	// 1 bytes FF
-	val = byte2string(0xFF, 2);
+	val = byte2string(0xFF, 1);
 	buf.insert(val.data(), val.length());
 	
 	// header
@@ -40,7 +40,7 @@ result_t Command::getHeader(common::Buf &buf, const Imei &imei, const Datetime &
 	buf.insert(val.data(), val.length());
 
 	// datetime
-	val = tc::tohex(datetime.datetime());
+	val = tc::tohex(datetime);
 	buf.insert(val.data(), val.length());
 	val = byte2string(0x2c);
 	buf.insert(val.data(), val.length());
@@ -56,21 +56,50 @@ Command::Command(const Imei &imei, uint userID)
 	// nothing to do
 }
 
-result_t Command::init(action::Server::Instruction instruction, int value)
+Command &Command::operator=(const Command &rhs)
+{
+	iBuf = rhs.iBuf;
+	iImei = rhs.iImei;
+	iUserID = rhs.iUserID;
+	iDatetime = rhs.iDatetime;
+	return *this;
+}
+
+common::Buf& Command::buf()
+{
+	return iBuf;
+}
+
+result_t Command::init(const common::Buf &buf, const Imei &imei, const std::string &datetime)
+{
+	common::Buf header;
+	if (auto res = Command::getHeader(header, imei, datetime); res != RES_OK) {
+		LG_ERR(this->logger(), "Unable to generate command");
+		return res;
+	}
+
+	iBuf.iBuf.reserve(buf.size() + header.size());
+	iBuf.insert(header.cdata(), header.size());
+	iBuf.insert(buf.cdata(), buf.size());
+
+	return RES_OK;
+}
+
+result_t Command::init(action::Server::Event event, int value)
 {
 	result_t res = RES_OK;
 
 	common::Buf command;
-	if (getHeader(command, iImei, iDateTime) != RES_OK) {
+	if (getHeader(command, iImei, iDatetime) != RES_OK) {
 		return RES_INVARG;
 	}
 
 	// instruction
-	auto val = byte2string(instruction);
+	auto val = byte2string(event);
 	command.insert(val.data(), val.length());
 	command.push_back(',');
 
-	switch(instruction) {
+	switch(event) {
 		case action::Server::eUnlock:
 			// value
 			val = byte2string(value);
@@ -81,7 +110,7 @@ result_t Command::init(action::Server::Instruction instruction, int value)
 			command.insert(val.data(), val.length());
 			command.push_back(',');
 			// timestamp
-			val = byte2string(iDateTime.timestamp());
+			val = tc::tohex(iDatetime);
 			command.insert(val.data(), val.length());
 			command.push_back(',');
 			break;

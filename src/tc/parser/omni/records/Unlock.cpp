@@ -3,25 +3,26 @@
 
 namespace tc::parser::omni::records {
 
-result_t Unlock::parse(uint8_t elements)
+result_t Unlock::parse(const common::Buf &buf)
 {
-	if (RecordI::parse() != RES_OK)
+	if (buf.empty())
 		return RES_NOENT;
 
-	auto offset = iBuf.find_nth(',', 5); // data after fifth ','
+	auto offset = buf.find_nth(',', 5); // data after fifth ','
 	if (!offset)
 		return RES_NOENT;
 
-	setOffset(offset);
+	Reader reader(buf);
+	reader.setOffset(offset);
 
-	auto result = read(1);
-	skip(1);
+	auto result = reader.read(1);
+	reader.skip(1);
 
-	auto customerID = read(4);
-	skip(1);
+	auto customerID = reader.read(4);
+	reader.skip(1);
 
-	auto timestamp = read(10);
-	skip(1);
+	auto timestamp = reader.read(10);
+	reader.skip(1);
 
 	iResult = result;
 	iCustomerID = customerID;
@@ -32,13 +33,10 @@ result_t Unlock::parse(uint8_t elements)
 
 result_t Unlock::response(common::Buf& response)
 {
-	if (Command::getHeader(response, iImei, iDateTime) != RES_OK)
-		return RES_NOENT;
-
 	// re
 	auto val = tc::tohex(c_response);
 	response.insert(val.data(), val.length());
-	val = byte2string(0x2c);
+	val = tc::tohex(std::string(","));
 	response.insert(val.data(), val.length());
 
 	// instruction
@@ -46,15 +44,10 @@ result_t Unlock::response(common::Buf& response)
 	response.insert(val.data(), val.length());
 
 	// end
-	val = byte2string(0x23);
+	val = tc::tohex(std::string("#"));
 	response.insert(val.data(), val.length());
 
 	return RES_OK;
-}
-
-SysTime Unlock::timestamp() const
-{
-	return iTimestamp;
 }
 
 uint8_t Unlock::result() const

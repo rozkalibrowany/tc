@@ -2,36 +2,35 @@
 
 namespace tc::parser::omni::records {
 
-result_t LockReport::parse(uint8_t elements)
+result_t LockReport::parse(const common::Buf &buf)
 {
-	auto offset = iBuf.find_nth(',', 3); // data after third ','
+	if (buf.empty())
+		return RES_NOENT;
+
+	auto offset = buf.find_nth(',', 3); // data after third ','
 	if (!offset)
 		return RES_NOENT;
 
-	setOffset(offset);
+	Reader reader(buf);
+	reader.setOffset(offset);
 
-	auto year = hex2int(readS(4));
-	auto month = hex2int(readS(2));
-	auto hour = hex2int(readS(2));
-	auto day = hex2int(readS(2));
-	auto min = hex2int(readS(2));
-	auto sec = hex2int(readS(2));
+	auto year = hex2int(reader.readS(4));
+	auto month = hex2int(reader.readS(2));
+	auto hour = hex2int(reader.readS(2));
+	auto day = hex2int(reader.readS(2));
+	auto min = hex2int(reader.readS(2));
+	auto sec = hex2int(reader.readS(2));
 
 	iTimestamp.set(year, month, day, hour, min, sec);
-	skip(1);
+	reader.skip(1);
 
-	auto cycleTimeSize = iBuf.find_nth('#') - iOffset;
+	auto cycleTimeSize = buf.find_nth('#') - reader.offset();
 	if (cycleTimeSize <= 0)
 		return RES_NOENT;
 
-	iCycleTime = std::chrono::minutes(readU(cycleTimeSize));
+	iCycleTime = std::chrono::minutes(reader.readU(cycleTimeSize));
 
 	return RES_OK;
-}
-
-SysTime LockReport::timestamp() const
-{
-	return iTimestamp;
 }
 
 std::chrono::minutes LockReport::cycle_time() const

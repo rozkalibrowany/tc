@@ -56,7 +56,7 @@ Vehicle &Vehicle::operator=(const Vehicle &rhs)
 	return *this;
 }
 
-bool Vehicle::has(const std::shared_ptr< parser::teltonika::Payload > packet)
+bool Vehicle::has(const std::shared_ptr< parser::Packet > packet)
 {
 	auto it = std::find(iPayloadPackets.begin(), iPayloadPackets.end(), packet);
 	return it == iPayloadPackets.end() ? false : true;
@@ -78,7 +78,7 @@ result_t Vehicle::add(const uchar* buffer, size_t size)
 	return add(std::move(packet));
 }
 
-result_t Vehicle::add(const std::shared_ptr< parser::teltonika::Payload > packet)
+result_t Vehicle::add(const std::shared_ptr< parser::Packet > packet)
 {
   if (has(packet) == true) {
 		/* Logging an error message. */

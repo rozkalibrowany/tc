@@ -16,6 +16,8 @@ class TelematicsSession : public CppServer::Asio::TCPSession, public tc::LogI, p
 {
 	friend class HandlerI;
 	friend class TeltonikaHandler;
+	friend class OmniHandler;
+
 public:
 	using CppServer::Asio::TCPSession::TCPSession;
 
@@ -37,7 +39,7 @@ protected:
 
 private:
 	result_t createHandler(Protocol protocol);
-	result_t savePacket(std::shared_ptr<parser::teltonika::Payload> &packet);
+	result_t savePacket(const std::shared_ptr<parser::Packet> &packet);
 
 	Protocol iProtocol{Protocol::eUnknown};
 	std::unique_ptr<HandlerI> iHandler{nullptr};

@@ -43,30 +43,7 @@ public:
 	SysTime &operator-=(long long t);
 	SysTime &operator+=(long long t);
 
-	bool operator==(const SysTime &time) const
-	{
-		return iTimestamp == time.iTimestamp;
-	}
-	bool operator!=(const SysTime &time) const
-	{
-		return iTimestamp != time.iTimestamp;
-	}
-	bool operator>(const SysTime &time) const
-	{
-		return iTimestamp > time.iTimestamp;
-	}
-	bool operator>=(const SysTime &time) const
-	{
-		return iTimestamp >= time.iTimestamp;
-	}
-	bool operator<(const SysTime &time) const
-	{
-		return iTimestamp < time.iTimestamp;
-	}
-	bool operator<=(const SysTime &time) const
-	{
-		return iTimestamp <= time.iTimestamp;
-	}
+	auto operator<=>(const SysTime&) const = default;
 
 	SysTime& timestamp(int64_t value);
 	int64_t timestamp() const;

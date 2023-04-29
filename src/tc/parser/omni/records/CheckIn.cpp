@@ -2,17 +2,19 @@
 
 namespace tc::parser::omni::records {
 
-result_t CheckIn::parse(uint8_t elements)
+result_t CheckIn::parse(const common::Buf &buf)
 {
-	if (RecordI::parse() != RES_OK)
+	if (buf.empty())
 		return RES_NOENT;
 
-	auto offset = iBuf.find_nth(',', 5); // data after fifth ','
+	auto offset = buf.find_nth(',', 5); // data after fifth ','
 	if (!offset)
 		return RES_NOENT;
-	setOffset(offset);
 
-	auto voltage = (int) read(3);
+	Reader reader(buf);
+	reader.setOffset(offset);
+
+	auto voltage = (int) reader.read(3);
 	iVoltage = std::ceil(voltage * 100) / 100;
 
 	return RES_OK;

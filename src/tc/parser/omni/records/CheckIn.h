@@ -7,9 +7,13 @@ namespace tc::parser::omni::records {
 
 class CheckIn : public RecordI {
 public:
-	CheckIn(const common::Buf& buf) : RecordI(buf) {}
 
-	result_t parse(uint8_t elements = 1) override;
+	CheckIn(bool has_response) : RecordI(has_response) {}
+	CheckIn(const CheckIn &rhs) = default;
+	CheckIn(CheckIn &&rhs) = default;
+	~CheckIn() = default;
+
+	result_t parse(const common::Buf &buf) override;
 	result_t response(common::Buf& response) override;
 
 	float voltage() const;
