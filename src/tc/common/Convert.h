@@ -92,18 +92,32 @@ inline std::string tohex(const std::string_view &s, bool upper = false)
 	return ret.str();
 }
 
-inline std::string string2hex(const std::string &s)
+inline std::string uchar2string(const unsigned char *c, uint32_t length)
 {
-	static const char hex_digits[] = "0123456789ABCDEF";
+	std::stringstream ss;
+	ss << std::hex;
 
-	std::string ret;
-	ret.reserve(s.length() * 2);
-	for (unsigned char c : s)
-	{
-		ret.push_back(hex_digits[c >> 4]);
-		ret.push_back(hex_digits[c & 15]);
+	for (uint32_t i = 0; i < length; ++i) {
+		ss << std::setw(2) << std::setfill('0') << static_cast< unsigned int >(c[i]);
 	}
-	return ret;
+	return ss.str();
+}
+
+inline std::string hexAsText(const std::string& str)
+{
+	std::string hexAsText;
+	for(int i = 0; i < (int) str.length(); i += 2)
+	{
+		std::string byte = str.substr(i,2);
+		char c = (char) (int)strtol(byte.c_str(), NULL, 16);
+		hexAsText.push_back(c);
+	}
+	return hexAsText;
+}
+
+inline std::string hexAsText(const unsigned char *c, uint32_t length)
+{
+	return hexAsText(uchar2string(c, length));
 }
 
 inline std::string hex2string(const std::string &s)
@@ -122,18 +136,6 @@ inline std::string hex2string(const std::string &s)
 	return ret;
 }
 
-inline std::string uchar2string(const unsigned char *c, uint32_t length)
-{
-	std::stringstream ss;
-	ss << std::hex;
-
-	for (uint32_t i = 0; i < length; ++i) {
-		ss << std::setw(2) << std::setfill('0') << static_cast< unsigned int >(c[i]);
-	}
-	return ss.str();
-}
-
-
 inline std::string byte2string(int val, int width = 2)
 {
 	std::stringstream ss;
@@ -151,18 +153,6 @@ inline void hex2bin(const char* src, char* target)
 		src += 2;
 	}
 }
-
-inline std::string hexStr(const uint8_t *data, int len)
-{
-	std::stringstream ss;
-	ss << std::hex;
-
-	for( int i(0) ; i < len; ++i )
-			ss << std::setw(2) << std::setfill('0') << (int)data[i];
-
-	return ss.str();
-}
-
 
 } // namespace tc
 

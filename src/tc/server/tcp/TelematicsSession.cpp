@@ -2,9 +2,9 @@
 #include <tc/server/tcp/TelematicsServer.h>
 #include <tc/server/tcp/handler/Teltonika.h>
 #include <tc/server/tcp/handler/Omni.h>
+#include <tc/common/MagicEnum.h>
 #include <bsoncxx/builder/stream/document.hpp>
 #include <bsoncxx/json.hpp>
-#include <magic_enum.hpp>
 
 namespace tc::server::tcp {
 
@@ -23,17 +23,6 @@ std::shared_ptr<TelematicsServer> TelematicsSession::server()
 void TelematicsSession::onReceived(const void *buffer, size_t size)
 {
 	LG_NFO(this->logger(), "[{}][{}] Received buffer[{}]", enum_name(iProtocol.type()), imei(), size);
-
-	std::string hex = tc::uchar2string((const uchar*) buffer, size);
-	std::string hexAsText;
-	for(int i=0; i < (int) hex.length(); i+=2)
-	{
-			std::string byte = hex.substr(i,2);
-			char chr = (char) (int)strtol(byte.c_str(), NULL, 16);
-			hexAsText.push_back(chr);
-	}
-
-	LG_NFO(this->logger(), "Received: {}", hexAsText);
 
 	if (iProtocol.type() == Protocol::eUnknown && iProtocol.parse((const uchar*) buffer, size) != RES_OK) {
 		LG_WRN(this->logger(), "[{}][{}] Unknown protocol", enum_name(iProtocol.type()), imei(), size);

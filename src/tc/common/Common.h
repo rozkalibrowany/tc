@@ -16,6 +16,8 @@
 #	undef unix
 #endif
 
+namespace tc {
+
 using uchar = unsigned char;
 using Imei = std::string;
 
@@ -30,5 +32,7 @@ static const std::function<bool(const std::string &)> vIsAddress = [](const std:
 };
 
 using namespace std;
+
+} // namespace tc
 
 #endif /* CF85BD92_7E22_45A2_ABC3_BF3EC33AE7C6 */

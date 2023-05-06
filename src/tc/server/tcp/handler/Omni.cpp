@@ -4,7 +4,7 @@
 #include <tc/parser/omni/Action.h>
 #include <tc/parser/omni/Crc.h>
 #include <tc/common/Buf.h>
-#include <magic_enum.hpp>
+#include <tc/common/MagicEnum.h>
 
 namespace tc::server::tcp {
 
@@ -16,13 +16,15 @@ result_t OmniHandler::handle(const uchar* buffer, size_t size)
 {
 	common::Buf buf(buffer, size);
 	auto payload = std::make_shared<Payload>();
-	// if device is not initialized yet
+
+	// if device is not initialized yet, initialize
 	if (result_t res; !iDevice && (res = initDevice(payload, buf)) != RES_OK) {
 		LG_ERR(this->logger(), "[{}] Unable to handle device, payload[{}]", enum_name(iType), tc::uchar2string(buf.data(), buf.size()));
 		return res;
 	}
 
-	auto event = action::Locker::get(buf);
+	// get event type (heartheat, checkin, lock status, ...)
+	action::Locker::Event event = action::Locker::get(buf);
 	if (event == action::Locker::eUnknown)
 		return RES_NOENT;
 
@@ -30,6 +32,8 @@ result_t OmniHandler::handle(const uchar* buffer, size_t size)
 		LG_ERR(this->logger(), "[{}] Unable to parse [{}]", enum_name(iType), tc::uchar2string(buf.data(), buf.size()));
 		return res;
 	}
+
+	LG_NFO(this->logger(), "[{}] Payload parse OK. Event[{}] payload[{}]", enum_name(iType), enum_name(event), hexAsText(buf.data(), buf.size()));
 
 	/*auto save = iSession->server()->dbClient()->enabled();
 	if (result_t res; save && (res = iSession->savePacket(payload)) != RES_OK) {

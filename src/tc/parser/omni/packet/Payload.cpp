@@ -29,7 +29,7 @@ result_t Payload::parse(const common::Buf &buf)
 {
 	if (buf.empty())
 		return RES_NOENT;
-	
+
 	// getting index where manufacturer should start
 	auto index = buf.find_nth(',', 1);
 	if (!index && index + MANUFACTURER_SIZE > buf.size())

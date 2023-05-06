@@ -42,7 +42,7 @@ protected:
 	result_t fromJsonImpl(const Json::Value &rhs, bool root) override;
 
 	size_t iSize {0};
-	std::string iManufacturer;
+	std::string iManufacturer {"OM"};
 	std::string iDateTime;
 	std::vector<SptrRecord> iRecords;
 };

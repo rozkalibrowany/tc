@@ -9,7 +9,7 @@ class Protocol {
 
 public:
 	enum Type {
-		eUnknown = 0,
+		eUnknown = 1,
 		eTeltonika,
 		eOmni
 	};
