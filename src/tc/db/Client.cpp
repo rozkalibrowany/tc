@@ -1,6 +1,7 @@
 #include <tc/db/Client.h>
 #include <tc/db/Instance.h>
 #include <tc/db/Thread.h>
+#include <optional>
 
 namespace tc::db::mongo {
 

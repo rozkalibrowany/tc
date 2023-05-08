@@ -59,18 +59,13 @@ result_t Positioning::parse(const common::Buf &buf)
 result_t Positioning::response(common::Buf& response)
 {
 	// re
-	auto val = tc::tohex(c_response);
-	response.insert(val.data(), val.length());
-	val = byte2string(0x2c);
-	response.insert(val.data(), val.length());
-
+	response.insert(c_response.data(), c_response.size());
+	response.push_back(',');
 	// instruction
-	val = byte2string(action::Server::eAcquisitionPositioning);
-	response.insert(val.data(), val.length());
-
+	auto instruction = hexAsText(byte2string(action::Server::eAcquisitionPositioning));
+	response.insert(instruction.data(), instruction.size());
 	// end
-	val = byte2string(0x23);
-	response.insert(val.data(), val.length());
+	response.push_back('#');
 
 	return RES_OK;
 }

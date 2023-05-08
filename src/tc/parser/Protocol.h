@@ -8,6 +8,7 @@ namespace tc::parser {
 class Protocol {
 
 public:
+	// enumerate from 1 for proper converting in magic enum
 	enum Type {
 		eUnknown = 1,
 		eTeltonika,

@@ -32,6 +32,8 @@ public:
 	const uchar &operator[](uint idx) const;
 
 	std::string_view asHex() const;
+	std::string_view asString() const;
+	std::string_view asStringWithoutSuffix(size_t characters) const;
 
 	uint16_t toUInt16(int offset) const;
 	int16_t toInt16(int offset) const;

@@ -1,5 +1,4 @@
 #include <tc/common/Buf.h>
-#include <array>
 
 namespace tc::common {
 
@@ -74,6 +73,29 @@ const uchar &Buf::operator[](uint idx) const
 std::string_view Buf::asHex() const
 {
 	return size() == 0 ? "" : bytes2hex(iBuf.data(), size());
+}
+
+// Allow to remove n characters from end
+// helpful with newline terminated buffer
+std::string_view Buf::asString() const
+{
+	if (iBuf.empty())
+		return std::string_view();
+
+	std::string_view str(reinterpret_cast<const char *>(iBuf.data()));
+	return str;
+}
+
+std::string_view Buf::asStringWithoutSuffix(size_t characters) const
+{
+	if (iBuf.empty())
+		return std::string_view();
+
+	std::string_view str(reinterpret_cast<const char *>(iBuf.data()));
+	// remove any newlines for pretty output
+	if (characters > 0 && characters < size())
+		str.remove_suffix(characters);
+	return str;
 }
 
 void Buf::clear()

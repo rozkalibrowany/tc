@@ -2,7 +2,9 @@
 
 0x00000000	Data size	0x0C	Command quantity	0x05	Command size	Command	<CR><LF>	Command quantity	CRC
 4 bytes	4 bytes	1 byte	1 byte	1 byte	4 bytes	X bytes	0D0A	1 byte	4 bytes
+
 */
+
 #include <tc/parser/omni/Command.h>
 #include <magic_enum.hpp>
 
@@ -13,37 +15,25 @@ result_t Command::getHeader(common::Buf &buf, const Imei &imei, const std::strin
 	if (imei.empty())
 		return RES_NOENT;
 
-	// 1 bytes FF
-	auto val = byte2string(0xFF, 1);
-	buf.insert(val.data(), val.length());
+	// 2 bytes 0xFF
+	buf.push_back('\xff');
+	buf.push_back('\xff');
 
-	// 1 bytes FF
-	val = byte2string(0xFF, 1);
-	buf.insert(val.data(), val.length());
-	
 	// header
-	val = tc::tohex(c_header);
-	buf.insert(val.data(), val.length());
-	val = byte2string(0x2c);
-	buf.insert(val.data(), val.length());
+	buf.insert(c_header.data(), c_header.size());
+	buf.push_back(',');
 
 	// manufacturer
-	val = tc::tohex(c_manufacturer);
-	buf.insert(val.data(), val.length());
-	val = byte2string(0x2c);
-	buf.insert(val.data(), val.length());
+	buf.insert(c_manufacturer.data(), c_manufacturer.size());
+	buf.push_back(',');
 
 	// imei
-	val = tc::tohex(imei);
-	buf.insert(val.data(), val.length());
-	val = byte2string(0x2c);
-	buf.insert(val.data(), val.length());
+	buf.insert(imei.data(), imei.size());
+	buf.push_back(',');
 
 	// datetime
-	val = tc::tohex(datetime);
-	buf.insert(val.data(), val.length());
-	val = byte2string(0x2c);
-	buf.insert(val.data(), val.length());
+	buf.insert(datetime.data(), datetime.size());
+	buf.push_back(',');
 
 	return RES_OK;
 }
