@@ -18,6 +18,10 @@ public:
 	
 	std::chrono::minutes cycle_time() const;
 
+protected:
+	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
+	result_t fromJsonImpl(const Json::Value &rhs, bool root) override;
+
 private:
 	std::chrono::minutes iCycleTime;
 };

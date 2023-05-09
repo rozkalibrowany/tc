@@ -7,12 +7,12 @@
 
 namespace tc::parser::omni::records {
 
-class RecordI {
+class RecordI : public tc::LogI, public JsonI {
 public:
 	static constexpr std::string_view c_response = "Re";
 
 	RecordI() = default;
-	RecordI(bool mandatory_ack) : iMandatoryAck(mandatory_ack) {}
+	RecordI(bool mandatory_ack) : tc::LogI("console"), iMandatoryAck(mandatory_ack) {}
 	RecordI(const RecordI &rhs) = default;
 	RecordI(RecordI &&rhs) = default;
 	virtual ~RecordI() = default;

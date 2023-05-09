@@ -54,7 +54,9 @@ result_t Unlock::response(common::Buf& response)
 	response.insert(instruction.data(), instruction.size());
 	// end
 	response.push_back('#');
-
+	// newline
+	response.push_back('\n');
+	
 	return RES_OK;
 }
 

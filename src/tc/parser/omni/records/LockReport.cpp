@@ -38,4 +38,16 @@ std::chrono::minutes LockReport::cycle_time() const
 	return iCycleTime;
 }
 
+result_t LockReport::toJsonImpl(Json::Value &rhs, bool root) const
+{
+	rhs["CycleTime"] = iCycleTime.count();
+
+	return RES_OK;
+}
+
+result_t LockReport::fromJsonImpl(const Json::Value &rhs, bool root)
+{
+	return RES_NOIMPL;
+}
+
 } // namespace tc::parser::teltonika::records

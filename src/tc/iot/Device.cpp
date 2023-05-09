@@ -2,17 +2,17 @@
 
 namespace tc::server::iot {
 
-Device::Device(const Imei &imei)
- : Device (imei, 100)
-{
-		// nothing to do
-}
-
 Device::Device(const Imei &imei, size_t cache)
  : iImei(imei)
  , iCacheSize(cache)
 {
-		// nothing to do
+	// nothing to do
+}
+
+Device::Device(const Imei &imei)
+ : Device(imei, 2)
+{
+	// nothing to do
 }
 
 bool Device::operator==(const Device &rhs) const

@@ -112,7 +112,7 @@ const std::vector<Payload::SptrRecord> &Payload::records()
 
 result_t Payload::toJsonImpl(Json::Value &rhs, bool root) const
 {
-	return RES_NOIMPL;
+	return iRecords.back()->toJson(rhs, root);
 }
 
 result_t Payload::fromJsonImpl(const Json::Value &rhs, bool root)

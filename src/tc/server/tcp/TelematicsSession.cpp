@@ -63,15 +63,12 @@ result_t TelematicsSession::createHandler(Protocol protocol)
 
 result_t TelematicsSession::savePacket(const std::shared_ptr<parser::Packet> &packet)
 {
-	if (iDevice == nullptr || iDevice->imei().empty())
-		return RES_NOENT;
-
 	Json::Value val;
 
 	auto timestamp = packet->timestamp().timestamp();
 	auto systime = SysTime(timestamp);
 
-	val["imei"] = iDevice->imei();
+	val["imei"] = imei();
 	val["timestamp"] = timestamp;
 	val["datetime"] = systime.getDateTime();
 
@@ -80,20 +77,20 @@ result_t TelematicsSession::savePacket(const std::shared_ptr<parser::Packet> &pa
 		return res;
 	}
 
-	auto dbClient = server()->dbClient();
+	LG_NFO(this->logger(), "Device serialized: {}", val.toStyledString());
+
+	/*auto dbClient = server()->dbClient();
 
 	if(result_t res; (res = dbClient->insert(val.toStyledString())) != RES_OK) {
 		LG_ERR(this->logger(), "[{}][{}] Error inserting data.", enum_name(iProtocol.type()), imei());
 		return res;
-	}
+	}*/
 
 	return RES_OK;
 }
 
 result_t TelematicsSession::send(const uchar* buffer, size_t size, const bool async)
 {
-
-
 	std::string hex = tc::uchar2string((const uchar*) buffer, size);
 	std::string hexAsText;
 	for(int i=0; i < hex.length(); i+=2)
@@ -103,13 +100,12 @@ result_t TelematicsSession::send(const uchar* buffer, size_t size, const bool as
 			hexAsText.push_back(chr);
 	}
 
-	LG_NFO(this->logger(), "[{}][{}] Sending [{}]", enum_name(iProtocol.type()), imei(), hexAsText);
-
 	auto buf_str = tc::uchar2string(buffer, size);
 	auto out = new char[size];
 	tc::hex2bin(buf_str.data(), out);
 
 	auto res = send((const void *)out, size, async);
+
 	delete out;
 	return res;
 }
@@ -122,7 +118,6 @@ result_t TelematicsSession::send(int buffer, const bool async)
 result_t TelematicsSession::send(const void *buffer, size_t size, const bool async)
 {
 	auto res = RES_NOENT;
-	LG_DBG(this->logger(), "[{}][{}] Sending: {} size: {}", enum_name(iProtocol.type()), imei(), tc::uchar2string((const uchar*) buffer, size), size);
 
 	if (async == false) {
 		auto sent = Send(buffer, size);
@@ -133,6 +128,7 @@ result_t TelematicsSession::send(const void *buffer, size_t size, const bool asy
 		res = sent == true ? RES_OK : RES_CONNERROR;
 	}
 
+	LG_NFO(this->logger(), "[{}][{}] Send {} [{}]", enum_name(iProtocol.type()), imei(), res == RES_OK ? "successfull" : "unsuccesfull", size);
 	return res;
 }
 

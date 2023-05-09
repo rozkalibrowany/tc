@@ -49,4 +49,18 @@ uint8_t Heartbeat::signal() const
 	return iSignal;
 }
 
+result_t Heartbeat::toJsonImpl(Json::Value &rhs, bool root) const
+{
+	rhs["Locked"] = iLocked;
+	rhs["Voltage"] = iVoltage;
+	rhs["Signal"] = iSignal;
+
+	return RES_OK;
+}
+
+result_t Heartbeat::fromJsonImpl(const Json::Value &rhs, bool root)
+{
+	return RES_NOIMPL;
+}
+
 } // namespace tc::parser::omni::records

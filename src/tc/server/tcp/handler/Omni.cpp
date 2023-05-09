@@ -36,11 +36,15 @@ result_t OmniHandler::handle(const uchar* buffer, size_t size)
 
 	LG_NFO(this->logger(), "[{}][{}] Parse OK[{}]", enum_name(iType), enum_name(event), buf.asStringWithoutSuffix(1));
 
-	/*auto save = iSession->server()->dbClient()->enabled();
-	if (result_t res; save && (res = iSession->savePacket(payload)) != RES_OK) {
-		LG_ERR(this->logger(), "[{}] Unable to save [{}]", enum_name(iType), tc::uchar2string(buf.data(), buf.size()));
+	LG_NFO(this->logger(), "Device imei: {} cached: {}", (std::string) iDevice->imei(), iDevice->cached());
+
+
+	/*auto save = iSession->server()->dbClient()->enabled();*/
+	if (result_t res; (res = iSession->savePacket(payload)) != RES_OK) { // save && 
+		LG_ERR(this->logger(), "[{}] Unable to save [{}]", enum_name(iType), buf.asStringWithoutSuffix(1));
 		return res;
-	}*/
+	}
+
 
 	auto& last = payload->records().back();
 	if (last->mandatory_ack() && sendResponse(payload) != RES_OK) {

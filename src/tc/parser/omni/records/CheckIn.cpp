@@ -22,12 +22,24 @@ result_t CheckIn::parse(const common::Buf &buf)
 
 result_t CheckIn::response(common::Buf& response)
 {
-	return RES_NOIMPL;
+	return RES_NOENT;
 }
 
 float CheckIn::voltage() const
 {
 	return iVoltage;
+}
+
+result_t CheckIn::toJsonImpl(Json::Value &rhs, bool root) const
+{
+	rhs["Voltage"] = iVoltage;
+
+	return RES_OK;
+}
+
+result_t CheckIn::fromJsonImpl(const Json::Value &rhs, bool root)
+{
+	return RES_NOIMPL;
 }
 
 } // namespace tc::parser::omni::records

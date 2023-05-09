@@ -18,6 +18,10 @@ public:
 
 	float voltage() const;
 
+protected:
+	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
+	result_t fromJsonImpl(const Json::Value &rhs, bool root) override;
+
 private:
 	float iVoltage{0.f};
 };
