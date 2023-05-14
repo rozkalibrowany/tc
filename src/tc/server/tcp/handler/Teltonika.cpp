@@ -41,10 +41,9 @@ result_t TeltonikaHandler::handleImei(const uchar *buffer, size_t size)
 		iSession->send(eInvalid);
 		return res;
 	}
-
 	LG_NFO(this->logger(), "[{}] Parse imei OK, imei[{}]", enum_name(iType), imei);
 
-	iDevice = std::make_unique<iot::Device>(imei, iSession->server()->cacheSize());
+	iDevice = std::make_unique<iot::Device>(imei, iType, iSession->cacheSize());
 	res |= iSession->send(eOK);
 
 	iImei = std::move(imei);
@@ -63,19 +62,16 @@ result_t TeltonikaHandler::handlePayload(const uchar *buffer, size_t size)
 		return res;
 	}
 
-	if (iSession->server()->dbClient()->enabled())
+	if (iSession->tServer()->dbClient()->enabled())
 		res |= iSession->savePacket(packet);
 
-	auto records = packet->records().size();
+	auto records_size = packet->records().size();
 
-	{
-		std::lock_guard lock(iMutex);
-		res = iDevice->add(packet);
-		if (res != RES_OK && res != RES_INVCRC) {
-			LG_ERR(this->logger(), "[{}][{}] Unable to add packet", enum_name(iType), iImei);
-			iSession->send(eInvalid);
-			return res;
-		}
+	res = iDevice->add(packet);
+	if (res != RES_OK && res != RES_INVCRC) {
+		LG_ERR(this->logger(), "[{}][{}] Unable to add packet", enum_name(iType), iImei);
+		iSession->send(eInvalid);
+		return res;
 	}
 
 	if (res == RES_INVCRC) {
@@ -83,9 +79,9 @@ result_t TeltonikaHandler::handlePayload(const uchar *buffer, size_t size)
 		return res;
 	}
 
-	LG_DBG(this->logger(), "[{}][{}] Handle payload OK. Records[{}] ", enum_name(iType), iImei, records);
+	LG_DBG(this->logger(), "[{}][{}] Handle payload OK. Records[{}] ", enum_name(iType), iImei, records_size);
 
-	res |= iSession->send(records);
+	res |= iSession->send(records_size);
 	return res;
 }
 
@@ -111,7 +107,7 @@ result_t TeltonikaHandler::handleIncomplete(const uchar *buffer, size_t size)
 
 result_t TeltonikaHandler::handleStandby(const uchar *buffer, size_t size)
 {
-	LG_NFO(this->logger(), "[{}]Handle standby[{}]", enum_name(iType), size);
+	LG_NFO(this->logger(), "[{}] Handle standby[{}]", enum_name(iType), size);
 
 	return iSession->send(eOK);
 }

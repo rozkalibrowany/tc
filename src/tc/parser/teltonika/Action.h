@@ -10,7 +10,7 @@ class Action {
 public:
 
 	enum Type {
-		eUnknown = 0,
+		eUnknown = 1,
 		eImei,
 		ePayload,
 		eStandby,

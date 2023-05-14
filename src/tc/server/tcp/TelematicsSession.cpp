@@ -2,20 +2,21 @@
 #include <tc/server/tcp/TelematicsServer.h>
 #include <tc/server/tcp/handler/Teltonika.h>
 #include <tc/server/tcp/handler/Omni.h>
+#include <tc/server/tcp/handler/Internal.h>
 #include <tc/common/MagicEnum.h>
-#include <bsoncxx/builder/stream/document.hpp>
-#include <bsoncxx/json.hpp>
 
 namespace tc::server::tcp {
 
 using namespace magic_enum;
 
-const Imei TelematicsSession::imei() const
+TelematicsSession::TelematicsSession(const std::shared_ptr<TelematicsServer>& server, size_t cache_size)
+ : TCPSession(std::dynamic_pointer_cast<TelematicsServer>(server))
+ , iCacheSize(cache_size)
 {
-	return iHandler == nullptr ? "unknown" : iHandler->imei();
+	// nothing to do
 }
 
-std::shared_ptr<TelematicsServer> TelematicsSession::server()
+std::shared_ptr<TelematicsServer> TelematicsSession::tServer()
 {
 	return std::dynamic_pointer_cast<TelematicsServer>(this->server());
 }
@@ -55,6 +56,9 @@ result_t TelematicsSession::createHandler(Protocol protocol)
 		case Protocol::eOmni:
 			iHandler = std::make_unique<OmniHandler>(std::dynamic_pointer_cast<TelematicsSession>(this->shared_from_this()));
 			break;
+		case Protocol::eInternal:
+			iHandler = std::make_unique<InternalHandler>(std::dynamic_pointer_cast<TelematicsSession>(this->shared_from_this()));
+			break;
 		case Protocol::eUnknown:
 			return RES_NOENT;
 		}
@@ -79,7 +83,7 @@ result_t TelematicsSession::savePacket(const std::shared_ptr<parser::Packet> &pa
 
 	LG_NFO(this->logger(), "Device serialized: {}", val.toStyledString());
 
-	/*auto dbClient = server()->dbClient();
+	/*auto dbClient = tServer()->dbClient();
 
 	if(result_t res; (res = dbClient->insert(val.toStyledString())) != RES_OK) {
 		LG_ERR(this->logger(), "[{}][{}] Error inserting data.", enum_name(iProtocol.type()), imei());
@@ -93,7 +97,7 @@ result_t TelematicsSession::send(const uchar* buffer, size_t size, const bool as
 {
 	std::string hex = tc::uchar2string((const uchar*) buffer, size);
 	std::string hexAsText;
-	for(int i=0; i < hex.length(); i+=2)
+	for(size_t i = 0; i < hex.length(); i += 2)
 	{
 			std::string byte = hex.substr(i,2);
 			char chr = (char) (int)strtol(byte.c_str(), NULL, 16);
@@ -133,26 +137,34 @@ result_t TelematicsSession::send(const void *buffer, size_t size, const bool asy
 }
 
 result_t TelematicsSession::lastPacketJson(Json::Value &rhs) {
-	if (iDevice == nullptr || iDevice->packets().empty()) {
+	/*if (iDevice == nullptr || iDevice->packets().empty()) {
 		return RES_NOENT;
 	}
 	if (iDevice->packets().back()->toJson(rhs) != RES_OK) {
 		LG_ERR(this->logger(), "[{}][{}] Unable to serialize last packet into json", enum_name(iProtocol.type()), imei());
 		return RES_ERROR;
 	}
- 	rhs["Imei"] = imei();
+ 	rhs["Imei"] = imei();*/
 
 	return RES_OK;
 }
 
 result_t TelematicsSession::toJsonImpl(Json::Value &rhs, bool root) const
 {
-	if (iDevice == nullptr) {
+	if (!iHandler) {
 		return RES_NOENT;
 	}
+	return iHandler->toJson(rhs, root);
+}
 
-	rhs["Session"] = id().string();
-	return iDevice->toJson(rhs, root);
+const Imei TelematicsSession::imei() const
+{
+	return iHandler == nullptr ? "unknown" : iHandler->imei();
+}
+
+size_t TelematicsSession::cacheSize() const
+{
+	return iCacheSize;
 }
 
 } // namespace tc::tcServer::tcp

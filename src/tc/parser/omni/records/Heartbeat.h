@@ -27,7 +27,7 @@ protected:
 private:
 	bool iLocked;
 	float iVoltage{0.f};
-	uint8_t iSignal{0};
+	unsigned int iSignal{0};
 };
 
 } // namespace tc::parser::omni::records

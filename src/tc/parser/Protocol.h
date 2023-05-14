@@ -5,17 +5,18 @@
 
 namespace tc::parser {
 
-class Protocol {
-
+class Protocol : public tc::LogI
+{
 public:
 	// enumerate from 1 for proper converting in magic enum
 	enum Type {
 		eUnknown = 1,
+		eInternal,
 		eTeltonika,
 		eOmni
 	};
 
-	Protocol() = default;
+	Protocol();
 	Protocol(Type type);
 
 	virtual ~Protocol() = default;

@@ -1,11 +1,20 @@
 #include <tc/parser/Protocol.h>
 #include <tc/parser/teltonika/packet/Payload.h>
 #include <tc/parser/omni/packet/Payload.h>
+#include <tc/parser/internal/Action.h>
+#include <tc/parser/CommandI.h>
 
 namespace tc::parser {
 
+Protocol::Protocol()
+ : Protocol(eUnknown)
+{
+	// nothing to do
+}
+
 Protocol::Protocol(Type type)
- : iType(type)
+ : tc::LogI("console")
+ , iType(type)
 {
 	// nothing to do
 }
@@ -19,6 +28,11 @@ result_t Protocol::parse(const uchar *buffer, size_t size)
 
 	if (omni::Payload::valid(buffer, size)) {
 		iType = eOmni;
+		return RES_OK;
+	}
+
+	if (internal::Action::get(buffer, size) != internal::Action::eUnknown) {
+		iType = eInternal;
 		return RES_OK;
 	}
 

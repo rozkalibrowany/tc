@@ -98,6 +98,11 @@ std::string_view Buf::asStringWithoutSuffix(size_t characters) const
 	return str;
 }
 
+void Buf::reserve(size_t size)
+{
+	iBuf.reserve(size);
+}
+
 void Buf::clear()
 {
 	iBuf.clear();
@@ -106,6 +111,11 @@ void Buf::clear()
 const uchar *Buf::cdata() const
 {
 	return iBuf.data();
+}
+
+char *Buf::ccdata() const
+{
+	return (char*) iBuf.data();
 }
 
 uchar *Buf::data()
@@ -170,6 +180,12 @@ int64_t Buf::toInt64(int offset) const
                 | ((int64_t) (iBuf[offset + 3] & 0xff) << 24)
                 | ((int64_t) (iBuf[offset + 2] & 0xff) << 16)
                 | ((int64_t) (iBuf[offset + 1] & 0xff) << 8) | (iBuf[offset] & 0xff));
+}
+
+common::Buf Buf::read(int bytes, int offset) const
+{
+	common::Buf subBuf(common::Buf::ByteArray{iBuf.begin() + offset, iBuf.begin() + bytes + offset});
+	return subBuf;
 }
 
 Buf::const_iterator Buf::find_nth_it(char delim, unsigned n) const

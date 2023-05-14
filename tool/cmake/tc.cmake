@@ -432,7 +432,7 @@ macro(tc_conan_cmake_run)
                                 list(TRANSFORM settings REPLACE "build_type=Debug" "build_type=Release")
 
                                 string(REGEX REPLACE "-s;compiler=[^;]*;" "-s;compiler=gcc;" settings "${settings}" )
-                                string(REGEX REPLACE "-s;compiler.version=[^;]*;" "-s;compiler.version=10;" settings "${settings}" )
+                                string(REGEX REPLACE "-s;compiler.version=[^;]*;" "-s;compiler.version=11;" settings "${settings}" )
                                 set(settings "${settings};-s;os.name=${TC_SYSTEM_NAME};-s;os.version=${TC_SYSTEM_VERSION};-s;os.variant=${TC_SYSTEM_VARIANT};")
                                 message(STATUS "${TAG} settings: ${settings}")
                                 tc_conan_cmake_install(SETTINGS ${settings} ${ARGV})

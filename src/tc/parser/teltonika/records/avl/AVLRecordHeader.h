@@ -3,6 +3,7 @@
 
 #include <tc/parser/teltonika/records/RecordI.h>
 #include <tc/parser/Reader.h>
+#include <optional>
 
 namespace tc::parser::teltonika::records {
 

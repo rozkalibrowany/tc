@@ -1,22 +1,23 @@
 #include <tc/iot/Vehicle.h>
-#include <ostream>
+#include <tc/common/MagicEnum.h>
+
 namespace tc::server::iot {
 
-Vehicle::Vehicle(const Imei &imei)
- : Vehicle(imei, 10)
-{
-	// nothing to do
-}
-
-Vehicle::Vehicle(const Imei &imei, size_t cache)
- : Vehicle(imei, cache, eTelematics)
-{
-	// nothing to do
-}
-
-Vehicle::Vehicle(const Imei &imei, size_t cache, Source source)
- : Device(imei, cache)
+Vehicle::Vehicle(const Imei &imei, parser::Protocol::Type type, size_t cache, Source source)
+ : Device(imei, type, cache)
  , iSource(source)
+{
+	// nothing to do
+}
+
+Vehicle::Vehicle(const Imei &imei, parser::Protocol::Type type, size_t cache)
+ : Vehicle(imei, type, cache, eTelematics)
+{
+	// nothing to do
+}
+
+Vehicle::Vehicle(const Imei &imei, parser::Protocol::Type type)
+ : Vehicle(imei, type, 10)
 {
 	// nothing to do
 }
@@ -162,7 +163,7 @@ result_t Vehicle::fromJsonImpl(const Json::Value &rhs, bool active)
 		else if (!id.compare("Fleet") && rhs[id].asString().compare("unknown"))
 			iFleet = rhs[id].asString();
 		else if (!id.compare("Type"))
-			iType = rhs[id].asString();
+			iType = enum_cast<parser::Protocol::Type>(rhs[id].asString()).value_or(parser::Protocol::eUnknown);
 		else if (!id.compare("Timestamp"))
 			iTimestamp = rhs[id].asInt64();
 		else if (!id.compare("Modified") && rhs[id].asInt64() > iModified)
@@ -187,7 +188,7 @@ result_t Vehicle::toJsonImpl(Json::Value &rhs, bool active_only) const
 	rhs["Imei"] = iImei;
 	rhs["ID"] = iID;
 	rhs["Fleet"] = iFleet;
-	rhs["Type"] = iType;
+	rhs["Type"] = std::string(enum_name(iType));
 	rhs["Timestamp"] = iTimestamp;
 	rhs["Modified"] = iModified;
 	rhs["Datetime"] = systime.getDateTime();

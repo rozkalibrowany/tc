@@ -11,7 +11,7 @@ class Request : public RequestI
 public:
 	static constexpr size_t REQ_MIN_SIZE = 11;
 
-	bool hasRequest(const uchar *buf, size_t size);
+	static bool hasRequest(const uchar *buf, size_t size);
 
 	result_t parse(const uchar *cbuf, size_t size) override;
 	size_t size() const override;

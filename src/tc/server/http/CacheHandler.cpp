@@ -1,9 +1,11 @@
 #include <tc/server/http/CacheHandler.h>
+#include <tc/parser/teltonika/Command.h>
+#include <tc/parser/omni/Command.h>
 #include <json/json.h>
 
 namespace tc::server::http {
 
-CacheHandler::CacheHandler(Signal<Imei, std::string> &signal, Signal<Imei> &signal_modified)
+CacheHandler::CacheHandler(Signal<std::shared_ptr<parser::CommandI>> &signal, Signal<Imei> &signal_modified)
  : CppCommon::Singleton<CacheHandler>()
  , iSignal(signal)
  , iSignalModified(signal_modified)
@@ -62,7 +64,11 @@ result_t CacheHandler::handleAction(Request &request, CppServer::HTTP::HTTPRespo
 			if (!request.key().compare("set")) {
 				return set(request, response);
 			} else {
-				return addCommand(request, response);
+				if(addCommand(request, response) != RES_OK) {
+					response.MakeErrorResponse(400, fmt::format("Invalid action[{}]", request.command()));
+					LG_NFO(this->logger(), "Invalid action[{}]", request.command());
+					return RES_NOENT;
+				}
 			}
 		}
 		case Request::ePackets:
@@ -234,6 +240,12 @@ result_t CacheHandler::decodeJson(const std::string &data)
 		return RES_INVARG;
 	}
 
+	if (!root.isObject()) {
+		return RES_INVARG;
+	}
+
+	LG_NFO(this->logger(), "json: {}", root.toStyledString());
+
 	if (root.isMember("devices"))
 		return iVehicles.fromJson(root, true);
 	else if (root.isMember("packets"))
@@ -257,7 +269,18 @@ if (!vehicle->second->online()) {
 		return RES_NOENT;
 	}
 
-	iSignal.emit(request.id(), request.command());
+	std::shared_ptr< parser::CommandI > cmd;
+	try {
+		if (vehicle->second->type() == parser::Protocol::eTeltonika)
+			cmd = std::make_shared< parser::teltonika::Command >(request.command(), vehicle->second->imei());
+		else if (vehicle->second->type() == parser::Protocol::eOmni)
+			cmd = std::make_shared< parser::omni::Command >(request.command(), vehicle->second->imei());
+	} catch (const std::invalid_argument& e) {
+		LG_ERR(this->logger(), "Unable to create command [{}]", e.what());
+		return RES_INVARG;
+	}
+
+	iSignal.emit(cmd);
 	response.MakeOKResponse();
 	return RES_OK;
 }

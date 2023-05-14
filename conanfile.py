@@ -35,7 +35,7 @@ class TcConan(ConanFile, Os):
     def configure(s):
         s.options["*"].shared = True
         s.options["*/@tc/*"].compiler = "gcc"
-        s.options["*/@tc/*"].compiler.version = "10"
+        s.options["*/@tc/*"].compiler.version = "11"
         s.options["*/@tc/*"].compiler.libcxx = "libstdc++11"
         s.options["*/@tc/*"].compiler.cppstd = "20"
 

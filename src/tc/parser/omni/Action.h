@@ -37,7 +37,9 @@ public:
 		eBikeSearch                   = 0x5338,	// S8
 		eAcquireLockFirmware          = 0x4730,	// G0
 		eAlarm                        = 0x5730,	// U2
-		eUnknown
+		eRestart                      = 0x5331,	// S1
+		eShutdown                     = 0x5330,	// S0
+		eUnknown                      = 0xFFFF
 	};
 
 

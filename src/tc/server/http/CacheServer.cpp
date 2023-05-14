@@ -1,5 +1,6 @@
 #include <tc/server/http/CacheServer.h>
 #include <tc/server/http/CacheSession.h>
+#include <tc/parser/Protocol.h>
 
 namespace tc::server::http {
 
@@ -44,7 +45,7 @@ result_t HTTPCacheServer::syncDevices()
 			continue;
 		}
 
-		auto vehicle = std::make_shared<iot::Vehicle>(std::string{"unknown"}, 100, Vehicle::eDatabase);
+		auto vehicle = std::make_shared<iot::Vehicle>(std::string{"unknown"}, parser::Protocol::eUnknown, 100, Vehicle::eDatabase);
 		if (vehicle->fromJson(root) != RES_OK) {
 			return RES_ERROR;
 		}

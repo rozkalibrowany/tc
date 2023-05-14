@@ -39,16 +39,19 @@ public:
 	int16_t toInt16(int offset) const;
 	int32_t toInt32(int offset) const;
   int64_t toInt64(int offset) const;
+	common::Buf read(int bytes, int offset = 0) const;
 
 	const_iterator find_nth_it(char delim, unsigned n = 1) const;
 	int find_nth(char delim, unsigned n = 1) const;
 
+	void reserve(size_t size);
 	const bool empty() const;
 	const size_t size() const;
 
 	void clear();
 
 	const uchar *cdata() const;
+	char *ccdata() const;
 	uchar *data();
 
 	void push_back(const uchar val);

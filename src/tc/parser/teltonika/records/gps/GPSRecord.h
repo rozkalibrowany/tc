@@ -2,6 +2,7 @@
 #define D426066F_F3EE_412F_864E_4D6726173ECE
 
 #include <tc/parser/teltonika/records/RecordI.h>
+#include <optional>
 
 namespace tc::parser::teltonika::records {
 

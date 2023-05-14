@@ -1,4 +1,5 @@
 #include <tc/server/tcp/TelematicsServer.h>
+#include <tc/parser/teltonika/Command.h>
 #include <tc/iot/Devices.h>
 #include <tc/server/http/Request.h>
 #include <magic_enum.hpp>
@@ -22,32 +23,19 @@ TelematicsServer::TelematicsServer(const std::shared_ptr<AsioService>& service, 
 
 TelematicsServer::TelematicsServer(const std::shared_ptr<AsioService>& service, std::shared_ptr<mongo::Client> client, size_t cache, int port, const std::string& address)
  : CppServer::Asio::TCPServer(service, address, port)
- , iDbClient(client)
  , iCacheSize(cache)
+ , iDbClient(client)
 {
-	this->SetupReusePort(true);
-	this->SetupReuseAddress(true);
+	SetupReuseAddress(true);
+	SetupReusePort(true);
+	SetupKeepAlive(false);
+	SetupNoDelay(true);
 }
 
 TelematicsServer::~TelematicsServer()
 {
 	this->DisconnectAll();
 	this->Stop();
-}
-
-std::shared_ptr<mongo::Client> TelematicsServer::dbClient()
-{
-	return iDbClient;
-}
-
-size_t TelematicsServer::cacheSize() const
-{
-	return iCacheSize;
-}
-
-std::shared_ptr< CppServer::Asio::TCPSession > TelematicsServer::CreateSession(const std::shared_ptr< TCPServer > &server)
-{
-	return std::make_shared< TelematicsSession >(server);
 }
 
 void TelematicsServer::onConnected(std::shared_ptr< CppServer::Asio::TCPSession > &session)
@@ -78,36 +66,22 @@ result_t TelematicsServer::handleCommand(const uchar *buffer, size_t size)
 		return res;
 	}
 
-	auto packetCommand = std::make_shared< teltonika::PacketCommand >();
-	res = packetCommand->parse((uchar*) buffer, size, imei.length());
-	if (res != RES_OK) {
-		LG_ERR(this->logger(), "Parse command.");
-		return res;
+	try {
+		auto command = std::make_shared< teltonika::Command >((uchar*) buffer, size);
+		return sendCommand(command);
+	} catch (const std::invalid_argument& e) {
+		LG_ERR(this->logger(), "Unable to create command");
 	}
 
-	return sendCommand(imei, packetCommand);
+	return RES_INVARG;
 }
 
-result_t TelematicsServer::handleRequest(const uchar *buffer, size_t size, const CppCommon::UUID id)
-{
-	auto request = std::make_shared< internal::Request >();
-	result_t res = request->parse((uchar*) buffer, size);
-	if (res != RES_OK) {
-		LG_ERR(this->logger(), "Parse request.");
-		return res;
-	}
-
-	LG_NFO(this->logger(), "Handle request[{}] Method: {} Type: {}", size,
-		enum_name(request->method()), enum_name(request->type()));
-	return dispatchRequest(request, id);
-}
-
-result_t TelematicsServer::dispatchRequest(std::shared_ptr< internal::Request > request, const CppCommon::UUID id)
+result_t TelematicsServer::handleRequest(const internal::Request &request, const CppCommon::UUID id)
 {
 	using namespace parser;
 
 	result_t res = RES_OK;
-	auto type = request->type();
+	auto type = request.type();
 
 	Json::Value list;
 	if (type == internal::Request::eDevices) {
@@ -143,16 +117,26 @@ result_t TelematicsServer::dispatchRequest(std::shared_ptr< internal::Request > 
 	return res;
 }
 
-result_t TelematicsServer::sendCommand(const Imei &imei, std::shared_ptr<teltonika::PacketCommand> &command)
+result_t TelematicsServer::sendCommand(std::shared_ptr<CommandI> command)
 {
 	for (const auto &[key, value] : _sessions) {
 		const auto &session = dynamic_pointer_cast<TelematicsSession>(value);
-		if (session->imei() == imei) {
-			LG_NFO(this->logger(), "Sending command to session[{}] with imei[{}].", this->id(), imei);
-			session->send(command->command(), command->size());
+		if (session->imei() == command->imei()) {
+			LG_NFO(this->logger(), "Sending command to session[{}] with imei[{}].", this->id(), command->imei());
+			session->send(command->buf().cdata(), command->size());
 		}
 	}
 	return RES_OK;
+}
+
+std::shared_ptr<mongo::Client> TelematicsServer::dbClient()
+{
+	return iDbClient;
+}
+
+std::shared_ptr< CppServer::Asio::TCPSession > TelematicsServer::CreateSession(const std::shared_ptr< TCPServer > &server)
+{
+	return std::make_shared< TelematicsSession >(std::dynamic_pointer_cast<TelematicsServer>(server), iCacheSize);
 }
 
 } // namespace tc::server::tcp

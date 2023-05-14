@@ -20,7 +20,8 @@
                 "databaseFilename": ""
             },
             "configurationProvider": "linux-gcc-x64",
-						"intelliSenseMode": "${default}"
+						"intelliSenseMode": "${default}",
+            "C_Cpp.intelliSenseCacheSize": 0
         }
     ],
     "version": 4

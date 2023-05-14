@@ -75,14 +75,14 @@ int Reader::read(int bytes, int offset)
 	return 0;
 }
 
-uchar* Reader::readS(int bytes, int offset)
+common::Buf Reader::readS(int bytes, int offset)
 {
 	auto offs = offset == 0 ? iOffset : offset;
 	common::Buf subBuf(common::Buf::ByteArray{iBuf.begin() + offs, iBuf.begin() + bytes + offs});
 	if (offset == 0)
 		iOffset += bytes;
 
-	return subBuf.data();
+	return subBuf;
 }
 
 void Reader::skip(int bytes)

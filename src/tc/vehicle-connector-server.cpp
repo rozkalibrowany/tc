@@ -9,6 +9,7 @@
 #include <tc/server/http/Request.h>
 #include <tc/server/http/LSync.h>
 #include <tc/server/http/Updater.h>
+#include <tc/parser/CommandI.h>
 #include <tc/db/Client.h>
 #include <mini/ini.h>
 #include <filesystem>
@@ -144,7 +145,7 @@ int main(int argc, char** argv)
 	}
 
 	// Prepare signals
-	Signal<Imei, std::string> signal_cmd;
+	Signal<std::shared_ptr<parser::CommandI>> signal_cmd;
 	Signal<Imei> signal_modified;
 
 	// Create Cache for data
@@ -174,8 +175,8 @@ int main(int argc, char** argv)
 	}
 
 	// connect cache signal
-	signal_cmd.connect([&](Imei imei, std::string cmd) {
-    client->send(imei, cmd);
+	signal_cmd.connect([&](std::shared_ptr<parser::CommandI> command) {
+    client->send(command);
   });
 
 	// Create a new HTTPS server

@@ -33,6 +33,7 @@ public:
 	int getSec() const;
 	int getMSec() const;
 	std::string getDateTime() const;
+	std::string getDateWithoudDelim() const;
 
 	void set();
 	void set(int year, int month = 1, int day = 1, int hour = 0, int min = 0, int sec = 0, int msec = 0);

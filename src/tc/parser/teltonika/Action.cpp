@@ -1,6 +1,6 @@
 #include <tc/parser/teltonika/Action.h>
 #include <tc/parser/teltonika/packet/Payload.h>
-#include <tc/parser/teltonika/packet/PacketCommand.h>
+#include <tc/parser/teltonika/Command.h>
 #include <tc/parser/internal/Request.h>
 
 namespace tc::parser::teltonika {

@@ -4,6 +4,7 @@
 #include <tc/common/Common.h>
 #include <mongocxx/client.hpp>
 #include <mongocxx/pool.hpp>
+#include <optional>
 #include <mini/ini.h>
 #include <json/json.h>
 

@@ -10,12 +10,12 @@ using namespace tc;
 using namespace mINI;
 
 namespace defaults {
-	constexpr int c_cache										= 100;
+	constexpr size_t c_cache_size						= 100;
 	constexpr int c_default_clean_interval	= 90000;
 	constexpr int c_packets_days_lifetime		= 3;
 };
 
-result_t readTelematicsConfig(INIStructure &ini, LogI &log, std::string &addr, int &port, int &cache)
+result_t readTelematicsConfig(INIStructure &ini, LogI &log, std::string &addr, int &port, size_t &cache_size)
 {
 	if (!ini["server"].has("port")) {
 		LG_ERR(log.logger(), "Missing HTTP port number.");
@@ -39,7 +39,7 @@ result_t readTelematicsConfig(INIStructure &ini, LogI &log, std::string &addr, i
 		return RES_NOENT;
 	}
 
-	cache = ini["server"].has("cache") ? std::stoi(ini["server"]["cache"]) : defaults::c_cache;
+	cache_size = ini["session"].has("cache") ? std::stoi(ini["session"]["cache"]) : defaults::c_cache_size;
 
 	return RES_OK;
 }
@@ -67,7 +67,7 @@ int main(int argc, char** argv)
 	spdlog::set_default_logger(log.logger());
 
 	if(!std::filesystem::exists(argv[1])) {
-		LG_ERR(log.logger(), "Config file does not exist. Exit...");
+		LG_ERR(log.logger(), "Config file does not exist. Exit ...");
 		return 1;
 	}
 
@@ -75,13 +75,14 @@ int main(int argc, char** argv)
 	INIStructure ini;
 
 	if(!file.read(ini)) {
-		LG_ERR(log.logger(), "Unable to read INI config file. Exiting...");
+		LG_ERR(log.logger(), "Unable to read INI config file. Exit ...");
 		return 1;
 	}
 
 	std::string addr;
-	int tcp_port, cache;
-	if (readTelematicsConfig(ini, log, addr, tcp_port, cache) != RES_OK) {
+	int tcp_port;
+	size_t cache_size;
+	if (readTelematicsConfig(ini, log, addr, tcp_port, cache_size) != RES_OK) {
 		return 1;
 	}
 
@@ -93,15 +94,17 @@ int main(int argc, char** argv)
 
 	// Create a new Asio service
 	const auto service = std::make_shared< server::tcp::AsioService >(10);
-	if (service->Start() != true) {
-		LG_ERR(log.logger(), "Unable to start asio service. Exiting...");
+	try {
+		service->Start();
+	} catch(const std::runtime_error& e) {
+		LG_ERR(log.logger(), "Caught exception {}", e.what());
 		return 1;
 	}
 
 	// Create DB client
 	auto db_client = std::make_shared< db::mongo::Client >(db::mongo::Client::ePackets);
 	if (db_client->load(ini) != RES_OK) {
-		LG_ERR(log.logger(), "Unable to parse db client config. Exiting...");
+		LG_ERR(log.logger(), "Unable to parse db client config. Exit ...");
 		return 1;
 	}
 
@@ -113,9 +116,9 @@ int main(int argc, char** argv)
 	}
 
 	// Create a new TCP server
-	auto server = std::make_shared< server::tcp::TelematicsServer >(service, db_client, cache, tcp_port, addr);
+	auto server = std::make_shared< server::tcp::TelematicsServer >(service, db_client, cache_size, tcp_port, addr);
 	if (server->Start() != true) {
-		LG_ERR(log.logger(), "Unable to start TCP server. Exiting...");
+		LG_ERR(log.logger(), "Unable to start TCP server. Exit ...");
 		return 1;
 	}
 	LG_NFO(log.logger(), "TCP server running on port {}", tcp_port);
@@ -129,7 +132,7 @@ int main(int argc, char** argv)
 
 	while (true) {
 		using milliseconds = std::chrono::milliseconds;
-		milliseconds interv = 15000ms;
+		milliseconds interv = 30000ms;
 		std::this_thread::sleep_for(interv);
 		LG_NFO(log.logger(), "Alive! connected sessions: {} threads: {} polling: {} started: {}",
 		 server->connected_sessions(), service->threads(), service->IsPolling(), service->IsStarted());

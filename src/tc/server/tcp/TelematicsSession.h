@@ -14,14 +14,20 @@ using namespace parser;
 
 class TelematicsSession : public CppServer::Asio::TCPSession, public tc::LogI, public parser::JsonI
 {
-	friend class HandlerI;
+	friend class TelematicsServer;
+	friend class InternalHandler;
 	friend class TeltonikaHandler;
 	friend class OmniHandler;
 
 public:
 	using CppServer::Asio::TCPSession::TCPSession;
 
+	TelematicsSession(const std::shared_ptr<TelematicsServer>& server, size_t cache_size);
+	TelematicsSession(const TelematicsSession&) = delete;
+	TelematicsSession(TelematicsSession&&) = delete;
+
 	const Imei imei() const;
+	size_t cacheSize() const;
 
 	result_t send(int buffer, const bool async = false);
 	result_t send(const uchar* buffer, size_t size, const bool async = false);
@@ -35,15 +41,15 @@ protected:
 	void onReceived(const void *buffer, size_t size) override;
 	result_t handlePayload(const void *buffer, size_t size);
 
-	std::shared_ptr<TelematicsServer> server();
+	std::shared_ptr<TelematicsServer> tServer();
 
 private:
 	result_t createHandler(Protocol protocol);
 	result_t savePacket(const std::shared_ptr<parser::Packet> &packet);
 
+	size_t iCacheSize;
 	Protocol iProtocol{Protocol::eUnknown};
 	std::unique_ptr<HandlerI> iHandler{nullptr};
-	std::unique_ptr<iot::Device> iDevice{nullptr};
 };
 
 } // namespace tc::server::tcp

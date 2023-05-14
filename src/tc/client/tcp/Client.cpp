@@ -1,4 +1,6 @@
 #include <tc/client/tcp/Client.h>
+#include <tc/parser/teltonika/Command.h>
+#include <tc/parser/omni/Command.h>
 
 namespace tc::client::tcp {
 
@@ -27,36 +29,23 @@ result_t Client::send(const common::Buf &buf)
 	return res;
 }
 
-result_t Client::send(std::shared_ptr< parser::teltonika::Command > command)
+result_t Client::send(std::shared_ptr< parser::CommandI > command)
 {
-	LG_NFO(this->logger(), "Sending command: [{}]", tc::uchar2string(command->iBuf.data(), command->iBuf.size()));
+	LG_NFO(this->logger(), "Sending command: [{}]", tc::uchar2string(command->buf().data(), command->size()));
 
 	if (command == nullptr) {
 		return RES_INVARG;
 	}
 
-	size_t len = command->iBuf.size() / 2;
+	size_t len = command->buf().size() / 2;
 
 	auto out = new char[len];
-	tc::hex2bin((char*) command->iBuf.data(), out);
+	tc::hex2bin((char*) command->buf().data(), out);
 
 	auto ok = SendAsync(out, len);
 	delete out;
 
 	return ok == true ? RES_OK : RES_ERROR;
-}
-
-result_t Client::send(const Imei &imei, const std::string command)
-{
-	result_t res = RES_OK;
-
-	auto cmd = std::make_shared< parser::teltonika::Command >(imei);
-	if ((res = cmd->create(command)) != RES_OK) {
-		LG_ERR(this->logger(), "Unable to create command");
-		return res;
-	}
-
-	return send(std::move(cmd));
 }
 
 void Client::onReceived(const void* buffer, size_t size)

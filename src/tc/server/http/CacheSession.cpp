@@ -39,7 +39,7 @@ void HTTPCacheSession::onReceivedRequest(const CppServer::HTTP::HTTPRequest& req
 	CppServer::HTTP::HTTPResponse resp;
 	if (result_t res; (res = iCache->handleAction(req, resp)) != RES_OK) {
 		LG_ERR(this->logger(), "Unable to handle action[{}][{}]", request.method(), request.url());
-		SendResponseAsync(resp);
+		SendResponse(resp);
 		return;
 	}
 

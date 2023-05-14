@@ -3,6 +3,7 @@
 
 #include <tc/parser/teltonika/packet/Payload.h>
 #include <tc/common/SysTime.h>
+#include <tc/parser/Protocol.h>
 
 namespace tc::server::iot {
 
@@ -11,8 +12,8 @@ class Device : public tc::LogI, public parser::JsonI
 public:
   using PayloadPackets = std::deque< std::shared_ptr< parser::Packet > >;
 
-	explicit Device(const Imei &imei);
-	explicit Device(const Imei &imei, size_t cache);
+	explicit Device(const Imei &imei, parser::Protocol::Type type);
+	explicit Device(const Imei &imei, parser::Protocol::Type type, size_t cache);
 
 	virtual ~Device() = default;
 
@@ -33,7 +34,7 @@ public:
 	virtual size_t total() const;
 	virtual int64_t timestamp() const;
 	virtual Imei imei() const;
-	virtual std::string type() const;
+	virtual parser::Protocol::Type type() const;
 
 	virtual PayloadPackets &packets();
 
@@ -42,10 +43,9 @@ protected:
 	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
 
 	Imei iImei{"unknown"};
+	parser::Protocol::Type iType{parser::Protocol::eUnknown};
+
 	size_t iCacheSize;
-
-	std::string iType{"TST100"};
-
 	SysTime iUptime {static_cast<int64_t>(0LL)};
 	int64_t iTimestamp{SysTime(true).timestamp()};
 	int64_t iTotal{0LL};

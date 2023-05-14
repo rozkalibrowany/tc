@@ -8,10 +8,11 @@ namespace tc::parser::internal {
 class Action {
 public:
 
+	// 1 due to range in magic enum
 	enum Type {
-		unknown = 0,
-		command,
-		request,
+		eUnknown = 1,
+		eCommand,
+		eData
 	};
 
 	static Type get(const uchar* buffer, size_t size);

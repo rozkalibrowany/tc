@@ -6,6 +6,7 @@
 #include <tc/common/Common.h>
 #include <tc/iot/Device.h>
 #include <tc/parser/Json.h>
+#include <tc/common/MagicEnum.h>
 
 namespace tc::server::iot {
 
@@ -179,8 +180,9 @@ result_t Devices<T>::fromJsonImpl(const Json::Value &rhs, bool active)
 	// add unique devices
 	for (auto &dev : devices) {
 		auto imei = dev["Imei"].asString();
+		auto type = enum_cast<parser::Protocol::Type>(dev["Type"].asString()).value_or(parser::Protocol::eUnknown);
 		if (has(imei) == false) {
-			auto device = std::make_shared < T >(imei);
+			auto device = std::make_shared < T >(imei, type);
 			if (device->fromJson(dev, active) != RES_OK) {
 				continue;
 			}

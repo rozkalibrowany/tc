@@ -23,7 +23,7 @@ protected:
 	result_t fromJsonImpl(const Json::Value &rhs, bool root) override;
 
 private:
-	float iVoltage{0.f};
+	float iVoltage{0.0};
 };
 
 } // namespace tc::parser::omni::records

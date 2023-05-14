@@ -34,7 +34,6 @@ int main(int argc, char** argv)
 				.addHelp(true, argv[0], "Telematics Connector TCP Command Client.");
 
 		cmd.parse();
-		port = std::stoi(address_full.substr(address_full.find(":") + 1));
 
 		if (cmd.isDefined("-a"))
 			address_full = cmd.value("-a");
@@ -53,6 +52,8 @@ int main(int argc, char** argv)
     return 1;
   }
 
+	port = std::stoi(address_full.substr(address_full.find(":") + 1));
+
 	auto logger = spdlog::stdout_color_mt("console");
 	LogI log(logger);
 	spdlog::set_default_logger(log.logger());
@@ -68,19 +69,16 @@ int main(int argc, char** argv)
 	}
 
 	address = address_full.substr(0, address_full.find(":", 0));
+	
+	parser::teltonika::Command cmd(command, imei);
+	std::vector<char> bin_cmd(cmd.size() / 2);
+	hex2bin((char*) cmd.buf().data(), (char*) bin_cmd.data());
 
-	parser::teltonika::Command cmd(imei);
-
-	if (cmd.create(command) != RES_OK) {
-		LG_ERR(log.logger(), "Unable to create command.");
-		return 1;
-	}
-
-	std::vector<char> bin_cmd(cmd.iBuf.size() / 2);
-	hex2bin((char*) cmd.iBuf.data(), (char*) bin_cmd.data());
-
+	LG_NFO(log.logger(), "data: {} size: {}", tc::uchar2string(cmd.buf().data(), cmd.size()), bin_cmd.size());
 	// Create a new Asio service
-	auto service = std::make_shared<tc::asio::AsioService>();
+	auto service = std::make_shared<tc::asio::AsioService>(1);
+
+	LG_ERR(log.logger(), "address {} port {} command {}", address, port, command);
 
 	// Start the Asio service
 	LG_NFO(log.logger(), "Asio service starting...");
@@ -95,7 +93,7 @@ int main(int argc, char** argv)
 
 	// Connect the client
 	LG_NFO(log.logger(), "Client connecting...");
-	if(!client->ConnectAsync()) {
+	if(!client->Connect()) {
 		LG_ERR(log.logger(), "Connect async");
 		return 1;
 	}
@@ -103,7 +101,7 @@ int main(int argc, char** argv)
 
 	while (true) {
 		if (client->IsConnected() == false) {
-			client->ConnectAsync();
+			client->Connect();
 		}
 		if (client->SendAsync((const void*) bin_cmd.data(), bin_cmd.size())) {
 			break;

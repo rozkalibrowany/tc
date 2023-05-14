@@ -63,6 +63,23 @@ int SysTime::getMSec() const
 	return iTimestamp % 1000;
 }
 
+std::string SysTime::getDateWithoudDelim() const
+{
+	std::string datetime;
+	datetime += std::to_string(getYear()).substr(2, 3);
+	datetime += getMonth() < 10 ? "0" : "";
+	datetime += std::to_string(getMonth());
+	datetime += getDay() < 10 ? "0" : "";
+	datetime += std::to_string(getDay());
+	datetime += getHour() < 10 ? "0" : "";
+	datetime += std::to_string(getHour());
+	datetime += getMin() < 10 ? "0" : "";
+	datetime += std::to_string(getMin());
+	datetime += getSec() < 10 ? "0" : "";
+	datetime += std::to_string(getSec());
+	return datetime;
+}
+
 std::string SysTime::getDateTime() const
 {
 	std::string datetime;

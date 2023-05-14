@@ -21,7 +21,7 @@ public:
 	long readL(int bytes, int offset = 0);
 	uint readU(int bytes, int offset = 0);
 	int read(int bytes, int offset = 0);
-	uchar* readS(int bytes, int offset = 0);
+	common::Buf readS(int bytes, int offset = 0);
 
 	void skip(int bytes);
 	void setOffset(int offset);

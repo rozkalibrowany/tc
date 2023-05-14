@@ -6,6 +6,7 @@
 #include <tc/parser/teltonika/Command.h>
 #include <tc/parser/Packet.h>
 #include <tc/common/CRC16.h>
+#include <tc/parser/Protocol.h>
 
 namespace tc::parser::teltonika {
 
@@ -28,29 +29,79 @@ namespace tc::parser::teltonika {
 	{"restart", "screbootsys"},
 	{"get_mode", "scgetmode"}};
 
-Command::Command(const std::string &imei)
-	: tc::LogI("console")
-	, iImei(imei)
+Command::Command(const uchar* cbuf, size_t size)
 {
-	// nothing to do
+	parse(cbuf, size);
 }
 
-result_t Command::create(const std::string &cmd, bool cr)
+Command::Command(const std::string& cmd, const std::string& imei)
+{
+	try {
+		create(cmd, imei);
+	} catch (const std::invalid_argument &e) {
+		LG_NFO(this->logger(), "Caught exception [{}]", e.what());
+	}
+}
+
+result_t Command::parse(const uchar* cbuf, size_t size)
 {
 	result_t res = RES_OK;
+	LG_NFO(this->logger(), "parse: {}", uchar2string(cbuf, size));
 
-	if (!iBuf.empty()) iBuf.clear();
+	common::Buf buf((uchar *)cbuf, size);
+	Reader reader(buf);
+
+	if (int protocol; (protocol = reader.read(1, 1)) != (int) Protocol::eTeltonika) 
+		throw std::invalid_argument(fmt::format("Invalid protocol [{}]", protocol)); 
+
+	if (int id; (id = reader.read(1, 2)) != (uchar) CommandI::c_id)
+		throw std::invalid_argument(fmt::format("Invalid command [{}]", id)); 
+
+	auto imei_len = reader.readU(1, 3);
+	LG_NFO(this->logger(), "imei_len: {}", imei_len);
+	iImei = std::string((const char*) reader.readS(imei_len, 4).data());
+	iBuf = common::Buf(cbuf + 4 + imei_len, size - 4 - imei_len);
+
+	LG_NFO(this->logger(), "command: {} offset: {}", tc::uchar2string(iBuf.data(), iBuf.size()), reader.offset());
+
+	return res;
+}
+
+void Command::create(const std::string &cmd, const std::string& imei, Protocol::Type type)
+{
+	LG_NFO(this->logger(), "cmd[{}] imei[{}]", cmd, imei);
+
+	iBuf.clear();
+	try {
+		CommandI::create(cmd, imei, type);
+	} catch (const std::invalid_argument &e) {
+		LG_NFO(this->logger(), "Caught exception [{}]", e.what());
+		return;
+	}
+
+	iBuf.reserve(27 + imei.size() + cmd.size());
+
+	if (cmd.empty() || imei.empty())
+		throw std::invalid_argument("Invalid arguments"); 
 
 	// 1 zero-byte
 	auto val = byte2string(0);
 	iBuf.insert(val.data(), val.length());
 
+	// protocol type
+	val = byte2string(Protocol::eTeltonika);
+	iBuf.insert(val.data(), val.length());
+
+	// packet type
+	val = byte2string((int) CommandI::c_id);
+	iBuf.insert(val.data(), val.length());
+
 	// imei length
-	val = byte2string(iImei.length());
+	val = byte2string(imei.length());
 	iBuf.insert(val.data(), val.length());
 
 	// imei
-	val = tc::tohex(iImei, cr);
+	val = tc::tohex(imei);
 	iBuf.insert(val.data(), val.length());
 
 	// 4 zero-bytes
@@ -58,9 +109,8 @@ result_t Command::create(const std::string &cmd, bool cr)
 	iBuf.insert(val.data(), val.length());
 
 	common::Buf payload;
-	if ((res = getPayload(cmd, payload)) != RES_OK) {
-		return res;
-	}
+	if (getPayload(cmd, payload) != RES_OK)
+		throw std::invalid_argument(fmt::format("Unknown command [{}]", cmd)); 
 
 	// CRC
 	common::CRC16 crc;
@@ -81,14 +131,14 @@ result_t Command::create(const std::string &cmd, bool cr)
 	iBuf.insert(payload.begin(), payload.end());
 
 	// command end symbol
-	val = cr ? byte2string(0x0D0A) : byte2string(0);
+	val = byte2string(0);
 	iBuf.insert(val.data(), val.length());
 
 	// CRC
 	val = byte2string(sum, 3*2);
 	iBuf.insert(val.data(), val.length());
 
-	return res;
+	iImei = imei;
 }
 
 result_t Command::getPayload(const std::string &cmd, common::Buf &buf)
@@ -102,7 +152,7 @@ result_t Command::getPayload(const std::string &cmd, common::Buf &buf)
 	buf.insert(val.data(), val.length());
 
 	// type command
-	val = byte2string(TYPE_PACKET_COMMAND);
+	val = byte2string(c_id);
 	buf.insert(val.data(), val.length());
 
 	// 3 zero-bytes
@@ -129,19 +179,3 @@ result_t Command::getPayload(const std::string &cmd, common::Buf &buf)
 }
 
 } // namespace tc::parser::teltonika
-
-
-/*
-		"00000000000000130C01050000000B73637365746D6F646520320100001F93"
-		"00000000000000180C01050000001073637365746C656473776974636820300100004966"; // scsetledswitch off
-		"00000000000000130C01050000000B73636C65646374726C20310100003205"; // scledctrl turn ON
-		"00000000000000130C01050000000B73636c65646374726c2030010000A204 // scledctrl off
-		"00000000000000160C01050000000E7363656E67696E656374726C2031010000A39E" engine on BAD?
-		"00000000000000160C01050000000E7363656e67696e656374726c2031010000E39C // engine on
-		"00000000000000140C01050000000C73636C6F636B6374726C2030010000D2AE" sclockctrl lock off
-		"00000000000000140C01050000000C73636C6F636B6374726C203001000042C4
-		"00000000000000140C01050000000C73636C6F636B6374726C203101000042AF" sclockctrl lock on
-
-		CRC from C (first from left) until 01
-		0C 010500000007676574696E666F 01
-*/

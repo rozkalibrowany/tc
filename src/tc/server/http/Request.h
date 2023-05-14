@@ -5,6 +5,7 @@
 #include <tc/common/Common.h>
 #include <tc/common/Buf.h>
 #include <tc/parser/RequestI.h>
+#include <optional>
 
 namespace tc::server::http {
 

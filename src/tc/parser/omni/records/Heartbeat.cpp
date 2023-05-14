@@ -1,4 +1,5 @@
 #include <tc/parser/omni/records/Heartbeat.h>
+#include <cstdlib>
 
 namespace tc::parser::omni::records {
 
@@ -16,15 +17,38 @@ result_t Heartbeat::parse(const common::Buf &buf)
 	auto locked = (int) reader.read(1);
 	reader.skip(1);
 
-	auto voltage = (int) reader.read(3);
+	auto voltage = std::string((const char*)reader.readS(3).data(), 3);
 	reader.skip(1);
 
-	auto signal = (int8_t) reader.read(2);
+	auto signal = atoi((const char*) reader.readS(3).data());
 	reader.skip(1);
 
 	iLocked = locked;
-	iVoltage = std::ceil(voltage * 100) / 100;
+	iVoltage = (std::stoi(voltage) * 1.0 / 100.0);
 	iSignal = signal;
+
+	return RES_OK;
+}
+
+result_t Heartbeat::toJsonImpl(Json::Value &rhs, bool root) const
+{
+	rhs["Locked"] = iLocked;
+	rhs["Voltage"] = fmt::format("{:.2f}", iVoltage);
+	rhs["Signal"] = iSignal;
+
+	return RES_OK;
+}
+
+result_t Heartbeat::fromJsonImpl(const Json::Value &rhs, bool root)
+{
+	if (rhs.isMember("Locked"))
+		iLocked = rhs["Locked"].asBool();
+
+	if (rhs.isMember("Voltage"))
+		iVoltage = rhs["Voltage"].asFloat();
+
+	if (rhs.isMember("Signal"))
+		iSignal = rhs["Signal"].asUInt();
 
 	return RES_OK;
 }
@@ -47,20 +71,6 @@ float Heartbeat::voltage() const
 uint8_t Heartbeat::signal() const
 {
 	return iSignal;
-}
-
-result_t Heartbeat::toJsonImpl(Json::Value &rhs, bool root) const
-{
-	rhs["Locked"] = iLocked;
-	rhs["Voltage"] = iVoltage;
-	rhs["Signal"] = iSignal;
-
-	return RES_OK;
-}
-
-result_t Heartbeat::fromJsonImpl(const Json::Value &rhs, bool root)
-{
-	return RES_NOIMPL;
 }
 
 } // namespace tc::parser::omni::records

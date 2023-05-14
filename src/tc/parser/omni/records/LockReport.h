@@ -14,7 +14,7 @@ public:
 	~LockReport() = default;
 
 	result_t parse(const common::Buf &buf) override;
-	result_t response(common::Buf &response) override{};
+	result_t response(common::Buf &response) override;
 	
 	std::chrono::minutes cycle_time() const;
 

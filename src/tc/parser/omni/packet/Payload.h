@@ -43,7 +43,7 @@ protected:
 
 	size_t iSize {0};
 	std::string iManufacturer {"OM"};
-	std::string iDateTime;
+	SysTime iDateTime{true};
 	std::vector<SptrRecord> iRecords;
 };
 

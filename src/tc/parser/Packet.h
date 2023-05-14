@@ -8,8 +8,6 @@
 #include <compare>
 
 #define TYPE_PACKET_COMMAND			0x5
-#define TYPE_PACKET_RESPONSE		0x6
-#define TYPE_PACKET_REQUEST			0x7
 #define IMEI_LENGTH							0xF
 
 namespace tc::parser {

@@ -1,5 +1,6 @@
 #include <tc/server/http/Action.h>
 #include <tc/parser/teltonika/Command.h>
+#include <tc/parser/omni/Command.h>
 
 namespace tc::server::http {
 
@@ -56,14 +57,17 @@ result_t Action::handlePost(const Request &request)
 result_t Action::parseDevice(const Request &request)
 {
 	if (request.method() == Request::ePost) {
-		auto it = teltonika::Command::sMapping.find(request.command());
-		if (it != teltonika::Command::sMapping.end()) {
-			return RES_OK;
+		auto teltonika = teltonika::Command::sMapping.find(request.command());
+		auto omni = omni::Command::sMapping.find(request.command());
+		if (teltonika == teltonika::Command::sMapping.end() && omni == omni::Command::sMapping.end()) {
+			return RES_NOENT;
 		}
 
 		if (request.command().find("?") != std::string::npos) {
 			return parseQuery(request);
 		}
+
+		return RES_OK;
 	}
 
 	if (request.method() == Request::eGet) {

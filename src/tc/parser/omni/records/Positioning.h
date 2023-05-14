@@ -21,7 +21,14 @@ public:
 	result_t parse(const common::Buf &buf) override;
 	result_t response(common::Buf &response) override;
 
+protected:
+	result_t toJsonImpl(Json::Value &rhs, bool root) const override;
+	result_t fromJsonImpl(const Json::Value &rhs, bool root) override;
+
 private:
+	result_t setLongitude(const std::string &longitude);
+	result_t setLatitude(const std::string &latitude);
+
 	std::string iLatitude;
 	std::string iLongitude;
 	std::string iUtcTiming;
@@ -29,9 +36,9 @@ private:
 	uint8_t iSatellites {0};
 	float iAccuracy {0.f};
 	uint8_t iInstructionAcquisition{0};
-	LocationStatus iLocationStatus{eInvalidLocation};
 	uint8_t iAltitude{0};
 	char iAltitudeUnit{'m'};
+	LocationStatus iLocationStatus{eInvalidLocation};
 };
 
 } // namespace tc::parser::omni::records

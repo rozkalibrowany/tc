@@ -1,16 +1,18 @@
 #include <tc/iot/Device.h>
+#include <tc/common/MagicEnum.h>
 
 namespace tc::server::iot {
 
-Device::Device(const Imei &imei, size_t cache)
+Device::Device(const Imei &imei, parser::Protocol::Type type, size_t cache)
  : iImei(imei)
+ , iType(type)
  , iCacheSize(cache)
 {
 	// nothing to do
 }
 
-Device::Device(const Imei &imei)
- : Device(imei, 2)
+Device::Device(const Imei &imei, parser::Protocol::Type type)
+ : Device(imei, type, 2)
 {
 	// nothing to do
 }
@@ -97,7 +99,7 @@ size_t Device::total() const
 	return iTotal;
 }
 
-std::string Device::type() const
+parser::Protocol::Type Device::type() const
 {
 	return iType;
 }
@@ -129,7 +131,7 @@ result_t Device::fromJsonImpl(const Json::Value &rhs, bool root)
 		else if (!id.compare("Timestamp"))
 			iTimestamp = rhs[id].asInt64();
 		else if (!id.compare("Type"))
-			iType = rhs[id].asString();
+			iType = enum_cast<parser::Protocol::Type>(rhs[id].asString()).value_or(parser::Protocol::eUnknown);
 		else if (!id.compare("Packets"))
 			iTotal = rhs[id].asInt64();
 	}
@@ -142,7 +144,7 @@ result_t Device::toJsonImpl(Json::Value &rhs, bool root) const
 	auto systime = SysTime(iTimestamp);
 
 	rhs["Imei"] = iImei;
-	rhs["Type"] = iType;
+	rhs["Type"] = std::string(enum_name(iType));
 	rhs["Timestamp"] = iTimestamp;
 	rhs["Datetime"] = systime.getDateTime();
 	const auto time = SysTime().timestamp(uptime());

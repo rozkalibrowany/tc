@@ -26,9 +26,9 @@ public:
 
 	static result_t fromJsonString(const std::string &json_doc, Json::Value &rhs);
 
-	explicit Vehicle(const Imei &imei);
-	explicit Vehicle(const Imei &imei, size_t cache);
-	explicit Vehicle(const Imei &imei, size_t cache, Source source);
+	explicit Vehicle(const Imei &imei, parser::Protocol::Type type);
+	explicit Vehicle(const Imei &imei, parser::Protocol::Type type, size_t cache);
+	explicit Vehicle(const Imei &imei, parser::Protocol::Type type, size_t cache, Source source);
 
 	bool operator==(const Device &rhs) const;
 	bool operator!=(const Device &rhs) const;
@@ -43,7 +43,7 @@ public:
 	const std::string id() const;
 	const std::string fleet() const;
 	bool online() const;
-
+	
 	void setID(const std::string &id);
 	void setFleet(const std::string &id);
 

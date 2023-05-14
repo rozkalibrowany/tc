@@ -9,6 +9,7 @@ namespace tc::parser {
 class RequestI : public tc::LogI
 {
 public:
+	static constexpr uchar c_id = 0x6;
 
 	enum Type {
 		eUnknown = 0,

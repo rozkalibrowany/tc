@@ -166,7 +166,7 @@ result_t Request::toInternal(common::Buf &buf, bool cr)
 	buf.insert(val.data(), val.length());
 
 	// packet type
-	val = byte2string((int) TYPE_PACKET_REQUEST);
+	val = byte2string((int) RequestI::c_id);
 	buf.insert(val.data(), val.length());
 
 	// 1 zero-byte

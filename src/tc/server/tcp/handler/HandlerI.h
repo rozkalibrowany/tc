@@ -8,7 +8,7 @@ namespace tc::server::tcp {
 
 class TelematicsSession;
 
-class HandlerI : public parser::Protocol, public tc::LogI {
+class HandlerI : public parser::Protocol, public parser::JsonI {
 	friend class TelematicsSession;
 public:
 	using parser::Protocol::Protocol;
@@ -26,6 +26,12 @@ public:
 	virtual const Imei imei() const { return iImei; }
 
 protected:
+	result_t toJsonImpl(Json::Value &rhs, bool root) const override
+	{
+		if(!iDevice) return RES_NOENT;
+		return iDevice->toJson(rhs, root);
+	}
+
 	std::mutex iMutex;
 	Imei iImei{"unknown"};
 	std::shared_ptr<TelematicsSession> iSession;

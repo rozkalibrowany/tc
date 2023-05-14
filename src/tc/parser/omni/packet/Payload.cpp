@@ -51,8 +51,16 @@ result_t Payload::parse(const common::Buf &buf)
 	if (!index && (index + DATETIME_SIZE > buf.size()))
 		return RES_NOMEM;
 
-	iDateTime.reserve(DATETIME_SIZE);
-	iDateTime = std::string((const char*) (buf.cdata() + index), DATETIME_SIZE);
+	auto year = atoi(buf.read(2, index).ccdata()) + 2000;
+	auto month = atoi(buf.read(2, index + 2).ccdata());
+	auto day = atoi(buf.read(2, index + 4).ccdata());
+	auto hour = atoi(buf.read(2, index + 6).ccdata());
+	auto min = atoi(buf.read(2, index + 8).ccdata());
+	auto sec = atoi(buf.read(2, index + 10).ccdata());
+	iDateTime.set(year, month, day, hour, min, sec);
+
+	LG_NFO(this->logger(), "Datetime: {}", iDateTime.getDateWithoudDelim());
+
 	iSize = buf.size();
 
 	return RES_OK;
@@ -127,7 +135,7 @@ result_t Payload::getResponse(common::Buf &buf)
 	}
 
 	Command command(imei());
-	if (command.init(buf, imei(), iDateTime) != RES_OK) {
+	if (command.create(buf, imei(), iDateTime.getDateWithoudDelim()) != RES_OK) {
 		LG_ERR(this->logger(), "[{}] Unable to create command", imei());
 	}
 

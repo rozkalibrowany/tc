@@ -9,7 +9,7 @@ bool Request::hasRequest(const uchar* buf, size_t size)
 		return isRequest;
 	}
 
-	isRequest |= contains(buf, size, (uchar) TYPE_PACKET_REQUEST);
+	isRequest |= buf[1] == static_cast<uchar>(Request::c_id) ? true : false;
 
 	return isRequest;
 }

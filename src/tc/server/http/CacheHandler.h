@@ -4,8 +4,8 @@
 #include <server/http/https_server.h>
 #include <tc/iot/Devices.h>
 #include <tc/iot/Vehicle.h>
-#include <tc/parser/teltonika/Command.h>
 #include <tc/server/http/Action.h>
+#include <tc/parser/CommandI.h>
 #include <tc/common/Signal.h>
 #include <queue>
 
@@ -17,7 +17,7 @@ class CacheHandler : public CppCommon::Singleton<CacheHandler>, public tc::LogI
 {
 	friend CppCommon::Singleton<CacheHandler>;
 public:
-	CacheHandler(Signal<Imei, std::string> &signal, Signal<Imei> &signal_modified);
+	CacheHandler(Signal<std::shared_ptr<parser::CommandI>> &signal, Signal<Imei> &signal_modified);
 
 	bool hasImei(const Imei imei) const;
 
@@ -37,7 +37,7 @@ private:
 	result_t set(Request &request, CppServer::HTTP::HTTPResponse &response);
 	result_t decodeJson(const std::string &data);
 
-	Signal<Imei, std::string> &iSignal;
+	Signal<std::shared_ptr<parser::CommandI>> &iSignal;
 	Signal<Imei> &iSignalModified;
 	Json::Value lastLocation;
 

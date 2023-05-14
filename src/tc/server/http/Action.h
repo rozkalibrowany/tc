@@ -3,6 +3,7 @@
 
 #include <tc/server/http/Request.h>
 #include <tc/common/Common.h>
+#include <optional>
 
 namespace tc::server::http {
 

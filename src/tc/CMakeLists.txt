@@ -8,7 +8,7 @@ TcAddLibrary(
 	INCLUDE "${TcIncludeDir}"
 	LIBRARIES
 		spdlog::lib
-		fmt::lib
+		fmt
 	VERSION ${TcVersion}
 )
 
@@ -57,7 +57,6 @@ TcAddLibrary(
 	SOURCE "${src}/server/tcp/*.cpp" "${src}/server/tcp/handler/*.cpp"
 	INCLUDE "${TcIncludeDir}"
 	LIBRARIES
-		pthread
 		cppserver
 		tc-asio
 		tc-db
@@ -66,8 +65,8 @@ TcAddLibrary(
 	VERSION ${TcVersion}
 )
 
-TcAddExecutable(tc-telematics-server "${src}/telematics-server.cpp" tc-server
-	LINK_FLAGS "-Wl,--no-as-needed")
+#TcAddExecutable(tc-telematics-server "${src}/telematics-server.cpp" tc-server
+#	LINK_FLAGS "-Wl,--no-as-needed")
 
 TcAddExecutable(tc-telematics-server-omni "${src}/telematics-server.cpp" tc-server
 	LINK_FLAGS "-Wl,--no-as-needed")
@@ -85,8 +84,8 @@ TcAddLibrary(
 	VERSION ${TcVersion}
 )
 
-TcAddExecutable(tc-telematics-client "${src}/telematics-client.cpp" tc-client
-	LINK_FLAGS "-Wl,--no-as-needed")
+#TcAddExecutable(tc-telematics-client "${src}/telematics-client.cpp" tc-client
+#	LINK_FLAGS "-Wl,--no-as-needed")
 
 
 TcAddLibrary(
@@ -94,7 +93,6 @@ TcAddLibrary(
 	SOURCE "${src}/server/http/*.cpp"
 	INCLUDE "${TcIncludeDir}"
 	LIBRARIES
-		pthread
 		cppserver
 		fmt::lib
 		tc-asio

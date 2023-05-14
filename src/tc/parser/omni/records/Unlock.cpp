@@ -31,19 +31,6 @@ result_t Unlock::parse(const common::Buf &buf)
 	return RES_OK;
 }
 
-std::string hexify(unsigned int n)
-{
-  std::string res;
-
-  do
-  {
-    res += "0123456789ABCDEF"[n % 16];
-    n >>= 4;
-  } while(n);
-
-  return std::string(res.rbegin(), res.rend());
-}
-
 result_t Unlock::response(common::Buf& response)
 {
 	// re

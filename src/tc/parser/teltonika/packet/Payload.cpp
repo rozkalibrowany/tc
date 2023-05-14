@@ -5,31 +5,25 @@ namespace tc::parser::teltonika {
 
 bool Payload::valid(const uchar* buf, size_t size)
 {
-	return (hasPayloadImei(buf, size));  // hasPayload(buf, size));
+	return (hasPayloadImei(buf, size) || hasPayload(buf, size)); // hasPayload(buf, size));
 }
 
 bool Payload::hasPayload(const uchar* buf, size_t size)
 {
-	bool isPayload = false;
-	if (size < Payload::DATA_MIN_SIZE) {
-		return isPayload;
+	if (size < Payload::DATA_MIN_SIZE || buf[3] != 0) {
+		return false;
 	}
 
-	isPayload |= (contains(buf, size, '8') || contains(buf, size, '\x8E'));
-
-	return isPayload;
+	return (buf[8] == static_cast<uchar>('8') || buf[8] == static_cast<uchar>('\x8E'));
 }
 
 bool Payload::hasPayloadImei(const uchar* buf, size_t size)
 {
-	bool isPayload = false;
-	if (size < Payload::IMEI_MIN_SIZE || size >= Payload::DATA_MIN_SIZE) {
-		return isPayload;
+	if (size != Payload::IMEI_SIZE) {
+		return false;
 	}
 
-	isPayload |= (((buf[0]) << 8) | (((buf[1]) << 0) > 0)) > 0 ? true : false;
-
-	return isPayload;
+	return (buf[6] == static_cast<uchar>('8') || buf[6] == static_cast<uchar>('\x8E'));
 }
 
 bool Payload::contains(const uchar* buf, size_t size, uchar c)
@@ -53,7 +47,7 @@ int Payload::getIdx(const uchar* cbuf, size_t size, const uchar c) {
 
 result_t Payload::parse(const uchar* cbuf, size_t size, size_t /* offset */)
 {
-	if (size < Payload::IMEI_MIN_SIZE) {
+	if (size < Payload::IMEI_SIZE) {
 		return RES_NOENT;
 	}
 

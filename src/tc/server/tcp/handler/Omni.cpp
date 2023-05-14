@@ -39,10 +39,10 @@ result_t OmniHandler::handle(const uchar* buffer, size_t size)
 	LG_NFO(this->logger(), "Device imei: {} cached: {}", (std::string) iDevice->imei(), iDevice->cached());
 
 
-	/*auto save = iSession->server()->dbClient()->enabled();*/
+	/*auto save = iSession->tServer()->dbClient()->enabled();*/
 	if (result_t res; (res = iSession->savePacket(payload)) != RES_OK) { // save && 
-		LG_ERR(this->logger(), "[{}] Unable to save [{}]", enum_name(iType), buf.asStringWithoutSuffix(1));
-		return res;
+		//LG_ERR(this->logger(), "[{}] Unable to save [{}]", enum_name(iType), buf.asStringWithoutSuffix(1));
+		//return res;
 	}
 
 
@@ -68,7 +68,7 @@ result_t OmniHandler::initDevice(std::shared_ptr<Payload> &payload, const common
 	auto imei = payload->imei();
 	LG_NFO(this->logger(), "[{}] Imei parsed OK[{}]", enum_name(iType), imei);
 
-	iDevice = std::make_unique<iot::Device>(imei); // TODO: now omitting cache size
+	iDevice = std::make_unique<iot::Device>(imei, iType, iSession->cacheSize());
 	iImei = imei;
 
 	return RES_OK;
@@ -78,11 +78,11 @@ result_t OmniHandler::sendResponse(std::shared_ptr<Payload> &payload)
 {
 	common::Buf buf;
 	if (result_t res; (res = payload->getResponse(buf)) != RES_OK) {
-		LG_ERR(this->logger(), "[{}] Unable to get response [{}]", enum_name(iType));
+		//LG_ERR(this->logger(), "[{}] Unable to get response [{}]", enum_name(iType));
 		return res;
 	}
 
-	LG_NFO(this->logger(), "[{}] Sending Response[{}]", enum_name(iType), buf.asString());
+	LG_NFO(this->logger(), "[{}] Sending Response[{}]", enum_name(iType), buf.asStringWithoutSuffix(1));
 	return iSession->send(buf.cdata(), buf.size());
 }
 

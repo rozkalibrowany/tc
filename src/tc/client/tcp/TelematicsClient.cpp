@@ -27,7 +27,7 @@ void TelematicsClient::onReceived(const void *buffer, size_t size)
 
 void TelematicsClient::onError(int error, const std::string &category, const std::string &message)
 {
-	LG_DBG(this->logger(), "Chat TCP client caught an error: {} [{}] : {}", error, category, message);
+	LG_DBG(this->logger(), "TCP client caught an error: {} [{}] : {}", error, category, message);
 }
 
 } // namespace tc::client::tcp
